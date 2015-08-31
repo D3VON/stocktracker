@@ -1,0 +1,130 @@
+{
+ "query": {
+  "count": 7,
+  "created": "2014-05-03T07:28:53Z",
+  "lang": "en-US",
+  "diagnostics": {
+   "url": [
+    {
+     "execution-start-time": "0",
+     "execution-stop-time": "69",
+     "execution-time": "69",
+     "content": "http://www.datatables.org/yahoo/finance/yahoo.finance.historicaldata.xml"
+    },
+    {
+     "execution-start-time": "73",
+     "execution-stop-time": "251",
+     "execution-time": "178",
+     "content": "http://ichart.finance.yahoo.com/table.csv?g=d&f=2014&e=2&c=2014&b=24&a=3&d=4&s=FB"
+    },
+    {
+     "execution-start-time": "254",
+     "execution-stop-time": "351",
+     "execution-time": "97",
+     "content": "http://ichart.finance.yahoo.com/table.csv?g=d&f=2014&e=2&c=2014&b=24&a=3&d=4&s=FB"
+    }
+   ],
+   "publiclyCallable": "true",
+   "query": [
+    {
+     "execution-start-time": "73",
+     "execution-stop-time": "253",
+     "execution-time": "180",
+     "params": "{url=[http://ichart.finance.yahoo.com/table.csv?g=d&f=2014&e=2&c=2014&b=24&a=3&d=4&s=FB]}",
+     "content": "select * from csv(0,1) where url=@url"
+    },
+    {
+     "execution-start-time": "253",
+     "execution-stop-time": "352",
+     "execution-time": "99",
+     "params": "{columnsNames=[Date,Open,High,Low,Close,Volume,Adj_Close], url=[http://ichart.finance.yahoo.com/table.csv?g=d&f=2014&e=2&c=2014&b=24&a=3&d=4&s=FB]}",
+     "content": "select * from csv(2,0) where url=@url and columns=@columnsNames"
+    }
+   ],
+   "javascript": {
+    "execution-start-time": "72",
+    "execution-stop-time": "355",
+    "execution-time": "283",
+    "instructions-used": "57984",
+    "table-name": "yahoo.finance.historicaldata"
+   },
+   "user-time": "356",
+   "service-time": "344",
+   "build-version": "0.2.2467"
+  },
+  "results": {
+   "quote": [
+    {
+     "Symbol": "FB",
+     "Date": "2014-05-02",
+     "Open": "61.30",
+     "High": "61.89",
+     "Low": "60.18",
+     "Close": "60.46",
+     "Volume": "54114500",
+     "Adj_Close": "60.46"
+    },
+    {
+     "Symbol": "FB",
+     "Date": "2014-05-01",
+     "Open": "60.43",
+     "High": "62.28",
+     "Low": "60.21",
+     "Close": "61.15",
+     "Volume": "82342300",
+     "Adj_Close": "61.15"
+    },
+    {
+     "Symbol": "FB",
+     "Date": "2014-04-30",
+     "Open": "57.58",
+     "High": "59.85",
+     "Low": "57.16",
+     "Close": "59.78",
+     "Volume": "75896700",
+     "Adj_Close": "59.78"
+    },
+    {
+     "Symbol": "FB",
+     "Date": "2014-04-29",
+     "Open": "56.09",
+     "High": "58.28",
+     "Low": "55.84",
+     "Close": "58.15",
+     "Volume": "75489900",
+     "Adj_Close": "58.15"
+    },
+    {
+     "Symbol": "FB",
+     "Date": "2014-04-28",
+     "Open": "58.05",
+     "High": "58.31",
+     "Low": "54.66",
+     "Close": "56.14",
+     "Volume": "107647700",
+     "Adj_Close": "56.14"
+    },
+    {
+     "Symbol": "FB",
+     "Date": "2014-04-25",
+     "Open": "59.97",
+     "High": "60.01",
+     "Low": "57.57",
+     "Close": "57.71",
+     "Volume": "92288700",
+     "Adj_Close": "57.71"
+    },
+    {
+     "Symbol": "FB",
+     "Date": "2014-04-24",
+     "Open": "63.60",
+     "High": "63.65",
+     "Low": "59.77",
+     "Close": "60.87",
+     "Volume": "138520000",
+     "Adj_Close": "60.87"
+    }
+   ]
+  }
+ }
+}

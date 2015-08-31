@@ -1,0 +1,57 @@
+<!doctype html> 
+<html>
+	<head>
+		<title> Testing Rickshaw / D3 tools to make graphs </title>
+		<meta charset="utf-8">
+
+		<!-- dumb mistake: putting "/" at beginning of source files doesn't mean 'this directory' -->
+		<link rel="stylesheet" href="rickshaw.min.css">
+		<script src="d3.min.js"></script> 
+		<script src="d3.v2.js"></script>
+		<script src="d3.layout.min.js"></script> 
+		<script src="rickshaw.min.js"></script> 
+
+	</head>
+ 
+	<body>
+		 <p>woof!</p>
+		<div id="chart"></div> 
+		 
+		<script> 
+			var graph = new Rickshaw.Graph( {
+				element: document.querySelector("#chart"),
+				width: 600,
+				height: 400,
+				renderer: 'area',
+				stroke: true,
+				
+				series: [ {
+					data: [ 
+					{ x: 1398384000, y: 34.48 }, 
+					{ x: 1398297600, y: 35.24 }, 
+					{ x: 1398211200, y: 35.44 }, 
+					{ x: 1398124800, y: 36.14 }, 
+					{ x: 1398038400, y: 36.40 }
+					
+<!-- { x: 23, y: 34.44 },{ x: 24, y: 35.44 },{ x: 25, y: 32.44 },{ x: 26, y: 35.44 },{ x: 27, y: 66.44 } -->
+							],
+					color: '#9cc1e0'		
+				}, {
+					data: [ { x: 1398384000, y: 57.71 }, { x: 1398297600, y: 60.87 }, { x: 1398211200, y: 61.36 }, { x: 1398124800, y: 63.03 }, { x: 1398038400, y: 61.24 }
+<!-- { x: 23, y: 40 },{ x: 24, y: 49 },{ x: 25, y: 38 },{ x: 26, y: 30 },{ x: 27, y: 32 } -->
+					],
+					color: '#cae2f7'
+				}  ]
+			} );
+				
+			graph.render();
+
+		</script> 
+		
+	</body>
+</html>
+		
+		
+		
+		
+		

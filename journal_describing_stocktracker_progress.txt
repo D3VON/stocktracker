@@ -1,0 +1,84 @@
+Journal of what I'm doing with this StockTracker web app
+========================================================
+
+Currently, I'm working on:
+http://localhost/stocktracker/table/stocks.php 
+(obviously(?) in /var/www)
+
+Why this is in the /table directory is that I was practicing making a nice 
+table from the Head First HTML/CSS book (because it uses CSS to style the 
+table). 
+
+The /stocktracker directory *might* be named (some variant of) rickshaw 
+elsewhere, because the original idea was to have very nice line graphs of 
+my stocks, and I settled on the rickshaw library. 
+
+Currently, the page shows a table with dummy values.
+                                       ------------
+I want to populate it with data from Mongo.                  <----done late June
+------------------------------------------
+Then I want the Add button to work with AJAX: 
+to add a stock purchase asynchronously, and just reload the table,
+not the whole page. 
+
+But to summarize for now: i just want to populate the table from mongo.
+
+exercises in storing JSON to MongoDB:
+http://localhost/stocktracker/example_storeJSONtoMongo.php
+
+
+
+July 2, 2015
+============
+DONE: populating the table from MongoDB
+TODO: Add a purchase to the db & table using a form and AJAX.
+
+This is easier said than done because I want to blend a nice jQuery form with
+AJAX feed-back (reload the table of stocks owned).  The adding of the stock
+purchase is sent by the form to a PHP script.  
+
+Right now, I can't get the data from the form to transfer (via POST) to the 
+PHP script.  So the add functionality is DEAD IN THE WATER.  
+
+various attempts so far (add a purchase to db and table):
+http://localhost/stocktracker/stocktracker.php
+file:///home/devon/rickshaw_javascript/addStockPopUpButton.html
+http://localhost/stocktracker/table/example_AJAX_AddStringToDOM.html 
+http://localhost/stocktracker/table/example_formOverlayUsingPOST.html
+http://localhost/stocktracker/table/stocks.php <----the main one I want to work
+
+looks very straight forward, source from jQuery:
+http://jqueryui.com/dialog/#modal-form
+
+
+
+TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:
+https://jqueryui.com/datepicker/
+TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

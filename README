@@ -1,0 +1,10 @@
+A way to track my stocks in different accounts in a unified way. Using JavaScript, PHP, MongoDB, AJAX, Rickshaw.js, jQuery...
+
+Check out the file journal_describing_stocktracker_progress.txt
+
+The goal is twofold: 
+
+1. have a nice table that is fully functional (add, delete, modify records; and also sort by column);
+2. have cool graphing abilities.  I currently have been using rickshaw.js for that.  One MAJOR ISSUE is that Yahoo's YQL (where I'm getting my data) is INTENSELY SLOW for large amounts of historical data.  
+
+That is all. 

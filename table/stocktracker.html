@@ -1,0 +1,81 @@
+<!doctype html> 
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>StockTracker -- keeping track of your stock purchases</title>
+		<link rel="stylesheet" href="css/reset.css">
+<!-- 		
+		<link rel="stylesheet" href="rickshaw.min.css">
+ -->
+		<link type="text/css" rel="stylesheet" href="css/stocks.css">
+		
+		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+		<!--script src="js/bootstrap.min.js"></script -->	
+		<style type="text/css">
+			.bullbear {
+			    display: block;
+			    margin-left: auto;
+			    margin-right: auto; }
+			.centertitle {
+			    display: block;
+			    margin-left: auto;
+			    margin-right: auto; }
+			.centertable {
+			    display: block;
+			    margin-left: auto;
+			    margin-right: auto; }
+			#the_add_form > *{
+			    font-size:12px;
+			    margin-bottom:15px;
+			}
+			#the_add_form > p > label{
+			    display:block;
+			    font-size:12px;
+			}
+			#the_add_form > p > input, #the_add_form > p > textarea{
+			        width:100px;
+			}    
+		</style>
+		
+	
+	</head>
+	<body>
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+		<script src="js/stocktracker.js"></script>
+	
+
+		<h1 class="centertitle">Stock Tracker -- "My Account"</h1>
+
+		<div>	
+			<div><img  class="bullbear" src="images/bullbear.gif" alt="bull and bear"></div>
+			<p>This is a tool I'm developing for people (aka: me) who own stocks in several different accounts, and they all present them differently, and it's very annoying to have to log into different places and see different presentations of what's happening with each stock. This page will be where I enter each purchase.  From the data captured here, I will be able to do cool graphing and maybe pull in news articles and ratings of the stocks.  Stuff like that.</p>
+			<br>
+			<p>NOTE: no effort has been made (as of yet) to make this page presentable, or responsive.  Thank you.</p>
+			<br>
+			<p>To do:<p>
+			<ul>
+				<li>make stock data current with each page refresh</li>
+				<li>sort by column headings--ascend/descend</li>
+				<li>add a note field</li>
+				<li>do a little AJAX thingy to refresh current prices even if page isn't manually reloaded</li>
+				<li>add little 'slider' graph to all rows indicating 52 wk high, low, last</li>
+				<li>keep headings at top when scrolling down<li>
+				<li></li>
+				<li></li>
+		</div>
+			 		
+		<form id="ownerForm"> 
+			Owner name: <input type="text" id="ownerName">
+			<input id="theOwnerButton"  type="submit" value="Specify Owner">
+		</form>
+		<em>Might we recommend "guest" as an owner name?</em>
+ 		
+	<div id="thetable" class="centertable">
+	</div>
+	
+</body>
+</html>

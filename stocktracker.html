@@ -1,0 +1,82 @@
+<!doctype html> 
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Stock Tracker </title>
+
+		<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+		<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+		  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+		<!-- dumb mistake: putting "/" at beginning of source files doesn't mean 'this directory' -->
+		<link type="text/css" rel="stylesheet" href="stocks.css">
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<!-- Include all compiled plugins (below), or include individual files as needed -->
+		<script src="js/bootstrap.min.js"></script>	
+		
+	</head>
+	<body>
+
+		<h1>Stock Tracker -- Pseudo Account</h1>
+		<p>
+		  A 'view' of a pseudo-portfolio of stocks.
+		</p>
+
+		<!-- h2>June 22, 2014</h2 -->
+		<p><img src="images/bullbear.gif" alt="bull and bear"></p>
+		<p>
+		  Here's a table presenting some stocks: 
+		</p>
+
+		<table>
+		  <caption>
+			Stocks being monitored
+		  </caption>
+		  <tr>
+			<th colspan="2">Individual (Fidelity)</th>
+			<th colspan="4">Most Recent</th>
+			<th colspan="2">Change Since Close</th>
+			<th colspan="3">Change Since Purchase</th>
+			<th colspan="3">Cost Basis</th>
+		  </tr>
+		  <tr>
+			<th>Symbol</th>
+			<th>Name</th>
+			<th>Quantity</th>
+			<th>Price</th>
+			<th>Change</th>
+			<th>Value</th>
+			<th>$</th>
+			<th>%</th>
+			<th>$</th>
+			<th>%</th>
+			<th>%peryear</th>
+			<th>Per Share</th>
+			<th>Total</th>
+			<th>Date Acquired</th>
+		  </tr>
+		  <tr>
+			<td>symb</td>
+			<td class=\"center\">name</td>
+			<td class=\"center\">amt</td>   
+			<td class=\"right\">current$</td>
+			<td class=\"right\">calcChng</td>
+			<td class=\"center\">calc$amt</td>
+			<td class=\"center\">dontneed</td>
+			<td class=\"center\">dontneed</td>
+			<td class=\"center\">totChng$</td>
+			<td class=\"center\">totChng%</td>
+			<td class=\"center\">YrlyChg%</td>
+			<td class=\"center\">price$</td>
+			<td class=\"center\">calcTot$</td>
+			<td class=\"center\">dateAcq</td>
+		  </tr>
+		</table>
+	
+</body>
+</html>

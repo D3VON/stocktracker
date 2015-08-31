@@ -1,0 +1,26 @@
+<form id="addsymbol" method="POST" action="addstock.php" name="addstock">
+<div id="box_form">
+    <p>
+        <label for="symbol">Symbol:</label>
+        <input type="text" value="XYZ" name="symbol_name">
+    </p>
+    <p>
+        <label for="price">Price for each: </label>
+        <input type="text" value="1.00" name="price_each">
+    </p>
+    <p>
+        <label for="date_purch">Date Purchased: </label>
+        <input type="text" value="12/31/1999" name="date_purch">
+    </p>
+    <p>
+        <label for="description">Which account: </label>
+		<select>
+		  <option value="Fidelity_Individual">Fidelity Individual</option>
+		  <option value="Fidelity_SEP">Fidelity SEP</option>
+		  <option value="Fidelity_Roth">Fidelity Roth</option>
+		  <option value="Scottrade_IRA">Scottrade IRA</option>
+		</select>
+    </p>
+</div>
+</form>
+<input type="button" id="clicky" value="Add a symbol">

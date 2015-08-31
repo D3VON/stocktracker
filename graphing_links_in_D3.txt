@@ -1,0 +1,68 @@
+D3 (means....)
+
+D3 stacked area graphs
+
+http://bl.ocks.org/WillTurman/4631136
+http://dimplejs.org/examples_viewer.html?id=lines_horizontal
+https://stockr.com/goog
+http://bl.ocks.org/mbostock/3884955
+http://bl.ocks.org/mbostock/3883245
+http://bl.ocks.org/mbostock/3883245#data.tsv (has good date stuff)
+
+http://bl.ocks.org/mbostock/3020685 ( almost perfect stacked, w/ date)
+
+http://bl.ocks.org/mbostock/4015254 (wow, drag graph left and right)
+
+http://dan.iel.fm/xkcd/ (xkcd graph)
+
+
+http://dimplejs.org/examples_viewer.html?id=lines_horizontal (line graph with meticulous dates)
+
+http://dimplejs.org/examples_viewer.html?id=areas_horizontal_grouped_stacked (stacked)
+
+http://dimplejs.org/examples_viewer.html?id=areas_horizontal_stacked (better stacked, easy on the eyes)
+
+a selection of graphs in D3 on one web page
+http://mikemcdearmon.com/portfolio/techposts/data-visualization-base-on-d3-js
+
+http://tenxer.github.io/xcharts/
+
+http://christopheviau.com/d3_tutorial/ some tutorial
+
+some other D3 tutorial
+http://hsilomedus.me/wp-content/uploads/javadayd3/index.html#myCarousel
+
+MASSIVE D3 list of web sites showing graphing capabilities of D3
+http://christopheviau.com/d3list/
+
+I SETTLED ON THIS ONE: 
+(called rickshaw)
+http://code.shutterstock.com/rickshaw/
+https://github.com/shutterstock/rickshaw
+
+
+my efforts:
+
+http://www.d3von.com/rickshaw/parseYQL_JSON.php
+file:///E:/BinghamtonUniversity/Rickshaw_javascript/rickshaw_test.html
+
+YQL to get the data about stocks:
+
+https://developer.yahoo.com/yql/console/?q=show%20tables&env=store://datatables.org/alltableswithkeys#h=select+*+from+yahoo.finance.historicaldata+where+symbol+%3D+%22YHOO%22+and+startDate+%3D+%222014-04-20%22+and+endDate+%3D+%222014-04-26%22
+https://developer.yahoo.com/yql/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
