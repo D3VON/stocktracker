@@ -193,13 +193,23 @@ class MongoToYQL_Adapter {
 	 * 
 	 * @return $theStocksArray an array of PHP arrays of the stocks owned by that dude
 	 */
-	function getAllStocksByOwner($owner){
+	function getAllStocksByOwner($owner,$sortby){
+
+		/*	for sorting: 
+
+			    const Name 					= 0;
+				const Symbol 				= 1;
+				const DollarChangeToday 	= 2;
+				const PercentChangeToday 	= 3;
+				const TotalCost 			= 4;
+				const TotalDollarChange 	= 5;
+				const TotalPercentChange	= 6;
+				const Account 				= 7;
+				const PurchaseDate 			= 8;
+
+		*/
 
 
-		/*************************************************************/
-		// set up YQL connection to get current stock info
-		/*************************************************************/
-		$y = new YQL;
 
 		// get connection to db squared away
 		$db = $this->dbconn->selectDB("test");
@@ -241,6 +251,9 @@ class MongoToYQL_Adapter {
 			 */
 
 			$updatedRecord = (array)$resultArray->{'query'}->{'results'}->{'quote'};
+			/* NOTE: if one symbol, 'quote' comes back as one JSON object, but
+			   if many symbols, 'quote' comes back as an array of many JSON objects
+			 */
 
 			/* Musings about my strategy here:
 				Is it easier to update just current price? or clobber orig record, 
