@@ -1,3 +1,5 @@
+<?php 
+
 abstract class ColumnIdentity
 {
     const Name 					= 0;
@@ -18,3 +20,4 @@ abstract class ColumnIdentity
 
 }
 
+?>

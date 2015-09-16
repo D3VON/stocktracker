@@ -9,7 +9,7 @@
  * Using collections: 'stocks', and 'history'
  * 
  * NOTE: bad programming practice: I have redundant code in several methods
- * to read all the stocks by owner because the FUCKER WASN'T WORKING
+ * to read all the stocks by owner because the DUMB THING WASN'T WORKING
  * RIGHT WHEN i JUST CALLED getAllStocksByOwner($owner).  So, it worked 
  * copying and pasting the code into each method that needed that functionality. 
  * Fucking annoying.  Never did figure out why it wouldn't work.  
@@ -42,6 +42,173 @@ class MongoToYQL_Adapter {
 	// to test to see if the object instantiation works and a method can be called.
 	function dummy(){ return "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"; }
 	
+	function fetchManyFromYQL($symbols){
+	
+	
+		// set up YQL connection to get current stock info
+		$y = new YQL;
+	
+		// Get current data on that stock from YQL
+		// NOTE: This YQL class receives JSON from YQL query, but converts the JSON
+		// into a PHP variable (a multi-dimensional array), so it's easy to weedle out
+		// pieces you need with nice PHP operators.
+		$resultArray = $y->getQuote( $symbols );
+	
+		// YQL gives superfluous data, so just take what we want from the JSON object,
+		// and save in a local array (need to cast it from "stdClass Object" to array.
+	
+	
+		$theArray = $resultArray->{'query'}->{'results'}->{'quote'};
+		// This is an Array of stdClass Objects, so each stdClass Object should
+		// be cast to an array, so we have a multidimensional array.
+		$len = count($theArray);
+		for ($i = 0; $i < $len; $i++){ // can't use foreach b.c. need to refer back to orig. array specific element
+			$theArray[$i] = (array)$theArray[$i];
+		}
+	
+	
+		return $theArray;
+	
+	}
+	
+	
+	/* Loop over the $mongoArray to discover which stock symbols the user has.
+	 * Then call the appropriate YQL fetching function (
+	 		*
+	 		*/
+	function fetchFromYQL(&$mongoArray){
+	
+		$len = count($mongoArray);
+		// $type = ($len > 1) ? "many" : "single";
+		// echo $type;
+	
+		// get the symbols and make the string for the YQL query
+		$symbols = "";
+		for ($i = 0; $i < $len; $i++){
+			$symbols .= $mongoArray[$i]["symbol"];
+			if ($i+1 < $len){
+				$symbols .= "%22%2C%22";
+			}
+			// example of what I'm trying to form here:
+			// YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT
+			// (Opening and closing quotes (%22) are not needed because
+			// they are already in the pre-built YQL query in the YQL class.)
+		}
+	
+		if ($len > 1){
+			return $this->fetchManyFromYQL($symbols);
+		}else{
+			return $this->fetchOneFromYQL($symbols);
+		}
+	
+	}
+	
+	
+	function fetchOneFromYQL($symbol){
+	
+	
+		// set up YQL connection to get current stock info
+		$y = new YQL;
+	
+		// Get current data on that stock from YQL
+		// NOTE: This YQL class receives JSON from YQL query, but converts the JSON
+		// into a PHP variable (a multi-dimensional array), so it's easy to weedle out
+		// pieces you need with nice PHP operators.
+		$resultArray = $y->getQuote( $symbol );
+	
+		// Ignore superfluous data,
+		// Cast from "stdClass Object" to array.
+		$theStock = (array)$resultArray->{'query'}->{'results'}->{'quote'};
+	
+		$theArray = array($theStock); // this is the convention that conforms to later parsing of this structure.
+	
+		return $theArray;
+	
+	}
+	
+	
+	
+	/** Query the Mongo data store for all stocks owned by that user.
+	 *
+	 * @param $owner the owner of the stocks
+	 *
+	 *
+	 * @return $theStocksArray a complete array the stocks owned by the given user
+	 */
+	 function queryMongoMany($owner){
+	
+		 $dbconn = new MongoClient();
+		 // get connection to db squared away
+		 $db = $dbconn->selectDB("test");
+		 $collection = $db->stocks;
+		
+		 $findThis = array('owner' => $owner);
+		 		$sortByThis = array('Name' => 1 );// +1 is ascending order
+		
+		 $cursor = $collection->find($findThis)->sort($sortByThis);
+		
+		 $theStocks = array();
+		 foreach ($cursor as $document) {
+		 	$theStocks[] = $document;
+		 }
+		
+		 //returns beautiful array of arrays
+		 return $theStocks;
+	
+	}
+	
+	
+	 /** Merge data from MongoDB[i] with data from YQL[i] for all n elements in
+	 *  both arrays into a new, multidimensional array containing n elements.
+	 *
+	 * @param $mongo an array of arrays containing a user's information about
+	 *               specific stock purchases
+	 *               WARNING: $mongo must be of type Array( [0] => Array ... )
+	 *
+	 * @param $yql   an array of arrays containing info queried from YQL.
+	 *               WARNING: $yql must be of type Array( [0] => Array ... )
+	 *
+	 * @return $theStocksArray a complete array of arrays of the stocks owned by
+	 *                         a user (used to populate the stocktracker table)
+	 */
+	 function combineYQLandMongoArrays($mongo, $yql){
+		 $newArray = array();
+		
+		 $len = count($mongo);
+		 if($len != count($yql)) {
+		 	echo "Error retrieving data.<br>";
+		 }
+		
+		 $stock = array();
+		
+		 for ($i = 0; $i < $len; $i++){ // can't use foreach b.c. need to refer back to orig. element
+			 $stock["symbol"] 				= $yql[$i]["symbol"];
+			 $stock["AverageDailyVolume"] 	= $yql[$i]["AverageDailyVolume"];
+			 $stock["Change"] 				= $yql[$i]["Change"];
+			 $stock["DaysLow"] 				= $yql[$i]["DaysLow"];
+			 $stock["DaysHigh"] 				= $yql[$i]["DaysHigh"];
+			 $stock["YearLow"] 				= $yql[$i]["YearLow"];
+			 $stock["YearHigh"] 				= $yql[$i]["YearHigh"];
+			 $stock["MarketCapitalization"] 	= $yql[$i]["MarketCapitalization"];
+			 $stock["LastTradePriceOnly"] 	= $yql[$i]["LastTradePriceOnly"];
+			 $stock["DaysRange"] 			= $yql[$i]["DaysRange"];
+			 $stock["Name"] 					= $yql[$i]["Name"];
+			 $stock["Volume"] 				= $yql[$i]["Volume"];
+			 $stock["StockExchange"] 		= $yql[$i]["StockExchange"];
+			 $stock["_id"] 					= $mongo[$i]["_id"];
+			 $stock["purchasedate"] 			= $mongo[$i]["purchasedate"];
+			 $stock["purchasequantity"] 		= $mongo[$i]["purchasequantity"];
+			 $stock["purchaseprice"] 		= $mongo[$i]["purchaseprice"];
+			 $stock["purchasefee"] 			= $mongo[$i]["purchasefee"];
+			 $stock["account"] 				= $mongo[$i]["account"];
+			 $stock["owner"] 				= $mongo[$i]["owner"];
+			
+			 $newArray[$i] = $stock;
+		 }
+		
+		 return $newArray;
+	
+	 }
 	
 	/** add a stock purchase to our database
 	 *
@@ -184,30 +351,18 @@ class MongoToYQL_Adapter {
 	
 
 	
+	function getAllStocksByOwner($owner){ //,$sortby){
+		
+		$mongo = $this->queryMongoMany($owner);
+		$yql = $this->fetchFromYQL($mongo);
+		return $this->combineYQLandMongoArrays($mongo, $yql);
 	
-	/** get all stocks owned by a a user from the db
-	 * (not from YQL)
-	 * -----> alphabetized ascending by Symbol
-	 *
-	 * @param $owner owner of the stocks
-	 * 
-	 * @return $theStocksArray an array of PHP arrays of the stocks owned by that dude
-	 */
+	}
+
+	
+/*the old function	
+	
 	function getAllStocksByOwner($owner,$sortby){
-
-		/*	for sorting: 
-
-			    const Name 					= 0;
-				const Symbol 				= 1;
-				const DollarChangeToday 	= 2;
-				const PercentChangeToday 	= 3;
-				const TotalCost 			= 4;
-				const TotalDollarChange 	= 5;
-				const TotalPercentChange	= 6;
-				const Account 				= 7;
-				const PurchaseDate 			= 8;
-
-		*/
 
 
 
@@ -215,9 +370,6 @@ class MongoToYQL_Adapter {
 		$db = $this->dbconn->selectDB("test");
 		$collection = $db->stocks; 
 		
-		/*******************************************************
-		 *    build the mongo query & run it
-		*******************************************************/
 		$findThis = array('owner' => $owner);
 		// ORIGINAL (unsorted): $cursor = $collection->find($findThis);//$findThis);
 		
@@ -225,50 +377,16 @@ class MongoToYQL_Adapter {
 		// Sort on field x, ascending		//$cursor->sort(array('x' => 1));
 		$cursor = $collection->find($findThis)->sort($sortByThis);
 		
-		/*******************************************************
-		 *    build the PHP array of arrays to return
-		*******************************************************/
 		$theStocks = array();
 		foreach ($cursor as $document) {
 
 	
-			/* Remove that stock (to be replaced later in this method).
-			 * REVELATION: MongoDB embeds its ids into a special little MongoID object
-			 * NOTE: just wipe out the original and replace it with a new one, rather 
-			 * than mucking around 'editing' it. 
-			*/
 			$collection->remove( array("_id" => new MongoId( $document['_id'] )) );
 
-			/* Get current data on that stock from YQL
-			 * NOTE: This YQL class receives JSON from YQL query, but converts the JSON 
-			 * into a PHP variable (a multi-dimensional array), so it's easy to weedle out 
-			 * pieces you need with nice PHP operators. 
-			 */
 			$resultArray = $y->getQuote( $document['symbol'] );
 
-			/* YQL gives superfluous data, so just take what we want from the JSON object,
-			 * and save in a local array (need to cast it from "stdClass Object" to array.
-			 */
 
 			$updatedRecord = (array)$resultArray->{'query'}->{'results'}->{'quote'};
-			/* NOTE: if one symbol, 'quote' comes back as one JSON object, but
-			   if many symbols, 'quote' comes back as an array of many JSON objects
-			 */
-
-			/* Musings about my strategy here:
-				Is it easier to update just current price? or clobber orig record, 
-				and just add orig date, quant, fee, etc?
-				OR: prolly better to only keep user's originally inputed date 
-				(fee, symbol, price, etc..) because it's looking like we're going
-				to be querying YQL every time the page is refreshed. 
-
-				That may be OK for 50 or 100 stocks (querying just the quote), 
-				but that cannot be the strategy for years worth of data on 
-				each stock. 
-
-				I'm disappointed with these strategies as they rely on the speed
-				of querying YQL.  Yuck. 
-			*/
 
 
 			$updatedRecord['purchasedate'] = $document['purchasedate'];
@@ -278,19 +396,9 @@ class MongoToYQL_Adapter {
 			$updatedRecord['account'] = $document['account'];
 			$updatedRecord['owner'] = $document['owner'];
 		
-			/*******************************************************
-			 *         ADD SYMBOL (YHOO) TO THE DATABASE
-			 *******************************************************/
-			/* The PHP MongDB Driver accepts only PHP arrays for inserts and queries
-			 * (see here: http://www.php.net/manual/en/mongo.queries.php)
-			* So you need to convert your JSON to an array.
-			*/
+
 			$collection->insert($updatedRecord);
 
-			
-			/*******************************************************
-			 * INSERT THE UPDATED RECORD INTO ARRAY TO BE RETURNED BY THIS METHOD.
-			 *******************************************************/
 			$theStocks[] = $updatedRecord;
 		}
 		
@@ -300,9 +408,25 @@ class MongoToYQL_Adapter {
 				
 		return $theStocks;
 		
-	}
+	}*/
 
 }
+
+
+/*	for sorting:
+
+        const Name 					= 0;
+        const Symbol 				= 1;
+        const DollarChangeToday 	= 2;
+        const PercentChangeToday 	= 3;
+        const TotalCost 			= 4;
+        const TotalDollarChange 	= 5;
+        const TotalPercentChange	= 6;
+        const Account 				= 7;
+        const PurchaseDate 			= 8;
+
+*/
+
 
 /*
 

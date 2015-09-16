@@ -217,7 +217,7 @@ class StocksTable {
 		
 		$neg = "neg";
 		$pos = "pos";
-		
+		$result = "";
 		foreach ($stocks as $s){
 			$totalCost = $s['purchasequantity'] * $s['purchaseprice'] + $s['purchasefee'];
 			$totalCurrentValue =  $s['purchasequantity'] * $s['LastTradePriceOnly'] - $s['purchasefee'];
@@ -257,7 +257,7 @@ class StocksTable {
 			$result .= "			$(\"#editdatepicker\").val(\"" 	. $s['purchasedate'] . "\");";
 			$result .= "			$(\"#editaccount\").val(\"" 	. $s['account'] . "\");";
 			$result .= "			$(\"#editid\").val(\"" 	. (string)$s['_id'] . "\");";
-			$result .= "			$(\"#editowner\").text(\"" 	. $owner . "\");";
+			$result .= "			$(\"#editowner\").text(\"" 	. $s['owner'] . "\");";
 //			$result .= "			e.preventDefault();";
 			$result .= "			$('#the_edit_form')";
 			$result .= "				.dialog('open');";
@@ -275,14 +275,14 @@ class StocksTable {
 			$result .= "<td  class=\"right ";
 			$result .= ($percentchangetoday>0) ? $pos : $neg;
 			$result .= "\">". number_format($percentchangetoday, 2, '.', ',') . "%</td>";
+			$result .= "<td  class=\"right ";
 			$result .= ($totalChangeDollar>0) ? $pos : $neg;
 			$result .= "\">$". number_format($totalChangeDollar, 2, '.', ',') . "</td>";
 			$result .= "<td  class=\"right ";
 			$result .= ($totalChangePercent>0) ? $pos : $neg;
 			$result .= "\">". number_format($totalChangePercent, 2, '.', ',') . "%</td>";
 			$result .= "<td class=\"right\">". number_format($totalCost, 2, '.', ',') . "</td>";
-			$result .= "<td  class=\"right ";
-			$result .= "<td>". $s['purchasequantity'] . "</td>";
+			$result .= "<td  class=\"right\">". $s['purchasequantity'] . "</td>";
 			$result .= "<td class=\"right\">". $s['purchaseprice'] . "</td>";
 			$result .= "<td class=\"right\">". number_format($s['purchasefee'], 2, '.', ',')  . "</td>";
 			$result .= "<td class=\"left\">". $s['account'] . "</td>";
