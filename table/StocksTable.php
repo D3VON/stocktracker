@@ -29,19 +29,31 @@ class StocksTable {
 			$result .= "<tr>";
 			$result .= "<th><input type=\"checkbox\" name=\"remove[]\" id=\"selectAll\" value=\"all\"></th>"; // CHECKBOX (main one)
 			$result .= "<th>Edit</th>";
-			$result .= "<th>Name</th>";
-			$result .= "<th>Symbol</th>";
+			
+			//TRYING TO FIGURE OUT HOW TO SORT COLUMNS, ASCENDING / DESCENDING...
+			//<a id="sort_ascend" href="good/1.html">Name</a>
+			//<a class="sort_descend" href="good/2.html">Click Here</a>
+			//$result .= "<th>";
+			//$result .= "<input type=\"hidden\" name=\"sort_flag\" id=\"sort_flag\" value=\"1\" />";
+			//$result .= "<a href=\"javascript:sortColumn('name_ascend');\">Name</a>";
+			//$result .= "</th>";
+			
+			// COLUMNS TO CLICK FOR SORTING
+			$result .= "<th class=\"sortByColumn asc\">Name</th>";
+			$result .= "<th class=\"sortByColumn\">Symbol</th>";
 			$result .= "<th>Price</th>";
-			$result .= "<th>$ change</th>";
-			$result .= "<th>% change</th>";
-			$result .= "<th>Total $ Change</th>";
-			$result .= "<th>Total % Change</th>";
-			$result .= "<th>Total Cost</th>";
+			$result .= "<th class=\"sortByColumn\">$ change</th>";
+			$result .= "<th class=\"sortByColumn\">% change</th>";
+			$result .= "<th class=\"sortByColumn\">Total $ Change</th>";
+			$result .= "<th class=\"sortByColumn\">Total % Change</th>";
+			$result .= "<th class=\"sortByColumn\">Total Cost</th>";
 			$result .= "<th>Quantity</th>";
 			$result .= "<th>Purch. Price</th>";
 			$result .= "<th>Fee</th>";
-			$result .= "<th>Account</th>";
-			$result .= "<th>Purchase Date</th>";
+			$result .= "<th class=\"sortByColumn\">Account</th>";
+			$result .= "<th class=\"sortByColumn\">Purchase Date</th>";
+			
+			
 			$result .= "</tr>";			
 		$result .= "</thead>";
 		$result .= "<tbody>";
@@ -221,7 +233,7 @@ class StocksTable {
 		foreach ($stocks as $s){
 			$totalCost = $s['purchasequantity'] * $s['purchaseprice'] + $s['purchasefee'];
 			$totalCurrentValue =  $s['purchasequantity'] * $s['LastTradePriceOnly'] - $s['purchasefee'];
-			$dollarchange = $s['LastTradePriceOnly'] - $s['purchaseprice'];
+			//$dollarchange = $s['LastTradePriceOnly'] - $s['purchaseprice'];
 			$totalChangeDollar = $totalCurrentValue - $totalCost;
 			$totalChangePercent = $totalChangeDollar / $totalCost * 100;
 			$percentchangetoday = $s['Change'] / $s['LastTradePriceOnly'] * 100;
@@ -271,7 +283,7 @@ class StocksTable {
 			$result .= "<td class=\"right\">$". $s['LastTradePriceOnly'] . "</td>";
 			$result .= "<td class=\"";
 			$result .= ($s['Change']>0) ? $pos : $neg;
-			$result .= "\">" . $s['Change'] . "</td>";
+			$result .= "\">$" . $s['Change'] . "</td>";
 			$result .= "<td  class=\"right ";
 			$result .= ($percentchangetoday>0) ? $pos : $neg;
 			$result .= "\">". number_format($percentchangetoday, 2, '.', ',') . "%</td>";
@@ -281,7 +293,7 @@ class StocksTable {
 			$result .= "<td  class=\"right ";
 			$result .= ($totalChangePercent>0) ? $pos : $neg;
 			$result .= "\">". number_format($totalChangePercent, 2, '.', ',') . "%</td>";
-			$result .= "<td class=\"right\">". number_format($totalCost, 2, '.', ',') . "</td>";
+			$result .= "<td class=\"right\">$". number_format($totalCost, 2, '.', ',') . "</td>";
 			$result .= "<td  class=\"right\">". $s['purchasequantity'] . "</td>";
 			$result .= "<td class=\"right\">". $s['purchaseprice'] . "</td>";
 			$result .= "<td class=\"right\">". number_format($s['purchasefee'], 2, '.', ',')  . "</td>";

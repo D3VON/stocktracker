@@ -50,6 +50,31 @@ table table th {
   background-color: white;
 }
 
+
+#thetable th, #thetable td{
+    border:solid 1px #000;
+    padding:.25em;
+}
+
+
+.sortByColumn{
+    font-weight:bold;
+    cursor:pointer;
+}
+
+#thetable th.asc:after{
+    content:'Asc';
+    display:inline-block;
+    padding:0 .5em;
+    color:green;
+}
+#thetable th.desc:after{
+    content:'Desc';
+    display:inline-block;
+    padding:0 .5em;
+    color:blue;
+}
+
 td, th {
 	padding: 2px 2px;
 	font-family: verdana, arial;
