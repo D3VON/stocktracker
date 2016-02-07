@@ -4,50 +4,51 @@
 	     url("http://wickedlysmart.com/hfhtmlcss/chapter8/journal/EmblemaOne-Regular.ttf"); 
 } */
 body {
-  font-family:     Verdana, Geneva, Arial, sans-serif;
-  font-size:       small;
+    font-family:     Verdana, Geneva, Arial, sans-serif;
+    font-size:       small;
 }
 h1, h2 {
-  color:           #FC9E40;
-  border-bottom:   thin dotted #888888;
+    color:           #FC9E40;
+    border-bottom:   thin dotted #888888;
 }
 h1 {
-  font-family:     "Emblema One", sans-serif;
-  font-size:       220%;
+    font-family:     "Emblema One", sans-serif;
+    font-size:       220%;
 }
 h2 {
-  font-size:       130%;
-  font-weight:     normal;
+    font-size:       130%;
+    font-weight:     normal;
 }
 blockquote {
-  font-style:      italic;
+    font-style:      italic;
 }
 
 table.popuptable {
-  margin:      20px 20px 20px 20px; /* no commas; order: top, right, bottom, left*/
-  border:           none;
-  border-collapse:  collapse; /* eliminates gap between cells */	
+    margin:      20px 20px 20px 20px; /* no commas; order: top, right, bottom, left*/
+    border:           none;
+    border-collapse:  collapse; /* eliminates gap between cells */
 }
 
 table.popuptable td, th {
-  font-weight:     lighter;
-  border:           none;
+    font-weight:     lighter;
+    border:           none;
 }
 
 table.popuptable th {
-  background-color: #FC9E40;
+    background-color: #ff9933; /* #FC9E40; */
 }
 
 table {
-  margin:      20px 20px 20px 20px; /* no commas; order: top, right, bottom, left*/
-  border:           thin solid black;
-  caption-side:     bottom;
-  padding:			0;
-  border-collapse:  collapse; /* eliminates gap between cells */
+    margin:      20px 20px 20px 20px; /* no commas; order: top, right, bottom, left*/
+    border:           thin solid black;
+    caption-side:     bottom;
+    padding:			0;
+    border-collapse:  collapse; /* eliminates gap between cells */
 }
 
 table table th {
-  background-color: white;
+    background-color: white;
+    position: absolute;
 }
 
 
@@ -63,62 +64,69 @@ table table th {
 }
 
 #thetable th.asc:after{
+    /* background-image: url(images/asc.gif);  */
     content:'Asc';
+    /* content:'Asc';  */
     display:inline-block;
     padding:0 .5em;
     color:green;
 }
 #thetable th.desc:after{
     content:'Desc';
+    /* background-image: url("images/desc.gif"); */
+    /* content:'Desc'; background-image: url(../images/desc.gif); */
     display:inline-block;
     padding:0 .5em;
     color:blue;
 }
 
 td, th {
-	padding: 2px 2px;
-	font-family: verdana, arial;
-	font-size: 10px;
-  	border:          2px solid #BFC6CF; /* thin dotted gray; */
-  	font-weight:     lighter;
+    padding: 2px 2px;
+    font-family: verdana, arial, sans-serif;
+    font-size: 10px;
+    border:          2px solid #BFC6CF; /* thin dotted gray; */
+    font-weight:     lighter;
 }
 
 th {
-  background-color: #C1F0F6; /* #FC9E40; */
+    background-color: #ff9933; /* #FC9E40; #ff9933 #C1F0F6 */
+}
+
+tr:hover {
+    background-color: #99ff33;
 }
 
 .cellcolor {
-  background-color: #fcba7a;
+    background-color: #ff9933; /* fcba7a; */
 }
 
 
 caption {
-  font-style:       italic;
-  padding-top:      8px;
+    font-style:       italic;
+    padding-top:      8px;
 }
 
 .neg {
-	color:	red;
+    color:	red;
 }
 
 .pos {
-	color:	green;
+    color:	green;
 }
 
 .center {
-  text-align:       center;
+    text-align:       center;
 }
 
 .right {
-  text-align:       right;
+    text-align:       right;
 }
 .left {
-  text-align:       left;
+    text-align:       left;
 }
 
 li {
-  /* list-style-image: url(images/backpack.gif); */
-  padding-top:      5px;
-  margin-left:      10px;
+    /* list-style-image: url(images/backpack.gif); */
+    padding-top:      5px;
+    margin-left:      10px;
 }
-

@@ -4,6 +4,8 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Add this meta tag into your header to placate IE -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge; IE=10; IE=9; IE=8; IE=7" />
 		<title>StockTracker -- keeping track of your stock purchases</title>
 		<link rel="stylesheet" href="css/reset.css">
 <!-- 		
@@ -12,6 +14,9 @@
 		<link type="text/css" rel="stylesheet" href="css/stocks.css">
 		
 		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    	<!--  didn't work script type="text/javascript" src="table/js/floatingtableheader.js"></script> -->
+    	<!--  can't get any of this shit to work: <script type="text/javascript" src="table/js/stickyTableHeaders.js"></script> -->
+    	
 		<!--script src="js/bootstrap.min.js"></script -->	
 		<style type="text/css">
 			.bullbear {
@@ -45,28 +50,26 @@
 		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
-  		<script src="js/jquery.slider.min.js"></script>
+
+		<script src="js/jquery.blockUI.js"></script>
 		<script src="js/stocktracker.js"></script>
-	
 
 		<h1 class="centertitle">Stock Tracker -- "My Account"</h1>
 
 		<div>	
 			<div><img  class="bullbear" src="images/bullbear.gif" alt="bull and bear"></div>
-			<p>This is a tool I'm developing for people (aka: me) who own stocks in several different accounts, and they all present them differently, and it's very annoying to have to log into different places and see different presentations of what's happening with each stock. This page will be where I enter each purchase.  From the data captured here, I will be able to do cool graphing and maybe pull in news articles and ratings of the stocks.  Stuff like that.</p>
-			<br>
-			<p>NOTE: no effort has been made (as of yet) to make this page presentable, or responsive.  Thank you.</p>
-			<br>
+			<p>This is a tool for people who own stocks in several different accounts, and they all present them differently, and it's very annoying to have to log into different places and see different presentations of what's happening with each stock. This page will be where I enter each purchase.  From the data captured here, I will be able to do cool graphing and maybe pull in news articles and ratings of the stocks.  Stuff like that.</p>
+			<br> alt="Smiley face"
 			<p>To do:<p>
 			<ul>
-				<li>make stock data current with each page refresh</li>
-				<li>sort by column headings--ascend/descend</li>
+				<li>fix sort-by-column </li>
 				<li>add a note field</li>
 				<li>do a little AJAX thingy to refresh current prices even if page isn't manually reloaded</li>
 				<li>add little 'slider' graph to all rows indicating 52 wk high, low, last</li>
 				<li>keep headings at top when scrolling down<li>
+				<li><img  src="css/images/asc.gif" alt="ascending arrow"></li>
 				<li></li>
-				<li></li>
+			</ul>
 		</div>
 			 		
 		<form id="ownerForm"> 
@@ -77,7 +80,7 @@
  		
 	<div id="thetable" class="centertable">
 	</div>
-	<input id="theslider" type="slider" name="price" value="20" />
+	<!-- input id="theslider" type="slider" name="price" value="20" />  -->
 	
 </body>
 </html>

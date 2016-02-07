@@ -1,6 +1,20 @@
 		
+
+
 $(document).ready(function() {
 	
+	//ActivateFloatingHeaders("table.stockstable");
+	/* trying to fix header of table to not scroll away 
+	 * this shit won't work at all.  Can't pin down why.
+
+	//ActivateFloatingHeaders("table.stockstable");
+	var $table = $('table.stockstable');
+	$table.floatThead();
+	  * /
+	$('table.stockstable').floatThead({
+		position: 'fixed'
+	});
+	/* */
 	
 	/* This works like a dream: it sorts the table by column (if a column has
 	 * the class tag 'sortable', and it toggles between ascending and descending

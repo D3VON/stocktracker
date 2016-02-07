@@ -11,7 +11,7 @@ class StocksTable {
 		// This table is holds all the stock purchases and buttons
 		$result .= "<table id=\"stockstable\" class=\"center\">";
 		$result .= "<caption> <!-- appears after the table, not above it -->";
-		$result .= "I'm using the caption tag here...  Giggidy.";
+		$result .= "There is no caption.  Giggidy.";
 		$result .= "</caption>";
 		$result .= "<thead>";
 			$result .= "<tr>";
@@ -23,6 +23,7 @@ class StocksTable {
 				$result .= "</th>";
 				$result .= "<th colspan=\"3\">Activity Today</th>";
 				$result .= "<th colspan=\"2\">Change Since Purchase</th>";
+				$result .= "<th colspan=\"1\">Current Value</th>";
 				$result .= "<th colspan=\"3\">Cost Basis -- including fee</th>";
 				$result .= "<th colspan=\"3\">Purchas Details</th>";
 			$result .= "</tr>";
@@ -46,6 +47,7 @@ class StocksTable {
 			$result .= "<th class=\"sortByColumn\">% change</th>";
 			$result .= "<th class=\"sortByColumn\">Total $ Change</th>";
 			$result .= "<th class=\"sortByColumn\">Total % Change</th>";
+			$result .= "<th class=\"sortByColumn\">Total Value</th>";
 			$result .= "<th class=\"sortByColumn\">Total Cost</th>";
 			$result .= "<th>Quantity</th>";
 			$result .= "<th>Purch. Price</th>";
@@ -226,17 +228,24 @@ class StocksTable {
 	
 
 	public function makeStocksTBODY($stocks){
-		
+				
+		$agrigateChangeDollars = 0;
+		$agrigateCostDollars = 0;
+		$agrigateCurrentValue = 0;
 		$neg = "neg";
 		$pos = "pos";
 		$result = "";
 		foreach ($stocks as $s){
 			$totalCost = $s['purchasequantity'] * $s['purchaseprice'] + $s['purchasefee'];
+			$agrigateCostDollars += $totalCost;
 			$totalCurrentValue =  $s['purchasequantity'] * $s['LastTradePriceOnly'] - $s['purchasefee'];
+			$agrigateCurrentValue += $totalCurrentValue;
 			//$dollarchange = $s['LastTradePriceOnly'] - $s['purchaseprice'];
 			$totalChangeDollar = $totalCurrentValue - $totalCost;
-			$totalChangePercent = $totalChangeDollar / $totalCost * 100;
-			$percentchangetoday = $s['Change'] / $s['LastTradePriceOnly'] * 100;
+			$agrigateChangeDollars += $totalChangeDollar;
+			
+			$totalChangePercent = $totalCost != 0 ? $totalChangeDollar / $totalCost * 100 : 0;
+			$percentchangetoday = $s['LastTradePriceOnly'] != 0 ? $s['Change'] / $s['LastTradePriceOnly'] * 100 : 0;
 						
 			$result .= "<tr>";
 			
@@ -293,6 +302,7 @@ class StocksTable {
 			$result .= "<td  class=\"right ";
 			$result .= ($totalChangePercent>0) ? $pos : $neg;
 			$result .= "\">". number_format($totalChangePercent, 2, '.', ',') . "%</td>";
+			$result .= "<td class=\"right\">$". number_format($totalCurrentValue, 2, '.', ',') . "</td>";
 			$result .= "<td class=\"right\">$". number_format($totalCost, 2, '.', ',') . "</td>";
 			$result .= "<td  class=\"right\">". $s['purchasequantity'] . "</td>";
 			$result .= "<td class=\"right\">". $s['purchaseprice'] . "</td>";
@@ -302,6 +312,29 @@ class StocksTable {
 			
 			$result .= "</tr>";
 		}
+		
+		/* build last row, which shows agrigate values */
+		$result .= "<tr>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";
+		$result .= "<td class=\"right\">$" . number_format($agrigateChangeDollars, 2, '.', ',') . "</td>";
+		$result .= "<td></td>";
+		$result .= "<td class=\"right\">$" . number_format($agrigateCurrentValue, 2, '.', ',') . "</td>";
+		$result .= "<td class=\"right\">$" . number_format($agrigateCostDollars, 2, '.', ',') . "</td>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";
+		$result .= "<td></td>";			
+		$result .= "</tr>";
+		
+		
+		
 		
 		//$result .= "<script src=\"js/tablebuttons.js\"></script>";
 	

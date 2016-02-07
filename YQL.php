@@ -30,9 +30,10 @@ class YQL
 	* @param   string  	$symbol
 	* @param   string  	$startDate
 	* @param   string  	$endDate
+	* 
 	* @return  string 	$yqlQuery the query ready to submit to YQL.
 	*/ 
-    function buildHistoricalQuery($symbol,$startDate,$endDate)
+    function buildHistoricalQueryString($symbol,$startDate,$endDate)
     {
 		$yqlQuery = "https://query.yahooapis.com/v1/public/yql" 
 				. "?q=select%20*%20from%20yahoo.finance.historicaldata%20"
@@ -83,10 +84,11 @@ class YQL
 			// 1. query YQL for this year
 			// 2. push resulting JSON object into array
 			
-			$queryResult = $this->runQuery($this->buildHistoricalQuery($symbol,$startDate,$endDate));
+			$queryResult = $this->runQuery($this->buildHistoricalQueryString($symbol,$startDate,$endDate));
 			// Verify if data was returned (if not, you will be storing a NULL, 
 			// and will throw Warnings and Notices accessed in a foreach loop).
-			if(!is_null($queryResult->query->results)){
+			//if(!is_null($queryResult->query->results)){
+			if(!is_null($queryResult['query']['results'])){
 				//more efficient than array_push()
 				$JSON_results[] = $queryResult;
 			}		
@@ -249,7 +251,7 @@ class YQL
 		* So you need to convert your JSON to an array.
 		*/
 		// json_decode() converts a JSON encoded string into a PHP variable (a multi-dimensional array).
-		return json_decode($response);//, TRUE);
+		return json_decode($response, TRUE);//, TRUE);
 		//return $response;
 	}
 	

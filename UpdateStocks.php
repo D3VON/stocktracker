@@ -2,12 +2,18 @@
 
 /****************************************************************************
  * This class provides an API to accomplish two things:
- * 1. query YQL;
+ * 1. query YQL (very specific stock information);
  * 2. do C.R.U.D. operations on the local MongoDB database.
  * 
  * Using database: 'investments'
  * Using collections: 'stocks', and 'history'
- *  
+ * 
+ * NOTE: bad programming practice: I have redundant code in several methods
+ * to read all the stocks by owner because the DUMB THING WASN'T WORKING
+ * RIGHT WHEN i JUST CALLED getAllStocksByOwner($owner).  So, it worked 
+ * copying and pasting the code into each method that needed that functionality. 
+ * Fucking annoying.  Never did figure out why it wouldn't work.  
+ * 
  */
 
 // handles querying YQL
@@ -36,53 +42,78 @@ class MongoToYQL_Adapter {
 	// to test to see if the object instantiation works and a method can be called.
 	function dummy(){ return "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"; }
 	
-	/** 
-	 * Fetch quotes from YQL for the given list of symbols. Return an associative
-	 * array of arrays. The key is stock symbols (obviously unique), the value is
-	 * an array being the fields of the quote (including redundantly the symbol). 
-	 * 
-	 * Rationale for making it this way: I need to merge the user-specific data of
-	 * stock purchases with this current stock data, and being able to access current 
-	 * data with an efficiency of 1 is optimal: e.g., scenario: many records of 
-	 * purchases of the same stock; access current data of that stock reliably. 
-	 * 
-	 * @param $symbolsString  a YQL-acceptible string of symbols to search for
-	 *
-	 * @return $newArray An associative array of arrays of stock quotes, keyed by symbol
-	 */
-	function fetchManyFromYQL($symbolsString){
-		//echo $symbolsString;
+	function fetchManyFromYQL($symbols){
+	
 		// set up YQL connection to get current stock info
 		$y = new YQL;
 	
+		// Get current data on that stock from YQL
 		// NOTE: This YQL class receives JSON from YQL query, but converts the JSON
 		// into a PHP variable (a multi-dimensional array), so it's easy to weedle out
 		// pieces you need with nice PHP operators.
-		$resultArray = $y->getQuote( $symbolsString );
+		$resultArray = $y->getQuote( $symbols );
 	
 		// YQL gives superfluous data, so just take what we want from the JSON object,
-		// and save in a local array (need to cast it from "stdClass Object" to array.	
-		//$theArray = $resultArray->{'query'}->{'results'}->{'quote'};
-		$theArray = $resultArray['query']['results']['quote'];
-		
-		$newArray = array();
+		// and save in a local array (need to cast it from "stdClass Object" to array.
+	
+	
+		$theArray = $resultArray->{'query'}->{'results'}->{'quote'};
 		// This is an Array of stdClass Objects, so each stdClass Object should
 		// be cast to an array, so we have a multidimensional array.
 		$len = count($theArray);
-		for ($i = 0; $i < $len; $i++){ 
-			$value = (array)$theArray[$i];
-			$key = $value["symbol"];
-			// make a map, using unique field 'symbol' as key
-			$newArray[$key] = $value;
-		}	
-		
-		//echo "finishing function: MongoToYQL_Adapter:fetchManyFromYQL<br>";
-		return $newArray;
+		for ($i = 0; $i < $len; $i++){ // can't use foreach b.c. need to refer back to orig. array specific element
+			$theArray[$i] = (array)$theArray[$i];
+		}
+	
+	
+		return $theArray;
+	
+	}
+	
+	
+	/* Loop over the $mongoArray to discover which stock symbols the user has.
+	 * Then call the appropriate YQL fetching function (
+	 		*
+	 		*/
+	function fetchFromYQL(&$mongoArray){ // &$symbolsArray 
+	
+		$len = count($mongoArray);
+		// $type = ($len > 1) ? "many" : "single";
+		// echo $type;
+	
+		// get the symbols and make the string for the YQL query
+		$symbols = "";
+		$symbolsArray = array();
+		for ($i = 0; $i < $len; $i++){
+			$symbols .= $mongoArray[$i]["symbol"];
+			
+			//load array in same order as $mongo array; this is to preserve
+			// a structure that will correspond with that original $mongo
+			// array: YQL will discard duplicates, thereby shortening the 
+			// array returned by it. We need to make the data returned by 
+			// YQL conform to the original $mongo array. 
+			$symbolsArray .= $mongoArray[$i]["symbol"];
+			
+			if ($i+1 < $len){
+				$symbols .= "%22%2C%22";
+			}
+			// example of what I'm trying to form here:
+			// YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT
+			// (Opening and closing quotes (%22) are not needed because
+			// they are already in the pre-built YQL query in the YQL class.)
+		}
+	
+		if ($len > 1){
+			return $this->fetchManyFromYQL($symbols);
+		}else{
+			return $this->fetchOneFromYQL($symbols);
+		}
+	
 	}
 	
 	
 	function fetchOneFromYQL($symbol){
-		//echo $symbol;
+	
 	
 		// set up YQL connection to get current stock info
 		$y = new YQL;
@@ -93,66 +124,15 @@ class MongoToYQL_Adapter {
 		// pieces you need with nice PHP operators.
 		$resultArray = $y->getQuote( $symbol );
 	
-		// Grab only the part we want,
+		// Ignore superfluous data,
 		// Cast from "stdClass Object" to array.
-		$theStock = (array)$resultArray['query']['results']['quote'];
+		$theStock = (array)$resultArray->{'query'}->{'results'}->{'quote'};
 	
-		$theArray = array();
+		$theArray = array($theStock); // this is the convention that conforms to later parsing of this structure.
 	
-		$theArray[$theStock["symbol"]] = $theStock; // this is the convention that conforms to later parsing of this structure.
-		
-		//echo "finishing function: MongoToYQL_Adapter:fetchOneFromYQL<br>";
 		return $theArray;
+	
 	}
-	/*
-	 // YQL gives superfluous data, so just take what we want from the JSON object,
-	// and save in a local array (need to cast it from "stdClass Object" to array.
-			$theArray = $resultArray->{'query'}->{'results'}->{'quote'};
-	
-	
-	
-			// Grab only the part we want,
-			// Cast from "stdClass Object" to array.
-			//$theStock = $resultArray['query']['results']['quote'];
-	
-	
-			//$key = $value["symbol"];
-		 */
-	
-	
-   /* Loop over the $mongoArray to discover which stock symbols the user has.
-	* Then call the appropriate YQL fetching function
-	* 
-	* NOTE: if copying this function: it relies on two other functions!!
-	* 
-	*/
-	function fetchFromYQL(&$mongoArray){
-		
-		$len = count($mongoArray);
-		// $type = ($len > 1) ? "many" : "single";
-		// echo $type;
-		
-		// get the symbols and make the string for the YQL query
-		$symbolsString = "";
-		for ($i = 0; $i < $len; $i++){
-			$symbolsString .= $mongoArray[$i]["symbol"];
-			if ($i+1 < $len){ $symbolsString .= "%22%2C%22"; }
-			// example of what I'm trying to form here: 
-			// YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT
-			// (Opening and closing quotes (%22) are not needed because
-			// they are already in the pre-built YQL query in the YQL class.)
-		}	
-		
-		//echo "finishing function: MongoToYQL_Adapter:fetchFromYQL<br>";
-		if ($len > 1){
-			return $this->fetchManyFromYQL($symbolsString);
-		}else{
-			return $this->fetchOneFromYQL($symbolsString);
-		}
-	}
-	
-
-	
 	
 	
 	
@@ -160,12 +140,13 @@ class MongoToYQL_Adapter {
 	 *
 	 * @param $owner the owner of the stocks
 	 *
+	 *
 	 * @return $theStocksArray a complete array the stocks owned by the given user
 	 */
 	 function queryMongoMany($owner){
 	
 		$dbconn = new MongoClient();
-		// get connection to db
+		// get connection to db squared away
 		$db = $dbconn->selectDB("test");
 		$collection = $db->stocks;
 		
@@ -179,7 +160,6 @@ class MongoToYQL_Adapter {
 			$theStocks[] = $document;
 		}
 		
-		//echo "finishing function: MongoToYQL_Adapter:queryMongoMany<br>";
 		//returns beautiful array of arrays
 		return $theStocks;
 	
@@ -198,6 +178,7 @@ class MongoToYQL_Adapter {
 	 *
 	 * @return $theStocksArray a complete array of arrays of the stocks owned by
 	 *                         a user (used to populate the stocktracker table)
+	 */
 	 function combineYQLandMongoArrays($mongo, $yql){
 		 $newArray = array();
 		
@@ -236,7 +217,6 @@ class MongoToYQL_Adapter {
 		 return $newArray;
 	
 	 }
-	 */
 	
 	/** add a stock purchase to our database
 	 *
@@ -271,7 +251,7 @@ class MongoToYQL_Adapter {
 		/* YQL gives superfluous data, so just take what we want from the JSON object,
 		 * and save in a local array (need to cast it from "stdClass Object" to array.
 		 		*/
-		$thePurchase = (array)$resultArray['query']['results']['quote'];
+		$thePurchase = (array)$resultArray->{'query'}->{'results'}->{'quote'};
 		$thePurchase['purchasedate'] = $date;
 		$thePurchase['purchasequantity'] = $quantity;
 		$thePurchase['purchaseprice'] = $price;
@@ -288,7 +268,6 @@ class MongoToYQL_Adapter {
 		*/
 		$collection->insert($thePurchase);
 		
-		//echo "finishing function: MongoToYQL_Adapter:addPurchase<br>";
 		return $this->getAllStocksByOwner($owner);
 	}
 		
@@ -330,8 +309,7 @@ class MongoToYQL_Adapter {
 			 */
 			$collection->remove( array("_id" => new MongoId($id)) );
 		}
-		
-		//echo "finishing function: MongoToYQL_Adapter:removePurchase<br>";
+
 		return $this->getAllStocksByOwner($owner);
 	}
 	
@@ -370,8 +348,7 @@ class MongoToYQL_Adapter {
 		*/
 		$collection->remove( array("_id" => new MongoId($id)) );
 
-		
-		//echo "finishing function: MongoToYQL_Adapter:editPurchase<br>";
+	
 		return $this->addPurchase($symbol, $quantity, $price, $date, $fee, $account, $owner);
 	}
 	
@@ -380,191 +357,15 @@ class MongoToYQL_Adapter {
 		
 	}
 	
-	/** Merge data from MongoDB[i] with data from YQL[j] for i and j elements in
-	 *  both arrays into a new, multidimensional array containing n elements.
-	 *
-	 *  Also: do computed fields like total-current-value (quant + price)
-	 *
-	 * @param $mongo an array of arrays containing a user's information about
-	 *               specific stock purchases
-	 *               WARNING: $mongo must be of type Array( [0] => Array ... )
-	 *
-	 * @param $yql   an array of arrays containing info queried from YQL.
-	 *               WARNING: $yql must be of type Array( [0] => Array ... )
-	 *
-	 * @return $theStocksArray a complete array of arrays of the stocks owned by
-	 *                         a user (used to populate the stocktracker table)
-	 */
-	function combineYQLandMongoArrays(&$mongo, &$yql){
-		$newArray = array();
-	
-		$len = count($mongo);
-		//echo $len;
-		$s = array(); // the stock
-		$agrigateChangeDollars = 0;
-	
-		/*notetoself: calculated fields are calculated in StocksTable.php
-		 * That cannot continue.  I'm also calculating them here as I receive them
-		 * from the db.
-		 */
-		// never used: $dollarchange = $s['LastTradePriceOnly'] - $s['purchaseprice'];
-		foreach($mongo as $m){
-			$s["symbol"] = $m["symbol"];
-			$s["AverageDailyVolume"] 	= $yql[$m["symbol"]]["AverageDailyVolume"];
-			$s["Change"] 				= $yql[$m["symbol"]]["Change"];
-			$s["DaysLow"] 				= $yql[$m["symbol"]]["DaysLow"];
-			$s["DaysHigh"] 				= $yql[$m["symbol"]]["DaysHigh"];
-			$s["YearLow"] 				= $yql[$m["symbol"]]["YearLow"];
-			$s["YearHigh"] 				= $yql[$m["symbol"]]["YearHigh"];
-			$s["MarketCapitalization"] 	= $yql[$m["symbol"]]["MarketCapitalization"];
-			$s["LastTradePriceOnly"] 	= $yql[$m["symbol"]]["LastTradePriceOnly"];
-			if ($s['LastTradePriceOnly'] == 0){
-				$s["percentchangetoday"] = "no value";
-			}else{
-				$s["percentchangetoday"]	= $yql[$m["symbol"]]["Change"] / $s['LastTradePriceOnly'] * 100;
-			}
-			$s["DaysRange"] 			= $yql[$m["symbol"]]["DaysRange"];
-			$s["Name"] 					= $yql[$m["symbol"]]["Name"];
-			$s["Volume"] 				= $yql[$m["symbol"]]["Volume"];
-			$s["StockExchange"] 		= $yql[$m["symbol"]]["StockExchange"];
-			$s["_id"] 					= $m["_id"];
-			$s["purchasedate"] 			= $m["purchasedate"];
-			$s["purchasequantity"] 		= $m["purchasequantity"];
-			$s["purchaseprice"] 		= $m["purchaseprice"];
-			$s["purchasefee"] 			= $m["purchasefee"];
-			$s["purchasetotal"] 		= $m["purchasefee"] + ($m["purchaseprice"] * $m["purchasequantity"]);
-			$s["account"] 				= $m["account"];
-			$s["owner"] 				= $m["owner"];
-			$s["totalCurrentValue"] 	= $s["purchasequantity"] * $s['LastTradePriceOnly'] - $s['purchasefee'];
-			$s["totalChangeDollar"] 	= $s["totalCurrentValue"] - $s["purchasetotal"];
-			$s["totalChangePercent"]	= $s["purchasetotal"] > 0 ? $s["totalChangeDollar"] / $s["purchasetotal"] * 100 : 0;
-	
-			$newArray[] = $s;
-		}
-		//echo "finishing function: MongoToYQL_Adapter:combineYQLandMongoArrays<br>";
-		//echo "<pre>"; print_r($s); echo "</pre>";
-		return $newArray;
-	}
-	
+
 	
 	function getAllStocksByOwner($owner){ //,$sortby){
-		//echo "starting----MongoToYQL_Adapter:getAllStocksByOwner; owner is $owner <--------------------------------!<br>";
-		$mongo = $this->queryMongoMany($owner); // $mongo is an array of arrays
-		//	echo "<pre>"; print_r($mongo); echo "</pre>";
+		
+		$mongo = $this->queryMongoMany($owner);
 		$yql = $this->fetchFromYQL($mongo);
-		//	echo "<pre>"; print_r($yql); echo "</pre>";
-		
-		//echo "finishing----MongoToYQL_Adapter:getAllStocksByOwner<br>";
 		return $this->combineYQLandMongoArrays($mongo, $yql);
-	  
+	
 	}
-
-
-
-}
-
-
-/*	for sorting:
-
-        const Name 					= 0;
-        const Symbol 				= 1;
-        const DollarChangeToday 	= 2;
-        const PercentChangeToday 	= 3;
-        const TotalCost 			= 4;
-        const TotalDollarChange 	= 5;
-        const TotalPercentChange	= 6;
-        const Account 				= 7;
-        const PurchaseDate 			= 8;
-
-*/
-
-
-/*
-
-	Here is commandline query: > db.stocks.find({owner: 'me', symbol: 'yhoo'})
-	(cleaned up a bit)
-
-	{ 	"_id" : ObjectId("55dc16dd5490c40254dba668"), 
-		"symbol" : "yhoo", 
-		"AverageDailyVolume" : "12495100", 
-		"Change" : "-1.62", 
-		"DaysLow" : "29.00", 
-		"DaysHigh" : "32.28", 
-		"YearLow" : "29.00", "YearHigh" : "52.62", 
-		"MarketCapitalization" : "29.47B", 
-		"LastTradePriceOnly" : "31.31", 
-		"DaysRange" : "29.00 - 32.28", 
-		"Name" : "Yahoo! Inc.", 
-		"Symbol" : "yhoo", 
-		"Volume" : "23163378", 
-		"StockExchange" : "NMS", 
-		"purchasedate" : "04/29/2014", 
-		"purchasequantity" : "60", 
-		"purchaseprice" : "35.75", 
-		"purchasefee" : "7", 
-		"account" : "ScottradeIRA", 
-		"owner" : "me" 
-	}
-
-*/
-
-		
-				/*
-				 echo "<pre>";
-				print_r($JSON);
-				echo "</pre>";
-					
-				Here is the JSON object (the pertinent piece)
 	
-				[results] => stdClass Object
-				(
-						[quote] => stdClass Object
-						(
-								[symbol] => YHOO
-								[AverageDailyVolume] => 20762400
-								[Change] => +0.32
-								[DaysLow] => 34.68
-								[DaysHigh] => 35.07
-								[YearLow] => 25.74
-								[YearHigh] => 41.72
-								[MarketCapitalization] => 35.087B
-								[LastTradePriceOnly] => 34.85
-								[DaysRange] => 34.68 - 35.07
-								[Name] => Yahoo! Inc.
-								[Symbol] => YHOO
-								[Volume] => 12586865
-								[StockExchange] => NasdaqNM
-						)
-				)
-					
-				select * from purchases where symbol = 'TRIP';
-				symbol |       name        | quantity | purchdate  | pricepershare | fee
-				--------+-------------------+----------+------------+---------------+-----
-				TRIP   | TripAdvisor, Inc. |       55 | 2014-05-22 |         87.64 |
 	
-				*/
-				
-					/*
-					["results"]=> object(stdClass)#3441 (1)
-					{ ["quote"]=> array(252) {
-					 [0]=> object(stdClass)#3442 (8) {
-					["Symbol"]=> string(4) "YHOO"
-					["Date"]=> string(10) "2013-12-31"
-					["Open"]=> string(5) "40.17"
-					["High"]=> string(5) "40.50"
-					["Low"]=> string(5) "40.00"
-					["Close"]=> string(5) "40.44"
-					["Volume"]=> string(7) "8291400"
-					["Adj_Close"]=> string(5) "40.44"
-					}
-					}
-	
-					investments=# select * from historicquotes;
-					symbol |  thedate   | closevalue
-					--------+------------+------------
-					WOOF   | 2014-05-22 |         10
-	
-					*/
-
-
-?>
+?>	
