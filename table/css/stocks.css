@@ -80,6 +80,11 @@ table table th {
     color:blue;
 }
 
+.titles{
+    height: 30px;
+    word-wrap: break-word;
+}
+
 td, th {
     padding: 2px 2px;
     font-family: verdana, arial, sans-serif;

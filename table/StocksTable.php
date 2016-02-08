@@ -1,5 +1,7 @@
 <?php // StocksTable.php
 
+/* This is the contraption that builds the stock table */
+
 
 class StocksTable {
 	
@@ -16,8 +18,8 @@ class StocksTable {
 		$result .= "<thead>";
 			$result .= "<tr>";
 				$result .= "	<input type=\"hidden\" name=\"owner\" id=\"owner\" value=\"". $owner ."\" />";
-				$result .= "<th><button id=\"removie\">Remove</button></th>"; //                    The Remove BUTTON
-				$result .= "<th colspan=\"3\">";
+				$result .= "<th colspan=\"2\"><button id=\"removie\">Remove</button></th>"; //                    The Remove BUTTON
+				$result .= "<th colspan=\"2\">";
 				$result .= "	<!--  this just triggers the Add form to pop up.  Form has its own buttons -->";
 				$result .= "	<input  type=\"submit\" id=\"addy\" value=\"Add a stock purchase\">"; //   the Add BUTTON
 				$result .= "</th>";
@@ -26,8 +28,9 @@ class StocksTable {
 				$result .= "<th colspan=\"1\">Current Value</th>";
 				$result .= "<th colspan=\"3\">Cost Basis -- including fee</th>";
 				$result .= "<th colspan=\"3\">Purchas Details</th>";
+				$result .= "<th>52 week Low & High</th>";
 			$result .= "</tr>";
-			$result .= "<tr>";
+			$result .= "<tr class='titles'>";
 			$result .= "<th><input type=\"checkbox\" name=\"remove[]\" id=\"selectAll\" value=\"all\"></th>"; // CHECKBOX (main one)
 			$result .= "<th>Edit</th>";
 			
@@ -54,6 +57,7 @@ class StocksTable {
 			$result .= "<th>Fee</th>";
 			$result .= "<th class=\"sortByColumn\">Account</th>";
 			$result .= "<th class=\"sortByColumn\">Purchase Date</th>";
+			$result .= "<th></th>";
 			
 			
 			$result .= "</tr>";			
@@ -308,8 +312,11 @@ class StocksTable {
 			$result .= "<td class=\"right\">". $s['purchaseprice'] . "</td>";
 			$result .= "<td class=\"right\">". number_format($s['purchasefee'], 2, '.', ',')  . "</td>";
 			$result .= "<td class=\"left\">". $s['account'] . "</td>";
-			$result .= "<td class=\"left\">". $s['purchasedate'] . "</td>";	
-			
+			$result .= "<td class=\"left\">". $s['purchasedate'] . "</td>";
+
+			// need logic to sort out whether this is a loss or a gain, and color red/green accordingly in the graph. Oh, also need the graph.  Ugh. 
+			$result .= "<td class=\"left\">". $s['YearLow'] . " - " . $s['LastTradePriceOnly'] . " - " . $s['purchaseprice'] . " - " . $s['YearHigh'] . "</td>";
+
 			$result .= "</tr>";
 		}
 		
