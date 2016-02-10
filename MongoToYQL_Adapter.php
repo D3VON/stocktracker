@@ -129,8 +129,8 @@ class MongoToYQL_Adapter {
 	function fetchFromYQL(&$mongoArray){
 		
 		$len = count($mongoArray);
-		// $type = ($len > 1) ? "many" : "single";
-		// echo $type;
+		 $type = ($len > 0) ? "many" : "single";
+		 echo $type;
 		
 		// get the symbols and make the string for the YQL query
 		$symbolsString = "";

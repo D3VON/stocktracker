@@ -314,8 +314,106 @@ class StocksTable {
 			$result .= "<td class=\"left\">". $s['account'] . "</td>";
 			$result .= "<td class=\"left\">". $s['purchasedate'] . "</td>";
 
-			// need logic to sort out whether this is a loss or a gain, and color red/green accordingly in the graph. Oh, also need the graph.  Ugh. 
-			$result .= "<td class=\"left\">". $s['YearLow'] . " - " . $s['LastTradePriceOnly'] . " - " . $s['purchaseprice'] . " - " . $s['YearHigh'] . "</td>";
+
+			/***************************************************************************************
+			 ***************************************************************************************
+			 * This block is INLINE D3.js.  It is originally a graph I found called "threshold key"
+			 * but I've repurposed it to show 52 week high, low, and the stock's gain or loss
+			 *
+			 * NOTE: very shaggy hacking: Instead of declaring, e.g., "var x" many times
+			 * (this code is called many times in a loop) causing it to be declared many times
+			 * in the same script, I'm 'augmenting' the name, e.g., "var x", with the database id
+			 * of each stock thusly: _" . (string)$s['_id'] . " so as to make each declaration UNIQUE!
+			 ***************************************************************************************
+			 ***************************************************************************************/
+			// this boolean does 2 things: controls whether graph is red or green,
+			// and controls order in graph of purchase price & current price
+			$redboolean = (($s['LastTradePriceOnly'] - $s['purchaseprice']) < 0) ? TRUE : FALSE;
+			$graphcolor = ($redboolean) ? "red" : "green";
+
+			// guard against stocks purchased more than 52 weeks ago at a lower or higher price
+			$purchPriceTooLow = ($s['YearLow'] > $s['purchaseprice']) ? TRUE : FALSE;
+			$purchPriceTooHigh = ($s['YearHigh'] < $s['purchaseprice']) ? TRUE : FALSE;
+			//Then we can only have two colored ranges instead of three
+
+			// ONLY SHOW 52 WEEK DATA, not longer ago than that (may have gained or lost more, but only show 1 year)
+
+			$redboolean = (($s['LastTradePriceOnly'] - $s['purchaseprice']) < 0) ? TRUE : FALSE;
+
+
+			$result .= "<td class=\"left\" id=\"graph_" . (string)$s['_id'] . "\">";
+
+			$result .= "<script>";
+
+			// handle possible overflow of 52 week values
+			if($purchPriceTooLow){
+				$pp = $s['YearLow'];
+			}elseif($purchPriceTooHigh){
+				$pp = $s['YearHigh'];
+			}else{
+				$pp = $s['purchaseprice'];
+			}
+
+			// this thing holds the 'ticks' -- the axis values
+    		$result .= "var threshold_" . (string)$s['_id'] . " = d3.scale.threshold().domain([".$s['YearLow'];
+			if($redboolean){// will be red, showing loss
+				$result .= ",". $s['LastTradePriceOnly'] . "," . $pp;
+			}else{//willbe green showing gain
+				$result .= ",". $pp . "," . $s['LastTradePriceOnly'];
+			}
+			$result .= "," . $s['YearHigh']. "])";
+						//orig:  .range(["#ffffff","#ffffff", "#a0b28f", "#d8b8b3", "#b45554", "#760000","#ffffff"]);
+			$result .= ".range([\"#ffffff\",\"#ffffff\", \"" . $graphcolor . "\", \"#ffffff\"]);";
+
+			// A position encoding for the key only. --that is, for the gain/loss part of the graph
+			$result .= "var x_" . (string)$s['_id'] . " = d3.scale.linear()"; // .domain([0, 1]) // original was percentages between 0 and 1
+			$result .= ".domain([".$s['YearLow'].",". $s['YearHigh']."]).range([0, 200]);"; // range is the width of the graph within its container (see 'width' var)
+
+			$result .= "var xAxis_" . (string)$s['_id'] . " = d3.svg.axis().scale(x_" . (string)$s['_id'] . ").orient(\"bottom\").tickSize(9).tickValues(threshold_" . (string)$s['_id'] . ".domain())";
+			$result .= ".tickFormat(d3.format(\"$,.2f\"));";
+			// 'width' and 'height' are size of 'container' of the graph
+			$result .= "var svg_" . (string)$s['_id'] . " = d3.select(\"#graph_" . (string)$s['_id'] . "\").append(\"svg\").attr(\"width\", 250).attr(\"height\", 20);";
+
+			$result .= "var g_" . (string)$s['_id'] . " = svg_" . (string)$s['_id'] . ".append(\"g\").attr(\"class\", \"key\").attr(\"transform\", \"translate(25, 1)\");"; // 25px from left, 0 px from the bottom
+
+			$result .= "g_" . (string)$s['_id'] . ".selectAll(\"rect\").data(threshold_" . (string)$s['_id'] . ".range().map(function(color) {";
+			$result .= "		var d_" . (string)$s['_id'] . " = threshold_" . (string)$s['_id'] . ".invertExtent(color);";
+			$result .= "		if (d_" . (string)$s['_id'] . "[0] == null) d_" . (string)$s['_id'] . "[0] = x_" . (string)$s['_id'] . ".domain()[0];";
+			$result .= "		if (d_" . (string)$s['_id'] . "[1] == null) d_" . (string)$s['_id'] . "[1] = x_" . (string)$s['_id'] . ".domain()[1];";
+			$result .= "		return d_" . (string)$s['_id'] . ";";
+			$result .= "	}))";
+			$result .= ".enter().append(\"rect\")";
+			$result .= ".attr(\"height\", 7)"; // this is the height of the graph's horizontal bar
+			$result .= ".attr(\"x\", function(d) { return x_" . (string)$s['_id'] . "(d[0]); })";
+			$result .= ".attr(\"width\", function(d) { return x_" . (string)$s['_id'] . "(d[1]) - x_" . (string)$s['_id'] . "(d[0]); })";
+			//.style(\"stroke\", \"#000\")"; // makes just the middle block outlined with a line
+			$result .= ".style(\"fill\", function(d) { return threshold_" . (string)$s['_id'] . "(d[0]); });";
+
+			$result .= "g_" . (string)$s['_id'] . ".call(xAxis_" . (string)$s['_id'] . ");";  // orig: .append("text")
+							// orig: .attr("class", "caption")
+							// orig: .attr("y", 0)
+							// orig: .attr("y", -6)
+							// orig: .text("Percentage of stops that involved force")
+							// orig: ;
+			//top line
+			$result .= "var borderPathTop_" . (string)$s['_id'] . " = svg_" . (string)$s['_id'] . ".append(\"rect\")";
+			$result .= "			.attr(\"x\", 25)"; // 25px from the absolute left
+			$result .= "			.attr(\"y\", 8)"; // 0px from the absolute top of where the graph is drawn
+			$result .= "			.attr(\"height\", 1)";
+			$result .= "			.attr(\"width\", 201);";
+			//bottom line
+			$result .= "var borderPathBottom_" . (string)$s['_id'] . " = svg_" . (string)$s['_id'] . ".append(\"rect\")";
+			$result .= "			.attr(\"x\", 25)";
+			$result .= "			.attr(\"y\", 1)";
+			$result .= "			.attr(\"height\", 1)";
+			$result .= "			.attr(\"width\", 201);";
+
+			$result .= "</script>";
+
+
+			/*****************************************************************************************
+			 * End of D3.js graph in this table cell
+			 */
 
 			$result .= "</tr>";
 		}

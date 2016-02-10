@@ -135,3 +135,23 @@ li {
     padding-top:      5px;
     margin-left:      10px;
 }
+
+/* This group (svg, caption, key path, key line) for "thresholdkey graph" in table (52 week high/low).  */
+
+svg {
+    font: 9px sans-serif;
+    /* font-weight: bold; */
+}
+
+.caption {
+    font-weight: bold;
+}
+
+.key path {
+    display: none;
+}
+
+.key line {
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
