@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Threshold Key Graph to show 52 week high and low and my profit or loss</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        svg {
+            font: 9px sans-serif;
+            /* font-weight: bold; */
+        }
+
+        .caption {
+            font-weight: bold;
+        }
+
+        .key path {
+            display: none;
+        }
+
+        .key line {
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+        *.left { text-align: left; }
+        *.right { text-align: right; }
+        *.center { text-align: center; }
+        *.graph  { /* this isn't doing what I want it to do. */
+            border-collapse: collapse;
+            font: 9px sans-serif;
+            /* border: none; */
+            table-layout: fixed;
+        }
+    </style>
+
+</head>
+<body>
+
+<p>
+    Textie-wextie
+</p>
+
+
+<table>
+    <tr>
+        <td>text</td>
+        <td id="woof1">
+
+
+            <!-- INLINE D3.js -->
+
+            <script src="//d3js.org/d3.v3.min.js"></script>
+            <script>
+                var width = 250, // seems to be size of 'container' of the graph
+                        height = 20; // less than 50 will start cutting off numbers
+
+                // this thing holds the 'ticks' -- the axis values
+                var threshold = d3.scale.threshold()
+                        // .domain([0,.11, .22, .33, .50,1]) // original
+                        .domain([222.23, 343, 444, 525.99])
+                        //orig:  .range(["#ffffff","#ffffff", "#a0b28f", "#d8b8b3", "#b45554", "#760000","#ffffff"]);
+                        .range(["#ffffff","#ffffff", "red", "#ffffff"]);
+                // also found this example: .range(["red", "white", "green"]);
+
+                // A position encoding for the key only.
+                var x = d3.scale.linear()
+                        // .domain([0, 1]) // original was percentages between 0 and 1
+                        .domain([222.23, 525.99])
+                        .range([0, 200]); // this seems to be the actual width of the graph within its container (see 'width' var)
+
+                /*won't work: will not advance through if statements as axiscount is incremented.
+                 var axiscount = 0;
+                 // a hack to suppress certain values in the xAxis
+                 var handleAxisValues = function() {
+
+                 document.write(axiscount);
+                 //document.write(d);
+
+                 if (axiscount === 0) {//represents 52 week low
+                 axiscount += 1;
+                 return "$,.2f";
+                 }
+                 if (axiscount === 1) {// represents lowest value since I bought it (not allowed by other logic to be less than 52 week low)
+                 axiscount += 1;
+                 return '';
+                 }
+                 if (axiscount === 2) {// represents highest value since I bought it (not allowed by other logic to be more than 52 week high)
+                 axiscount += 1;
+                 return '';
+                 }
+                 if (axiscount === 3) {// represents 52 week high
+                 axiscount = 0; // reset to zero for next row in chart -- might not be necessary
+                 return "$,.2f";
+                 }
+                 }
+
+                 /* WON'T WORK RIGHT AT ALL -- MAKES ENTIRE CHART VANISH
+                 switch(axiscount) {
+                 case 0:
+                 axiscount += 1;
+                 return "$,.2f";
+                 break;
+                 case 1:
+                 axiscount += 1;
+                 return '';
+                 break;
+                 case 2:
+                 axiscount += 1;
+                 return '';
+                 break;
+                 case 3:
+                 axiscount = 0;
+                 "$,.2f";
+                 break;
+                 default:
+                 axiscount = 0;
+                 "$,.2f"; // bad form: should never get here
+                 }
+                 };
+
+                 /* This worked!
+                 var handleAxisValues = function(){
+                 return "$,.2f";
+                 }
+                 */
+
+                //document.write(handleAxisValues("woofwoofwoofwoofwoofwoofwoofwoofwoof"));
+                var xAxis = d3.svg.axis()
+                        .scale(x)
+                        .orient("bottom")
+                        .tickSize(9)
+                        .tickValues(threshold.domain())
+                        .tickFormat(d3.format("$,.2f"));
+                //.tickFormat(d3.format(handleAxisValues()));
+                //orig: .tickFormat(function(d) { return d === .5 ? formatPercent(d) : formatNumber(100 * d); });
+                // I don't need that, because I want dollar amounts, not percentages.
+
+
+                var svg = d3.select("#woof1").append("svg")
+                        .attr("width", width)
+                        .attr("height", height)
+                        ;
+
+                var g = svg.append("g")
+                        .attr("class", "key")
+                        .attr("transform", "translate(25, 1)"); // 25px from left, 0 px from the bottom
+                // failed attempt at modifying: .attr("transform", "translate(" + 0 + "," + 0 + ")");
+
+                g.selectAll("rect")
+                        .data(threshold.range().map(function(color) {
+                            var d = threshold.invertExtent(color);
+                            if (d[0] == null) d[0] = x.domain()[0];
+                            if (d[1] == null) d[1] = x.domain()[1];
+                            return d;
+                        }))
+                        .enter().append("rect")
+                        .attr("height", 7) // this is the height of the graph's horizontal bar
+                        .attr("x", function(d) { return x(d[0]); })
+                        .attr("width", function(d) { return x(d[1]) - x(d[0]); })
+                        //.style("stroke", "#000") // makes just the middle block outlined with a line
+                        .style("fill", function(d) { return threshold(d[0]); });
+
+                g.call(xAxis);  // orig: .append("text")
+                                // orig: .attr("class", "caption")
+                                // orig: .attr("y", 0)
+                                // orig: .attr("y", -6)
+                                // orig: .text("Percentage of stops that involved force")
+                                // orig: ;
+                /* This seems to just be drawn on top of all the previous stuff.
+                 It just puts a line exactly where I want it.
+                 The reason I need this is that I could only get one rectangle to have a sharp line
+                 around it, but I want the whole series of rectangles to have lines around them.
+
+                 I found this text and solution at http://stackoverflow.com/questions/15573594/creating-a-border-around-your-d3-graph
+                 It said: The svg var is just a container. You need to add a path or element to the container
+                 and then give it the stroke color and width you want for your border. There is more
+                 than one way to do this. In this gist I did it by adding a rect
+
+                 Turns out I removed a lot of .style stuff from what was there at stackoverflow
+                 In stead, I'm just drawing a pure line.
+                 */
+                //top line
+                var borderPathTop = svg.append("rect")
+                        .attr("x", 25) // 25px from the absolute left
+                        .attr("y", 8) // 0px from the absolute top of where the graph is drawn
+                        .attr("height", 1)
+                        .attr("width", 201);
+                //bottom line
+                var borderPathBottom = svg.append("rect")
+                        .attr("x", 25)
+                        .attr("y", 1)
+                        .attr("height", 1)
+                        .attr("width", 201);
+
+            </script>
+        </td>
+    </tr>
+    <tr>
+        <td>text</td>
+        <td>
+            <table>
+                <tr>
+                    <td id="woof2">
+
+                        <!-- INLINE D3.js -->
+                        <script src="//d3js.org/d3.v3.min.js"></script>
+                        <script>
+                            var width = 230, // seems to be size of 'container' of the graph
+                                    height = 10, // less than 50 will start cutting off numbers
+                                    formatPercent = d3.format(".0%"),
+                                    formatNumber = d3.format(".0f");
+
+                            // this thing holds the 'ticks' -- the axis values
+                            var threshold = d3.scale.threshold()
+                                    // .domain([0,.11, .22, .33, .50,1]) // original
+                                    .domain([22, 33, 44, 55])
+                                    //orig:  .range(["#ffffff","#ffffff", "#a0b28f", "#d8b8b3", "#b45554", "#760000","#ffffff"]);
+                                    .range(["#ffffff","#ffffff", "green", "#ffffff"]);
+                            // also found this example: .range(["red", "white", "green"]);
+
+                            // A position encoding for the key only.
+                            var x = d3.scale.linear()
+                                    // .domain([0, 1]) // original was percentages between 0 and 1
+                                    .domain([22, 55])
+                                    .range([0, 200]); // this seems to be the actual width of the graph within its container (see 'width' var)
+
+                            var xAxis = d3.svg.axis()
+                                    .scale(x)
+                                    .orient("bottom")
+                                    .tickSize(9)
+                                    .tickValues(threshold.domain())
+                                    //.tickFormat(d3.format("$,.2f")) // show nice dollar format for axis lables
+                                    .tickFormat(function (d) { return ''; }) // this should 'hide' x axis lables (very clever!)
+                            //.style("opacity", 0); // this hides the whole graph!
+                                    ;
+
+
+                            var svg = d3.select("#woof2").append("svg")
+                                    .attr("width", width)
+                                    .attr("height", height)
+                                    ;
+
+                            var g = svg.append("g")
+                                    .attr("class", "key")
+                                    .attr("transform", "translate(0, 1)"); // 25px from left, 0 px from the botton
+                            // failed attempt at modifying: .attr("transform", "translate(" + 0 + "," + 0 + ")");
+
+                            g.selectAll("rect")
+                                    .data(threshold.range().map(function(color) {
+                                        var d = threshold.invertExtent(color);
+                                        if (d[0] == null) d[0] = x.domain()[0];
+                                        if (d[1] == null) d[1] = x.domain()[1];
+                                        return d;
+                                    }))
+                                    .enter().append("rect")
+                                    .attr("height", 7) // this is the height of the graph's horizontal bar
+                                    .attr("x", function(d) { return x(d[0]); })
+                                    .attr("width", function(d) { return x(d[1]) - x(d[0]); })
+                                    //.style("stroke", "#000") // makes just the middle block outlined with a line
+                                    .style("fill", function(d) { return threshold(d[0]); });
+
+                            g.call(xAxis);  // orig: .append("text")
+                                            // orig: .attr("class", "caption")
+                                            // orig: .attr("y", 0)
+                                            // orig: .attr("y", -6)
+                                            // orig: .text("Percentage of stops that involved force")
+                                            // orig: ;
+
+                            //top line
+                            var borderPathTop = svg.append("rect")
+                                    .attr("x", 0) // 0px from the absolute left
+                                    .attr("y", 8) // 0px from the absolute top of where the graph is drawn
+                                    .attr("height", 1)
+                                    .attr("width", 201);
+                            //bottom line
+                            var borderPathBottom = svg.append("rect")
+                                    .attr("x", 0)
+                                    .attr("y", 1)
+                                    .attr("height", 1)
+                                    .attr("width", 201);
+
+                        </script>
+
+
+                    </td>
+                </tr>
+                <tr>
+                    <td class="center">
+                        <table class="graph" style='width: 200px'>
+                            <tr>
+                                <td class="left" style='width: 25%'>$22.34</td>
+                                <td class="center" style='width: 50%'>Last: $33.45</td>
+                                <td class="right" style='width: 25%'>$56.78</td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+
+
+</td>
+</tr>
+</table>
+
+<p>
+    This is someting called a Threshold Key Graph I'm using to show 52 week high and low and my profit or loss.
+    My goal was a one-dimensional bar-chart kind of thing.
+</p>
+<p>
+
+</p>
+
+
+</body>
+</html>

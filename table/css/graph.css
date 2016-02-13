@@ -1,0 +1,39 @@
+/* This group (svg, caption, key path, key line) for "thresholdkey graph" in table (52 week high/low).  */
+
+svg {
+    font: 9px sans-serif;
+    /* font-weight: bold; */
+}
+
+.caption {
+    font-weight: bold;
+}
+
+.key path {
+    display: none;
+}
+
+.key line {
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+table.graph { /* table and descendants that also are of class graph */
+    width: 210px; /* hardcoding this inline didn't work at all */
+    border: 0;
+    padding: 0;
+    margin: 0;
+    /* background-color: #ff6600; /* I used this as a flag to show that it even exists to the element(s) I'm hoping for... */
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+td.graph  {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    height: 8px;
+    /* background-color: #ff6600; /* I used this as a flag to show that it even exists to the element(s) I'm hoping for... */
+    border-collapse: collapse;
+    font: 10px sans-serif;
+}

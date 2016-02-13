@@ -25,13 +25,13 @@ blockquote {
 
 table.popuptable {
     margin:      20px 20px 20px 20px; /* no commas; order: top, right, bottom, left*/
-    border:           none;
+    border:           0;
     border-collapse:  collapse; /* eliminates gap between cells */
 }
 
 table.popuptable td, th {
     font-weight:     lighter;
-    border:           none;
+    border:           0;
 }
 
 table.popuptable th {
@@ -40,17 +40,17 @@ table.popuptable th {
 
 table {
     margin:      20px 20px 20px 20px; /* no commas; order: top, right, bottom, left*/
-    border:           thin solid black;
     caption-side:     bottom;
     padding:			0;
+    margin: 0;
     border-collapse:  collapse; /* eliminates gap between cells */
 }
-
+/*
 table table th {
     background-color: white;
     position: absolute;
 }
-
+*/
 
 #thetable th, #thetable td{
     border:solid 1px #000;
@@ -136,22 +136,3 @@ li {
     margin-left:      10px;
 }
 
-/* This group (svg, caption, key path, key line) for "thresholdkey graph" in table (52 week high/low).  */
-
-svg {
-    font: 9px sans-serif;
-    /* font-weight: bold; */
-}
-
-.caption {
-    font-weight: bold;
-}
-
-.key path {
-    display: none;
-}
-
-.key line {
-    stroke: #000;
-    shape-rendering: crispEdges;
-}
