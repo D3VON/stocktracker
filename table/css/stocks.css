@@ -98,7 +98,7 @@ th {
 }
 
 tr:hover {
-    background-color: #99ff33;
+    background-color: #ffdd99; /* grayish: #efeff5; /* bright green: #99ff33; */
 }
 
 .cellcolor {
@@ -136,3 +136,6 @@ li {
     margin-left:      10px;
 }
 
+.current {
+    background-color: #ffcc66;
+}

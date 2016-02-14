@@ -28,7 +28,7 @@ class StocksTable {
 				$result .= "<th colspan=\"1\">Current Value</th>";
 				$result .= "<th colspan=\"3\">Cost Basis -- including fee</th>";
 				$result .= "<th colspan=\"3\">Purchas Details</th>";
-				$result .= "<th>52 week Low & High</th>";
+				$result .= "<th>52 week Low, High, Last</th>";
 			$result .= "</tr>";
 			$result .= "<tr class='titles'>";
 			$result .= "<th><input type=\"checkbox\" name=\"remove[]\" id=\"selectAll\" value=\"all\"></th>"; // CHECKBOX (main one)
@@ -292,13 +292,13 @@ class StocksTable {
 			
 			$result .= "<td class=\"left\">". $s['Name'] . "</td>";
 			$result .= "<td class=\"left\">". $s['symbol'] . "</td>";
-			$result .= "<td class=\"right\">$". $s['LastTradePriceOnly'] . "</td>";
+			$result .= "<td class=\"right current\">$". $s['LastTradePriceOnly'] . "</td>";
 			$result .= "<td class=\"";
 			$result .= ($s['Change']>0) ? $pos : $neg;
-			$result .= "\">$" . $s['Change'] . "</td>";
+			$result .= " current\">$" . $s['Change'] . "</td>";
 			$result .= "<td  class=\"right ";
 			$result .= ($percentchangetoday>0) ? $pos : $neg;
-			$result .= "\">". number_format($percentchangetoday, 2, '.', ',') . "%</td>";
+			$result .= " current\">". number_format($percentchangetoday, 2, '.', ',') . "%</td>";
 			$result .= "<td  class=\"right ";
 			$result .= ($totalChangeDollar>0) ? $pos : $neg;
 			$result .= "\">$". number_format($totalChangeDollar, 2, '.', ',') . "</td>";
@@ -326,15 +326,15 @@ class StocksTable {
 			 ***************************************************************************************
 			 ***************************************************************************************/
 			$result .= "<td>";
-			$result .= "	<table class=\"graph\">";
-			$result .= "		<tr class=\"graph\">";
-			$result .= "			<td class=\"left graph\" style='border:0  !important;' id=\"graph_" . (string)$s['_id'] . "\">";
+			$result .= "	<table class=\"graph\" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>";
+			$result .= "		<tr class=\"graph\" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>";
+			$result .= "			<td class=\"left graph\" style='border:0  !important; padding: 0 !important; margin: 0 !important;' id=\"graph_" . (string)$s['_id'] . "\">";
 
 					// ONLY SHOW 52 WEEK DATA, not longer ago than that (may have gained or lost more, but only show 1 year)
 					// this boolean does 2 things: controls whether graph is red or green,
 					// and controls order in graph of purchase price & current price
 					$redboolean = (($s['LastTradePriceOnly'] - $s['purchaseprice']) < 0) ? TRUE : FALSE;
-					$graphcolor = ($redboolean) ? "red" : "green";
+					$graphcolor = ($redboolean) ? "#ffb3b3" /*reddish*/ : "#d5ff80" /*greenish*/;
 
 					// guard against stocks purchased more than 52 weeks ago at a lower or higher price
 					$purchPriceTooLow = ($s['YearLow'] > $s['purchaseprice']) ? TRUE : FALSE;
@@ -414,19 +414,19 @@ class StocksTable {
 
 			$result .= "			</td>";
 			$result .= "		</tr>";
-			$result .= "		<tr class=\"graph\" style='border:0  !important; height: 8px !important;'>";
-			$result .= "			<td class=\"graph center\" style='border:0  !important;'>";
-			$result .= "				<table class=\"graph\" style='border:0  !important;'>";
-			$result .= "					<tr class=\"graph\" style='border:0  !important; height: 8px !important;'>";
+			$result .= "		<tr class=\"graph\" style='border:0  !important; height: 8px !important; padding: 0 !important; margin: 0 !important;'>";
+			$result .= "			<td class=\"graph center\" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>";
+			$result .= "				<table class=\"graph\" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>";
+			$result .= "					<tr class=\"graph\" style='border:0  !important; height: 8px !important; padding: 0 !important; margin: 0 !important;'>";
 
 			$low = ($s['YearLow']=='') ? 'no data' : '$'.$s['YearLow'];
 			$high = ($s['YearHigh']=='') ? 'no data' : '$'.$s['YearHigh'];
 
 
 
-			$result .= "						<td class=\"left graph\" style='border:0 !important; width: 25%;'>". $low ."</td>";
-			$result .= "						<td class=\"center graph\" style='border:0  !important; width: 50%;'>Last: $". $s['LastTradePriceOnly'] ."</td>";
-			$result .= "						<td class=\"right graph\" style='border:0  !important; width: 25%;'>". $high ."</td>";
+			$result .= "						<td class=\"left graph\" style='border:0 !important; padding: 0 !important; margin: 0 !important; width: 25%;'>". $low ."</td>";
+			$result .= "						<td class=\"center graph\" style='border:0  !important; padding: 0 !important; margin: 0 !important; width: 50%;'>Last: $". $s['LastTradePriceOnly'] ."</td>";
+			$result .= "						<td class=\"right graph\" style='border:0  !important; padding: 0 !important; margin: 0 !important; width: 25%;'>". $high ."</td>";
 			$result .= "					</tr>";
 			$result .= "				</table>";
 			$result .= "			</td>";
@@ -493,7 +493,7 @@ class StocksTable {
 		return $result;
 	} // end makeStocksTBODY($stocks)
 
-} // end class StocksTable 
+} // end class StocksTable.php class
 
 
 ?>
