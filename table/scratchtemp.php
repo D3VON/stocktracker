@@ -14,7 +14,7 @@ class scratchtemp
 
     public function makeStocksTable($owner,$stocks){
 
-        $starttable_and_head = <<<THEAD
+        $starttable_and_head = <<<TABLEHEAD
         
         <script src="js/stocksTable.js"></script>
 
@@ -71,176 +71,174 @@ class scratchtemp
                     <th></th>
                 </tr>
             </thead>
-<tbody>
-// Because this is a SPA using JavaScript, this call will only happen once:
-// only when the page is loaded, so there's no danger of
-// having multiple bodies happening, because JavaScript will simply replace everything
-// WITHIN the tbody (referencing the id), but not the tbody itself............
-$result .= $this->makeStocksTBODY($stocks);
-</tbody>
-//</form>
-</table>
-
-THEAD;
-        // End of the block that isolates the beginning of the
+            <tbody>
+                {$this->makeStocksTBODY($stocks)}
+            </tbody>
+        </table>
+TABLEHEAD;
 
 
-        $tbody = <<<TBOdddddddddddddddddddDY
-
-// this div holds the little "Add a stock purchase" pop-up form (as a table)
-<div id="the_add_form"  title="Add a purchase">
-<!-- Pop-up form hidden by JavaScript until button is clicked -->
-//<!-- I got it here: https://github.com/apanzerj/Former-For-Zendesk/blob/Lesson-2-Branch/former.html#L14
-//and here: http://jsfiddle.net/eARdt/170/ and someplace at zendesk (google it) -->
-	<form id="addsymbol" action="addPurch.php" method="POST" name="addstock" enctype="multipart/form-data">
-	<!-- Note To Self: they don't just go via POST.  They have to be 'hand loaded' into the string
-	that looks like a GET string, down in the JavaScript code.  See the "click: function()" part of that mess. -->
-
-// this one's prolly redundant because it's in the main table, too.
-	<input type="hidden" name="owner" id="owner" value="" . $owner . "" />
-
-		<table class="popuptable">
-		<thead>
-		<tr><td class="right">
-		<label for="symbol">Symbol:</label>
-		</td><td>
-		<input type="text" name="symbol" id="symbol">
-		</td>
-		</tr>
-		<tr><td class="right">
-		<!--  for="..." Specifies which form element a label is bound to -->
-		<label for="quant">Quantity:</label>
-		</td><td>
-		<input type="text" name="quant" id="quant">
-		</td>
-		</tr>
-		<tr><td class="right">
-		<label for="price">Price for each: </label>
-		</td><td>
-		<input type="text" name="price" id="price">
-		</td>
-		</tr>
-		<tr><td class="right">
-		<label for="fee">Fee: </label>
-		</td><td>
-		<input type="text" name="fee" id="fee">
-		</td>
-		</tr>
-		<tr><td class="right">
-		<label for="datepicker">Date Purchased: </label>
-		</td><td>
-		<input type="text" name="datepicker" id="datepicker">
-		</td>
-		</tr>
-		<tr><td class="right">
-		<label for="account">Which account: </label>
-		</td><td>
-		<select name="account" id="account">
-		<option value="FidelityIndividual">Fidelity Individual</option>
-		<option value="FidelitySEP">Fidelity SEP</option>
-		<option value="FidelityRoth">Fidelity Roth</option>
-		<option value="ScottradeIRA">Scottrade IRA</option>
-		</select>
-		</td>
-		</tr>
-		</table>
-	</form>
-</div>
 
 
-//NOTE: these two tables are very similar, so, this is a good example of how the id's have to be different.
-// (html id's have to be unique on a page)
+        // this div holds the little "Add a stock purchase" pop-up form (as a table)
+        //<!-- I got it here: https://github.com/apanzerj/Former-For-Zendesk/blob/Lesson-2-Branch/former.html#L14
+        //and here: http://jsfiddle.net/eARdt/170/ and someplace at zendesk (google it) -->
 
-// this div holds the little "Edit a stock purchase" pop-up form (as a table)
-<div id="the_edit_form"  title="Edit a purchase">
-<!-- Pop-up form hidden by JavaScript until button is clicked -->
-//<!-- I got it here: https://github.com/apanzerj/Former-For-Zendesk/blob/Lesson-2-Branch/former.html#L14
-//and here: http://jsfiddle.net/eARdt/170/ and someplace at zendesk (google it) -->
-	<form id="editsymbol" action="editPurch.php" method="POST" name="editstock" enctype="multipart/form-data">
-	<!-- Note To Self: they don't just go via POST.  They have to be 'hand loaded' into the string
-	that looks like a GET string, down in the JavaScript code.  See the "click: function()" part of that mess. -->
+        $popups = <<<POPUPS
+            <div id="the_add_form"  title="Add a purchase">
+                <!-- Pop-up form hidden by JavaScript until button is clicked -->
+                <form id="addsymbol" action="addPurch.php" method="POST" name="addstock" enctype="multipart/form-data">
 
-// this one's prolly redundant because it's in the main table, too.
-	<input type="hidden" name="owner" id="editowner" value="" . $owner . "" />
-	<input type="hidden" name="id" id="editid" value="" />
+                    <!-- Note To Self: variables are passed via POST, but also have to be 'hand loaded' into the strings -->
+                    <!-- that 'look like' a GET string, down in the JavaScript code.  See the "click: function()" part of that mess. -->
+                    <!-- This input is prolly redundant because it's in the main table, too, but I don't have the time or energy to test it -->
+                    <input type="hidden" name="owner" id="owner" value="$owner" />
 
-		<table class="popuptable">
-
-		<thead>
-		<tr>
-			<th colspan="2">
-				<h3 id="companyname"> </h3>
-			</th>
-		</tr>
-		</thead>
-
-		<tbody>
-		<tr>
-			<td class="right">
-				<label for="symbol">Symbol:</label>
-			</td>
-			<td>
-				<input type="text" name="symbol" id="editsymbol" value="">
-			</td>
-		</tr>
-
-		<tr>
-			<td class="right">
-				<!--  for="..." Specifies which form element a label is bound to -->
-				<label for="quant">Quantity:</label>
-			</td>
-			<td>
-				<input type="text" name="quant" id="editquant" value="">
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<label for="price">Price for each: </label>
-			</td>
-			<td>
-				<input type="text" name="price" id="editprice" value="">
-			</td>
-		</tr>
-
-		<tr>
-			<td class="right">
-			<label for="fee">Fee: </label>
-			</td>
-			<td>
-				<input type="text" name="fee" id="editfee" value="">
-			</td>
-		</tr>
-
-		<tr>
-			<td class="right">
-				<label for="datepicker">Date Purchased: </label>
-			</td>
-			<td>
-				<input type="text" name="datepicker" id="editdatepicker" value="">
-			</td>
-		</tr>
-
-		<tr>
-			<td class="right">
-				<label for="account">Which account: </label>
-			</td>
- 			<td>
-				<select name="account" id="editaccount">
-				<option value="FidelityIndividual">Fidelity Individual</option>
-				<option value="FidelitySEP">Fidelity SEP</option>
-				<option value="FidelityRoth">Fidelity Roth</option>
-				<option value="ScottradeIRA">Scottrade IRA</option>
-				</select>
-			</td>
-		</tr>
-		</tbody>
-
-		</table>
-	</form>
-</div>
+                    <table class="popuptable">
+                        <tr>
+                            <td class="right">
+                                <label for="symbol">Symbol:</label>
+                            </td>
+                            <td>
+                                <input type="text" name="symbol" id="symbol">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="right">
+                                <!--  for="..." Specifies which form element a label is bound to -->
+                                <label for="quant">Quantity:</label>
+                            </td>
+                            <td>
+                                <input type="text" name="quant" id="quant">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="right">
+                                <label for="price">Price for each: </label>
+                            </td>
+                            <td>
+                                <input type="text" name="price" id="price">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="right">
+                                <label for="fee">Fee: </label>
+                            </td>
+                            <td>
+                                <input type="text" name="fee" id="fee">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="right">
+                                <label for="datepicker">Date Purchased: </label>
+                            </td>
+                            <td>
+                                <input type="text" name="datepicker" id="datepicker">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="right">
+                                <label for="account">Which account: </label>
+                            </td>
+                            <td>
+                                <select name="account" id="account">
+                                    <option value="FidelityIndividual">Fidelity Individual</option>
+                                    <option value="FidelitySEP">Fidelity SEP</option>
+                                    <option value="FidelityRoth">Fidelity Roth</option>
+                                    <option value="ScottradeIRA">Scottrade IRA</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
 
 
-return $result;
+            <!-- These two tables are very similar, so it's a good example of how the id's must be different. -->
+            <!-- This div holds the "Edit a stock purchase" pop-up form (as a table) -->
+            <!-- Pop-up form hidden by JavaScript until button is clicked -->
+            <!-- I got it here: https://github.com/apanzerj/Former-For-Zendesk/blob/Lesson-2-Branch/former.html#L14 -->
+            <!-- and here: http://jsfiddle.net/eARdt/170/ and someplace at zendesk (google it) -->
+
+            <div id="the_edit_form"  title="Edit a purchase">
+
+	            <form id="editsymbol" action="editPurch.php" method="POST" name="editstock" enctype="multipart/form-data">
+                    <!-- Note To Self: variables are passed via POST, but also have to be 'hand loaded' into the strings -->
+                    <!-- that 'look like' a GET string, down in the JavaScript code.  See the "click: function()" part of that mess. -->
+                    <!-- This input is prolly redundant because it's in the main table, too, but I don't have the time or energy to test it -->
+                    <input type="hidden" name="owner" id="editowner" value="" . $owner . "" />
+                    <input type="hidden" name="id" id="editid" value="" />
+
+                    <table class="popuptable">
+                        <thead>
+                            <tr>
+                                <th colspan="2">
+                                    <h2 id="companyname"> </h3>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="right">
+                                    <label for="symbol">Symbol:</label>
+                                </td>
+                                <td>
+                                    <input type="text" name="symbol" id="editsymbol" value="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="right">
+                                    <!--  for="..." Specifies which form element a label is bound to -->
+                                    <label for="quant">Quantity:</label>
+                                </td>
+                                <td>
+                                    <input type="text" name="quant" id="editquant" value="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label for="price">Price for each: </label>
+                                </td>
+                                <td>
+                                    <input type="text" name="price" id="editprice" value="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="right">
+                                    <label for="fee">Fee: </label>
+                                </td>
+                                <td>
+                                    <input type="text" name="fee" id="editfee" value="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="right">
+                                    <label for="datepicker">Date Purchased: </label>
+                                </td>
+                                <td>
+                                    <input type="text" name="datepicker" id="editdatepicker" value="">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="right">
+                                    <label for="account">Which account: </label>
+                                </td>
+                                <td>
+                                    <select name="account" id="editaccount">
+                                        <option value="FidelityIndividual">Fidelity Individual</option>
+                                        <option value="FidelitySEP">Fidelity SEP</option>
+                                        <option value="FidelityRoth">Fidelity Roth</option>
+                                        <option value="ScottradeIRA">Scottrade IRA</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div
+<<<POPUPS;
+        return $starttable_and_head . $popups;
+
     } // end  makeStocksTable($owner,$stocks)
 
 
