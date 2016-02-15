@@ -77,9 +77,6 @@ class scratchtemp
         </table>
 TABLEHEAD;
 
-
-
-
         // this div holds the little "Add a stock purchase" pop-up form (as a table)
         //<!-- I got it here: https://github.com/apanzerj/Former-For-Zendesk/blob/Lesson-2-Branch/former.html#L14
         //and here: http://jsfiddle.net/eARdt/170/ and someplace at zendesk (google it) -->
@@ -236,192 +233,184 @@ TABLEHEAD;
                     </table>
                 </form>
             </div
-<<<POPUPS;
+POPUPS;
         return $starttable_and_head . $popups;
 
     } // end  makeStocksTable($owner,$stocks)
 
 
     public function makeStocksTBODY($stocks){
-$result = "
-$agrigateChangeDollars = 0;
-$agrigateCostDollars = 0;
-$agrigateCurrentValue = 0;
-$neg = "neg
-$pos = "pos
-foreach ($stocks as $s){
-    $totalCost = $s['purchasequantity'] * $s['purchaseprice'] + $s['purchasefee'];
-    $agrigateCostDollars += $totalCost;
-    $totalCurrentValue =  $s['purchasequantity'] * $s['LastTradePriceOnly'] - $s['purchasefee'];
-    $agrigateCurrentValue += $totalCurrentValue;
-    //$dollarchange = $s['LastTradePriceOnly'] - $s['purchaseprice'];
-    $totalChangeDollar = $totalCurrentValue - $totalCost;
-    $agrigateChangeDollars += $totalChangeDollar;
 
-    $totalChangePercent = $totalCost != 0 ? $totalChangeDollar / $totalCost * 100 : 0;
-    $percentchangetoday = $s['LastTradePriceOnly'] != 0 ? $s['Change'] / $s['LastTradePriceOnly'] * 100 : 0;
+        // prepare values derived from user data and current stock quote(s)
+        $aggregateChangeDollars = 0;
+        $aggregateCostDollars = 0;
+        $aggregateCurrentValue = 0;
+        $neg = "neg";
+        $pos = "pos";
+        foreach ($stocks as $s){
+            $totalCost = $s['purchasequantity'] * $s['purchaseprice'] + $s['purchasefee'];
+            $aggregateCostDollars += $totalCost;
+            $totalCurrentValue =  $s['purchasequantity'] * $s['LastTradePriceOnly'] - $s['purchasefee'];
+            $aggregateCurrentValue += $totalCurrentValue;
+            //$dollarchange = $s['LastTradePriceOnly'] - $s['purchaseprice'];
+            $totalChangeDollar = $totalCurrentValue - $totalCost;
+            $aggregateChangeDollars += $totalChangeDollar;
 
+            $totalChangePercent = $totalCost != 0 ? $totalChangeDollar / $totalCost * 100 : 0;
+            $percentchangetoday = $s['LastTradePriceOnly'] != 0 ? $s['Change'] / $s['LastTradePriceOnly'] * 100 : 0;
+            $id = (string)$s['_id'];
+            $pozornegDollarChng .= ($s['Change']>0) ? $pos : $neg;
+            $pozornegPercentChng .= ($percentchangetoday>0) ? $pos : $neg;
+            $pozornegTotDollarChng .= ($totalChangeDollar>0) ? $pos : $neg;
+            $pozornegTotPercentChng .= ($totalChangePercent>0) ? $pos : $neg;
+
+            /* Doing this based on: http://stackoverflow.com/questions/104516/calling-php-functions-within-heredoc-strings
+               ...which wasn't the top answer
+               ... like this:  {$fn(time())}
+             */
+            $number_format = 'number_format';
+
+            $tablebody = <<<BEGINTABLEBODY
     <tr>
+        <td>
+            <input type="checkbox" name="remove[]" value="$id">
+        </td>
 
     <td>
-    <input type="checkbox" name="remove[]" value="" . (string)$s['_id'] . ""> // CHECKBOX
+    	<input type="image" name="editfields$id" id="edit$id" src="images/gtk_edit.png" alt="Edit this row" value="$id">
+            <!-- opens a pop-up form as an overlay (id: #the_edit_form). -->
+            <!-- This is inline because each edit button needs its own unique id.
+        <script>
+            <!-- adding multiple $(documents).ready()s is not a problem. All will be executed on the ready event. -->
+            $(document).ready(function() {
+                $("#edit$id").click(function(e){
+                        <!-- alert("in the <script> function"); -->
+                        <!-- alert($("input[name='editfields$id']").val()); -->
+                        <!-- alert("{$s['Name']}"); -->
+                        <!-- this group is to populate 'existing' fields into the form. -->
+                    $("#companyname").text("{$s['Name']}");
+                    $("#editsymbol").val("{$s['symbol']}");
+                    $("#editquant").val("{$s['purchasequantity']}");
+                    $("#editprice").val("{$s['purchaseprice']}");
+                    $("#editfee").val("{$s['purchasefee']}");
+                    $("#editdatepicker").val("{$s['purchasedate']}");
+                    $("#editaccount").val("{$s['account']}");
+                    $("#editid").val("$id");
+                    $("#editowner").text("{$s['owner']}");
+                    <!-- e.preventDefault(); -->
+                    $('#the_edit_form')
+                        .dialog('open');
+                });
+            });
+        </script>
     </td>
 
-    <td>
-    	<input type="image" name="editfields" . (string)$s['_id'] . "" id="edit" . (string)$s['_id'] . "" // Edit button
-    	src="images/gtk_edit.png"
-    	alt="Edit this row"
-    	value="" . (string)$s['_id'] . "">  //onclick="edit();"
-    // opens a pop-up form as an overlay (id: #the_edit_form).
-    // This is inline because each edit button needs its own unique id.
-    	<script>
-    //POZOR!!: if you add this comment to $result, it will COMMENT OUT THE WHOLE CONTENTS OF THE SCRIPT TAGS!!!
-    // adding multiple $(documents).ready()s is not a problem. All will be executed on the ready event.
-    		$(document).ready(function() {
-    		$("#edit" . (string)$s['_id'] . "").click(function(e){
-    //			alert("in the <script> function");
-    //			alert($("input[name='editfields" . (string)$s['_id'] . "']").val());
-    //			alert("" . $s['Name'] . "");
-    //POZOR!!: if you add this comment to $result, it will COMMENT OUT THE WHOLE CONTENTS OF THE SCRIPT TAGS!!!
-    // this group is to populate 'existing' fields into the form.
-    			$("#companyname").text("" 	. $s['Name'] . "");
-    			$("#editsymbol").val("" 		. $s['symbol'] . "");
-    			$("#editquant").val("" 		. $s['purchasequantity'] . "");
-    			$("#editprice").val("" 		. $s['purchaseprice'] . "");
-    			$("#editfee").val("" 		. $s['purchasefee'] . "");
-    			$("#editdatepicker").val("" 	. $s['purchasedate'] . "");
-    			$("#editaccount").val("" 	. $s['account'] . "");
-    			$("#editid").val("" 	. (string)$s['_id'] . "");
-    			$("#editowner").text("" 	. $s['owner'] . "");
-//						e.preventDefault();
-    			$('#the_edit_form')
-    				.dialog('open');
-    		});
-    		});
-    	</script>
-    </td>
+    <td class="left">{$s['Name']}</td>
+    <td class="left">{$s['symbol']}</td>
+    <td class="right current">\${$s['LastTradePriceOnly']}</td>
+    <td class="$pozornegDollarChng current">$"{$s['Change']}"</td>
+    <td class="right $pozornegPercentChng current">{$number_format($percentchangetoday, 2, '.', ',')}%</td>
+    <td class="right $pozornegTotDollarChng">\${$number_format($totalChangeDollar, 2, '.', ',')}</td>
+    <td class="right $pozornegTotPercentChng">\${$number_format($totalChangePercent, 2, '.', ',')}%</td>
+    <td class="right">\${$number_format($totalCurrentValue, 2, '.', ',')}</td>
+    <td class="right">\${$number_format($totalCost, 2, '.', ',')}</td>
+    <td class="right">{$s['purchasequantity']}</td>
+    <td class="right">{$s['purchaseprice']}</td>
+    <td class="right">\${$number_format($s['purchasefee'], 2, '.', ',')}</td>
+    <td class="left">{$s['account']}</td>
+    <td class="left">{$s['purchasedate']}</td>
 
-    <td class="left">$s['Name'] . "</td>
-    <td class="left">$s['symbol'] . "</td>
-    <td class="right current">$$s['LastTradePriceOnly'] . "</td>
-    <td class="
-    $result .= ($s['Change']>0) ? $pos : $neg;
-     current">$" . $s['Change'] . "</td>
-    <td  class="right 
-    $result .= ($percentchangetoday>0) ? $pos : $neg;
-     current">number_format($percentchangetoday, 2, '.', ',') . "%</td>
-    <td  class="right 
-    $result .= ($totalChangeDollar>0) ? $pos : $neg;
-    ">$number_format($totalChangeDollar, 2, '.', ',') . "</td>
-    <td  class="right 
-    $result .= ($totalChangePercent>0) ? $pos : $neg;
-    ">number_format($totalChangePercent, 2, '.', ',') . "%</td>
-    <td class="right">$number_format($totalCurrentValue, 2, '.', ',') . "</td>
-    <td class="right">$number_format($totalCost, 2, '.', ',') . "</td>
-    <td  class="right">$s['purchasequantity'] . "</td>
-    <td class="right">$s['purchaseprice'] . "</td>
-    <td class="right">number_format($s['purchasefee'], 2, '.', ',')  . "</td>
-    <td class="left">$s['account'] . "</td>
-    <td class="left">$s['purchasedate'] . "</td>
-
-
-    /***************************************************************************************
-     ***************************************************************************************
-     * This block is INLINE D3.js.  It is originally a graph I found called "threshold key"
-     * but I've repurposed it to show 52 week high, low, and the stock's gain or loss
-     *
-     * NOTE: very shaggy hacking: Instead of declaring, e.g., "var x" many times
-     * (this code is called many times in a loop) causing it to be declared many times
-     * in the same script, I'm 'augmenting' the name, e.g., "var x", with the database id
-     * of each stock thusly: _" . (string)$s['_id'] . " so as to make each declaration UNIQUE!
-     ***************************************************************************************
-     ***************************************************************************************/
     <td>
     	<table class="graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>
     		<tr class="graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>
-    			<td class="left graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;' id="graph_" . (string)$s['_id'] . "">
+    			<td class="left graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;' id="graph_$id">
+BEGINTABLEBODY;
 
-    // ONLY SHOW 52 WEEK DATA, not longer ago than that (may have gained or lost more, but only show 1 year)
-    // this boolean does 2 things: controls whether graph is red or green,
-    // and controls order in graph of purchase price & current price
-    $redboolean = (($s['LastTradePriceOnly'] - $s['purchaseprice']) < 0) ? TRUE : FALSE;
-    $graphcolor = ($redboolean) ? "#ffb3b3" /*reddish*/ : "#d5ff80" /*greenish*/;
+            /***************************************************************************************
+             ***************************************************************************************
+             * This block is INLINE D3.js.  It is originally a graph I found called "threshold key"
+             * but I've repurposed it to show 52 week high, low, and the stock's gain or loss
+             *
+             * See my /examples/thresholdkeygraphexample.html for detail on how to build this thing
+             *
+             * NOTE: very shaggy hacking: Instead of declaring, e.g., "var x" many times
+             * (this code is called many times in a loop) causing it to be declared many times
+             * in the same script, I'm 'augmenting' the name, e.g., "var x", with the database id
+             * of each stock thusly: _$id so as to make each declaration UNIQUE!
+             ***************************************************************************************
+             ***************************************************************************************/
 
-    // guard against stocks purchased more than 52 weeks ago at a lower or higher price
-    $purchPriceTooLow = ($s['YearLow'] > $s['purchaseprice']) ? TRUE : FALSE;
-    $purchPriceTooHigh = ($s['YearHigh'] < $s['purchaseprice']) ? TRUE : FALSE;
-    //Then we can only have two colored ranges instead of three
+// ONLY SHOW 52 WEEK DATA, not longer ago than that (may have gained or lost more, but only show 1 year)
+// this boolean does 2 things: controls whether graph is red or green,
+// and controls order in graph of purchase price & current price
+            $redboolean = (($s['LastTradePriceOnly'] - $s['purchaseprice']) < 0) ? TRUE : FALSE;
+            $graphcolor = ($redboolean) ? "#ffb3b3" /*reddish*/ : "#d5ff80" /*greenish*/;
 
-    <script>
+// guard against stocks purchased more than 52 weeks ago at a lower or higher price
+            $purchPriceTooLow = ($s['YearLow'] > $s['purchaseprice']) ? TRUE : FALSE;
+            $purchPriceTooHigh = ($s['YearHigh'] < $s['purchaseprice']) ? TRUE : FALSE;
+//Then we can only have two colored ranges instead of three
 
-    // handle possible overflow of 52 week values
-    if($purchPriceTooLow){
-$pp = $s['YearLow'];
-    }elseif($purchPriceTooHigh){
-$pp = $s['YearHigh'];
-    }else{
-$pp = $s['purchaseprice'];
-    }
+// handle possible overflow of 52 week values
+            if($purchPriceTooLow){
+                $pp = $s['YearLow'];
+            }elseif($purchPriceTooHigh){
+                $pp = $s['YearHigh'];
+            }else{
+                $pp = $s['purchaseprice'];
+            }
 
-    // this thing holds the 'ticks' -- the axis values
-    var threshold_" . (string)$s['_id'] . " = d3.scale.threshold().domain([".$s['YearLow'];
-    if($redboolean){// will be red, showing loss
-,$s['LastTradePriceOnly'] . "," . $pp;
-    }else{//willbe green showing gain
-,$pp . "," . $s['LastTradePriceOnly'];
-    }
-    ," . $s['YearHigh']. "])
-    //orig:  .range(["#ffffff","#ffffff", "#a0b28f", "#d8b8b3", "#b45554", "#760000","#ffffff"]);
-    .range(["#ffffff","#ffffff", "" . $graphcolor . "", "#ffffff"]);
+            if($redboolean){ //  will be red, showing loss
+                $middleBar = $s['LastTradePriceOnly'] . "," . $pp;
+            }else{ // willbe green showing gain
+                $middleBar = $pp . "," . $s['LastTradePriceOnly'];
+            }
+            ................PHP above here
+................start heredoc again
 
-    // A position encoding for the key only. --that is, for the gain/loss part of the graph
-    var x_" . (string)$s['_id'] . " = d3.scale.linear() // .domain([0, 1]) // original was percentages between 0 and 1
-    .domain([".$s['YearLow'].",$s['YearHigh']."]).range([0, 200]); // range is the width of the graph within its container (see 'width' var)
+            <script>
 
-    var xAxis_" . (string)$s['_id'] . " = d3.svg.axis().scale(x_" . (string)$s['_id'] . ").orient("bottom").tickSize(9).tickValues(threshold_" . (string)$s['_id'] . ".domain())
-    .tickFormat(function (d) { return ''; }); // this should 'hide' x axis lables (very clever!)
-    // .tickFormat(d3.format("$,.2f"));
-    // 'width' and 'height' are size of 'container' of the graph
-    var svg_" . (string)$s['_id'] . " = d3.select("#graph_" . (string)$s['_id'] . "").append("svg").attr("width", 202).attr("height", 10); // height of 10 prevents D3's xAxis area from being shown (view area too samall to show it).  XAxis is handled 'manual' by means of a table with data below here.
+	<!--  this holds the 'ticks' -- the axis values -- and tells D3 how long each segment of the bars is to be -->
+	var threshold_$id = d3.scale.threshold().domain([{$s['YearLow']},$middleBar,{$s['YearHigh']}])
+	.range(["#ffffff","#ffffff","$graphcolor","#ffffff"]);
+	<!--  A position encoding for the key only. --that is, for the gain/loss part of the graph -->
+	var x_$id = d3.scale.linear()
+                .domain([{$s['YearLow'].",{$s['YearHigh']."]).range([0, 200]); <!--  range is the width of the graph within its container (see 'width' var) -->
+	var xAxis_$id = d3.svg.axis().scale(x_$id).orient("bottom").tickSize(9).tickValues(threshold_$id.domain())
+	.tickFormat(function (d) { return ''; }); <!--  this is a clever way to 'hide' x axis lables w/out messing up the code -->
+	<!--  .tickFormat(d3.format("$,.2f")); ...if I wanted to show the dollar values in the xaxis-->
+	<!--  'width' and 'height' are size of 'container' of the graph -->
+	var svg_$id = d3.select("#graph_$id").append("svg").attr("width", 202).attr("height", 10);
+            <!--  height of 10 prevents D3's xAxis area from being shown.  XAxis is handled 'manually' by means of a table with data below this script area. -->
+	var g_$id = svg_$id.append("g").attr("class", "key").attr("transform", "translate(0, 1)"); <!--  0px from left, 1 px from the bottom -->
+	g_$id.selectAll("rect").data(threshold_$id.range().map(function(color) {
+			var d_$id = threshold_$id.invertExtent(color);
+			if (d_$id[0] == null) d_$id[0] = x_$id.domain()[0];
+			if (d_$id[1] == null) d_$id[1] = x_$id.domain()[1];
+			return d_$id;
+		}))
+	.enter().append("rect")
+	.attr("height", 7) <!--  this is the height of the graph's horizontal bar -->
+	.attr("x", function(d) { return x_$id(d[0]); })
+            .attr("width", function(d) { return x_$id(d[1]) - x_$id(d[0]); })
+            .style("fill", function(d) { return threshold_$id(d[0]); });
+	g_$id.call(xAxis_$id);  <!--  orig: .append("text") -->
 
-    var g_" . (string)$s['_id'] . " = svg_" . (string)$s['_id'] . ".append("g").attr("class", "key").attr("transform", "translate(0, 1)"); // 0px from left, 0 px from the bottom
+	<!-- top border of the one-dimensional graph bar -->
+	var borderPathTop_$id = svg_$id.append("rect")
+            .attr("x", 0) <!--  0px from the absolute left
+            .attr("y", 8) <!--  0px from the absolute top of where the graph is drawn
+            .attr("height", 1)
+            .attr("width", 201);
+	<!-- bottom border of the one-dimensional graph bar -->
+	var borderPathBottom_$id = svg_$id.append("rect")
+            .attr("x", 0)
+            .attr("y", 1)
+            .attr("height", 1)
+            .attr("width", 201);
+<!-- End of D3.js graph in this table cell -->
+</script>
 
-    g_" . (string)$s['_id'] . ".selectAll("rect").data(threshold_" . (string)$s['_id'] . ".range().map(function(color) {
-    		var d_" . (string)$s['_id'] . " = threshold_" . (string)$s['_id'] . ".invertExtent(color);
-    		if (d_" . (string)$s['_id'] . "[0] == null) d_" . (string)$s['_id'] . "[0] = x_" . (string)$s['_id'] . ".domain()[0];
-    		if (d_" . (string)$s['_id'] . "[1] == null) d_" . (string)$s['_id'] . "[1] = x_" . (string)$s['_id'] . ".domain()[1];
-    		return d_" . (string)$s['_id'] . 
-    	}))
-    .enter().append("rect")
-    .attr("height", 7) // this is the height of the graph's horizontal bar
-    .attr("x", function(d) { return x_" . (string)$s['_id'] . "(d[0]); })
-    .attr("width", function(d) { return x_" . (string)$s['_id'] . "(d[1]) - x_" . (string)$s['_id'] . "(d[0]); })
-    //.style("stroke", "#000") // makes just the middle block outlined with a line
-    .style("fill", function(d) { return threshold_" . (string)$s['_id'] . "(d[0]); });
-
-    g_" . (string)$s['_id'] . ".call(xAxis_" . (string)$s['_id'] . ");  // orig: .append("text")
-    // orig: .attr("class", "caption")
-    // orig: .attr("y", 0)
-    // orig: .attr("y", -6)
-    // orig: .text("Percentage of stops that involved force")
-    // orig: ;
-    //top line
-    var borderPathTop_" . (string)$s['_id'] . " = svg_" . (string)$s['_id'] . ".append("rect")
-    			.attr("x", 0) // 0px from the absolute left
-    			.attr("y", 8) // 0px from the absolute top of where the graph is drawn
-    			.attr("height", 1)
-    			.attr("width", 201);
-    //bottom line
-    var borderPathBottom_" . (string)$s['_id'] . " = svg_" . (string)$s['_id'] . ".append("rect")
-    			.attr("x", 0)
-    			.attr("y", 1)
-    			.attr("height", 1)
-    			.attr("width", 201);
-
-    </script>
-    /*****************************************************************************************
-     * End of D3.js graph in this table cell
-     */
 
     			</td>
     		</tr>
@@ -453,7 +442,7 @@ $pp = $s['purchaseprice'];
 
 }// end of foreach loop, populating each row
 
-/* build LAST ROW OF ENTIRE TABLE, which shows agrigate values */
+<!-- build LAST ROW OF ENTIRE TABLE, which shows aggregate values */ -->
 <tr>
 <td></td>
 <td></td>
@@ -462,10 +451,10 @@ $pp = $s['purchaseprice'];
 <td></td>
 <td></td>
 <td></td>
-<td class="right">$" . number_format($agrigateChangeDollars, 2, '.', ',') . "</td>
+<td class="right">\${$number_format($aggregateChangeDollars, 2, '.', ',')}</td>
 <td></td>
-<td class="right">$" . number_format($agrigateCurrentValue, 2, '.', ',') . "</td>
-<td class="right">$" . number_format($agrigateCostDollars, 2, '.', ',') . "</td>
+<td class="right">\${$number_format($aggregateCurrentValue, 2, '.', ',')}</td>
+<td class="right">\${$number_format($aggregateCostDollars, 2, '.', ',')}</td>
 <td></td>
 <td></td>
 <td></td>
