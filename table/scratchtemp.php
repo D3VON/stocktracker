@@ -260,7 +260,7 @@ POPUPS;
            ...which wasn't the top answer
            ... like this:  {$fn(time())}
          */
-        $number_format = 'number_format';
+        $number_format_hack = 'number_format';
 
         $tablebody = ""; // will receive many heredocs created by the foreach loop below
 
@@ -291,14 +291,15 @@ POPUPS;
             <input type="image" name="editfields$id" id="edit$id" src="images/gtk_edit.png" alt="Edit this row" value="$id">
                 <!-- opens a pop-up form as an overlay (id: #the_edit_form). -->
                 <!-- This is inline because each edit button needs its own unique id. -->
-            <script>
                 <!-- adding multiple $(documents).ready()s is not a problem. All will be executed on the ready event. -->
-                $(document).ready(function() {
-                    $("#edit$id").click(function(e){
+                            <!-- for testing: -->
                             <!-- alert("in the <script> function"); -->
                             <!-- alert($("input[name='editfields$id']").val()); -->
                             <!-- alert("{$s['Name']}"); -->
                             <!-- this group is to populate 'existing' fields into the form. -->
+            <script>
+                $(document).ready(function() {
+                    $("#edit$id").click(function(e){
                         $("#companyname").text("{$s['Name']}");
                         $("#editsymbol").val("{$s['symbol']}");
                         $("#editquant").val("{$s['purchasequantity']}");
@@ -320,14 +321,14 @@ POPUPS;
         <td class="left">{$s['symbol']}</td>
         <td class="right current">\${$s['LastTradePriceOnly']}</td>
         <td class="$pozornegDollarChng current">\${$s['Change']}</td>
-        <td class="right $pozornegPercentChng current">{$number_format($percentchangetoday, 2, '.', ',')}%</td>
-        <td class="right $pozornegTotDollarChng">\${$number_format($totalChangeDollar, 2, '.', ',')}</td>
-        <td class="right $pozornegTotPercentChng">{$number_format($totalChangePercent, 2, '.', ',')}%</td>
-        <td class="right">\${$number_format($totalCurrentValue, 2, '.', ',')}</td>
-        <td class="right">\${$number_format($totalCost, 2, '.', ',')}</td>
+        <td class="right $pozornegPercentChng current">{$number_format_hack($percentchangetoday, 2, '.', ',')}%</td>
+        <td class="right $pozornegTotDollarChng">\${$number_format_hack($totalChangeDollar, 2, '.', ',')}</td>
+        <td class="right $pozornegTotPercentChng">{$number_format_hack($totalChangePercent, 2, '.', ',')}%</td>
+        <td class="right">\${$number_format_hack($totalCurrentValue, 2, '.', ',')}</td>
+        <td class="right">\${$number_format_hack($totalCost, 2, '.', ',')}</td>
         <td class="right">{$s['purchasequantity']}</td>
-        <td class="right">\${$number_format($s['purchaseprice'], 2, '.', ',')}</td>
-        <td class="right">\${$number_format($s['purchasefee'], 2, '.', ',')}</td>
+        <td class="right">\${$number_format_hack($s['purchaseprice'], 2, '.', ',')}</td>
+        <td class="right">\${$number_format_hack($s['purchasefee'], 2, '.', ',')}</td>
         <td class="left">{$s['account']}</td>
         <td class="left">{$s['purchasedate']}</td>
 
@@ -465,17 +466,17 @@ GRAPH;
                 <td></td>
                 <td></td>
                 <td></td>
-                <td class="right">\${$number_format($aggregateChangeDollars, 2, '.', ',')}</td>
+                <td class="right">\${$number_format_hack($aggregateChangeDollars, 2, '.', ',')}</td>
                 <td></td>
-                <td class="right">\${$number_format($aggregateCurrentValue, 2, '.', ',')}</td>
-                <td class="right">\${$number_format($aggregateCostDollars, 2, '.', ',')}</td>
+                <td class="right">\${$number_format_hack($aggregateCurrentValue, 2, '.', ',')}</td>
+                <td class="right">\${$number_format_hack($aggregateCostDollars, 2, '.', ',')}</td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
             </tr>
-            <!-- If you're reading the PHP script: closing tbody and table tags are up in the function makeStocksTable() -->
+            <!-- If you're reading the PHP code for this: closing tbody and table tags are up in the function makeStocksTable() -->
             <!-- <script src="js/tablebuttons.js"></script> -->
 FINISHTABLEBODY;
 
@@ -506,4 +507,11 @@ FINISHTABLEBODY;
 [account] => Fidelity IRA
 [purchasefee] => 7
 [owner] => me
+
+
+
+
+
+
+
 */

@@ -25,6 +25,3 @@
 		echo $tableMaker->makeStocksTable($owner,$stocks);
 			
 	}
-
-
-?>
