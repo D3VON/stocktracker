@@ -282,8 +282,8 @@ POPUPS;
             $pozornegPercentChng = ($percentchangetoday>0) ? $pos : $neg;
             $pozornegTotDollarChng = ($totalChangeDollar>0) ? $pos : $neg;
             $pozornegTotPercentChng = ($totalChangePercent>0) ? $pos : $neg;
-            $todaysGainLoss = $s['Change'] - $s['purchasequantity'];
-            $todaysTotalGainLoss += $totalCurrentValue - $totalCost;
+            $todaysGainLoss = $s['Change'] * $s['purchasequantity'];
+            $todaysTotalGainLoss += $todaysGainLoss;
 
             $tablebody .= <<<BEGINTABLEBODY
     <tr>
