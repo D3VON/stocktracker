@@ -31,7 +31,7 @@ class StocksTable
                         <!--  triggers the Add form to pop up. -->
                         <input  type="submit" id="addy" value="Add a stock purchase">
                     </th>
-                    <th colspan="3">Activity Today</th>
+                    <th colspan="4">Activity Today</th>
                     <th colspan="2">Change Since Purchase</th>
                     <th colspan="1">Current Value</th>
                     <th colspan="3">Cost Basis -- including fee</th>
@@ -60,6 +60,7 @@ class StocksTable
                     <th>Price</th>
                     <th class="sortByColumn">$ change</th>
                     <th class="sortByColumn">% change</th>
+                    <th class="sortByColumn">Today's Gain/Loss</th>
                     <th class="sortByColumn">Total $ Change</th>
                     <th class="sortByColumn">Total % Change</th>
                     <th class="sortByColumn">Total Value</th>
@@ -253,6 +254,7 @@ POPUPS;
         $aggregateChangeDollars = 0;
         $aggregateCostDollars = 0;
         $aggregateCurrentValue = 0;
+        $todaysTotalGainLoss = 0;
         $neg = "neg";
         $pos = "pos";
 
@@ -280,6 +282,8 @@ POPUPS;
             $pozornegPercentChng = ($percentchangetoday>0) ? $pos : $neg;
             $pozornegTotDollarChng = ($totalChangeDollar>0) ? $pos : $neg;
             $pozornegTotPercentChng = ($totalChangePercent>0) ? $pos : $neg;
+            $todaysGainLoss = $s['Change'] - $s['purchasequantity'];
+            $todaysTotalGainLoss += $totalCurrentValue - $totalCost;
 
             $tablebody .= <<<BEGINTABLEBODY
     <tr>
@@ -322,6 +326,9 @@ POPUPS;
         <td class="right current">\${$s['LastTradePriceOnly']}</td>
         <td class="$pozornegDollarChng current">\${$s['Change']}</td>
         <td class="right $pozornegPercentChng current">{$number_format_hack($percentchangetoday, 2, '.', ',')}%</td>
+        <td class="right $pozornegDollarChng current">\${$number_format_hack($todaysGainLoss, 2, '.', ',')}</td>
+
+
         <td class="right $pozornegTotDollarChng">\${$number_format_hack($totalChangeDollar, 2, '.', ',')}</td>
         <td class="right $pozornegTotPercentChng">{$number_format_hack($totalChangePercent, 2, '.', ',')}%</td>
         <td class="right">\${$number_format_hack($totalCurrentValue, 2, '.', ',')}</td>
@@ -466,6 +473,7 @@ GRAPH;
                 <td></td>
                 <td></td>
                 <td></td>
+                <td class="right $pozornegDollarChng current">\${$number_format_hack($todaysTotalGainLoss, 2, '.', ',')}</td>
                 <td class="right">\${$number_format_hack($aggregateChangeDollars, 2, '.', ',')}</td>
                 <td></td>
                 <td class="right">\${$number_format_hack($aggregateCurrentValue, 2, '.', ',')}</td>
