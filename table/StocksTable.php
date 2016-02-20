@@ -255,8 +255,8 @@ POPUPS;
         $aggregateCostDollars = 0;
         $aggregateCurrentValue = 0;
         $todaysTotalGainLoss = 0;
-        $neg = "neg";
-        $pos = "pos";
+        $neg = "neg";// just sets css color to red
+        $pos = "pos";// just sets css color to green
 
         /* Doing this based on: http://stackoverflow.com/questions/104516/calling-php-functions-within-heredoc-strings
            ...which wasn't the top answer
