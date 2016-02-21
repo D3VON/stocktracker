@@ -19,7 +19,7 @@
 // handles querying YQL
 include_once('YQL.php');//incude sends warning if fails, require is fatal.
 
-class MongoToYQL_Adapter {
+class MongoToYQL_Adapter_IDONTKNOWWHYIHAVETHISCLASSTWICE {
 	/**************************************************************************
 	 Data members
 	**************************************************************************/
@@ -366,6 +366,3 @@ class MongoToYQL_Adapter {
 		return $this->combineYQLandMongoArrays($mongo, $yql);
 	
 	}
-	
-	
-?>	

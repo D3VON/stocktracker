@@ -18,7 +18,7 @@ class MongoToYQL_Adapter {
 	 Data members
 	**************************************************************************/
 	private $dbconn;
-	private $result;
+	//private $result; // UNUSED: WHY IS THIS HERE?
 	
 	/**
 	 * Class constructor.
@@ -46,9 +46,9 @@ class MongoToYQL_Adapter {
 	 * data with an efficiency of 1 is optimal: e.g., scenario: many records of 
 	 * purchases of the same stock; access current data of that stock reliably. 
 	 * 
-	 * @param $symbolsString  a YQL-acceptible string of symbols to search for
+	 * @param String $symbolsString  a YQL-acceptible string of symbols to search for
 	 *
-	 * @return $newArray An associative array of arrays of stock quotes, keyed by symbol
+	 * @return array $newArray An associative array of arrays of stock quotes, keyed by symbol
 	 */
 	function fetchManyFromYQL($symbolsString){
 		//echo $symbolsString;
@@ -129,8 +129,8 @@ class MongoToYQL_Adapter {
 	function fetchFromYQL(&$mongoArray){
 		
 		$len = count($mongoArray);
-		 $type = ($len > 0) ? "many" : "single";
-		 echo $type;
+		 // TEST: $type = ($len > 0) ? "many" : "single";
+		 // echo $type;
 		
 		// get the symbols and make the string for the YQL query
 		$symbolsString = "";
@@ -158,9 +158,11 @@ class MongoToYQL_Adapter {
 	
 	/** Query the Mongo data store for all stocks owned by that user.
 	 *
-	 * @param $owner the owner of the stocks
+	 * @param String $owner the owner of the stocks
 	 *
-	 * @return $theStocksArray a complete array the stocks owned by the given user
+	 * @property mixed I HAVE NO IDEA HOW TO DOCUMENT "$db->stocks" TO SATISFY PHPDOC HERE
+	 *
+	 * @return array $theStocksArray a complete array the stocks owned by the given user
 	 */
 	 function queryMongoMany($owner){
 	
@@ -189,14 +191,14 @@ class MongoToYQL_Adapter {
 	 /** Merge data from MongoDB[i] with data from YQL[i] for all n elements in
 	 *  both arrays into a new, multidimensional array containing n elements.
 	 *
-	 * @param $mongo an array of arrays containing a user's information about
+	 * @param array $mongo an array of arrays containing a user's information about
 	 *               specific stock purchases
 	 *               WARNING: $mongo must be of type Array( [0] => Array ... )
 	 *
-	 * @param $yql   an array of arrays containing info queried from YQL.
+	 * @param array $yql   an array of arrays containing info queried from YQL.
 	 *               WARNING: $yql must be of type Array( [0] => Array ... )
 	 *
-	 * @return $theStocksArray a complete array of arrays of the stocks owned by
+	 * @return array $theStocksArray a complete array of arrays of the stocks owned by
 	 *                         a user (used to populate the stocktracker table)
 	 function combineYQLandMongoArrays($mongo, $yql){
 		 $newArray = array();
@@ -241,14 +243,15 @@ class MongoToYQL_Adapter {
 	/** add a stock purchase to our database
 	 *
 	 *
-	 * @param $symbol the stock ticker symbol
-	 * @param $date the date it was purchased
-	 * @param $quantity the quantity purchased of the symbol
-	 * @param $price the price it was purchased
-	 * @param $fee the fee that was paid to purchase the thing
-	 * @param $owner the owner of the stock
+	 * @param String $symbol the stock ticker symbol
+	 * @param String $date the date it was purchased
+	 * @param String $quantity the quantity purchased of the symbol
+	 * @param String $price the price it was purchased
+	 * @param String $fee the fee that was paid to purchase the thing
+	 * @param String $account the account where this stock will live
+	 * @param String $owner the owner of the stock
 	 * 
-	 * @return $theStocks -- via a call to member function getAllStocksByOwner($owner)
+	 * @return array $theStocks -- via a call to member function getAllStocksByOwner($owner)
 	 */
 	function addPurchase($symbol, $quantity, $price, $date, $fee, $account, $owner){
 		
@@ -296,10 +299,12 @@ class MongoToYQL_Adapter {
 	
 	/** remove one or more stocks from the db
 	 *
-	 * @param $remove an array of ids (the MongoDB-generated ids of the documents) to be removed
-	 * @param $owners the owner of the document (the stock)
+	 * @param array $remove an array of ids (the MongoDB-generated ids of the documents) to be removed
+	 * @param String $owner the owner of the document (the stock)
 	 *
-	 * @return $theStocksArray an array of PHP arrays of the stocks owned by that dude
+	 * @property mixed I HAVE NO IDEA HOW TO DOCUMENT "$db->stocks" TO SATISFY PHPDOC HERE
+	 *
+	 * @return array $theStocksArray an array of PHP arrays of the stocks owned by that dude
 	 */
 	function removePurchase($remove, $owner){
 	
@@ -341,16 +346,18 @@ class MongoToYQL_Adapter {
 	 * TRICK: I'm removing the original record, then adding it back with the new
      * 		  information, rather than modifying the original record. 
 	 *
-	 * @param $id the id (the MongoDB-generated id of the document) to be edited
-	 * @param $symbol the symbol to be edited
-	 * @param $quant the quantity to be edited
-	 * @param $price the price (each) to be edited
-	 * @param $date the date to be edited
-	 * @param $fee the feeto be edited
-	 * @param $account the account to be edited
-	 * @param $owner the owner of the document (the stock)
+	 * @param String $id the id (the MongoDB-generated id of the document) to be edited
+	 * @param String $symbol the symbol to be edited
+	 * @param String $quantity the quantity to be edited
+	 * @param String $price the price (each) to be edited
+	 * @param String $date the date to be edited
+	 * @param String $fee the fee to be edited
+	 * @param String $account the account to be edited
+	 * @param String $owner the owner of the document (the stock)
 	 *
-	 * @return $theStocksArray a refreshed array of PHP arrays of the stocks owned by that dude
+	 * @property mixed I HAVE NO IDEA HOW TO DOCUMENT "$db->stocks" TO SATISFY PHPDOC HERE
+	 *
+	 * @return array $theStocksArray a refreshed array of PHP arrays of the stocks owned by that dude
 	 * 
 	 */
 	function editPurchase($id, $symbol, $quantity, $price, $date, $fee, $account, $owner){
@@ -385,25 +392,25 @@ class MongoToYQL_Adapter {
 	 *
 	 *  Also: do computed fields like total-current-value (quant + price)
 	 *
-	 * @param $mongo an array of arrays containing a user's information about
+	 * @param array $mongo an array of arrays containing a user's information about
 	 *               specific stock purchases
 	 *               WARNING: $mongo must be of type Array( [0] => Array ... )
 	 *
-	 * @param $yql   an array of arrays containing info queried from YQL.
+	 * @param array $yql   an array of arrays containing info queried from YQL.
 	 *               WARNING: $yql must be of type Array( [0] => Array ... )
 	 *
-	 * @return $theStocksArray a complete array of arrays of the stocks owned by
+	 * @return array $theStocksArray a complete array of arrays of the stocks owned by
 	 *                         a user (used to populate the stocktracker table)
 	 */
 	function combineYQLandMongoArrays(&$mongo, &$yql){
 		$newArray = array();
 	
-		$len = count($mongo);
+		//$len = count($mongo);
 		//echo $len;
 		$s = array(); // the stock
-		$agrigateChangeDollars = 0;
+		//$agrigateChangeDollars = 0;
 	
-		/*notetoself: calculated fields are calculated in StocksTable.php
+		/* notetoself: calculated fields are calculated in StocksTable.php
 		 * That cannot continue.  I'm also calculating them here as I receive them
 		 * from the db.
 		 */
@@ -566,5 +573,3 @@ class MongoToYQL_Adapter {
 	
 					*/
 
-
-?>
