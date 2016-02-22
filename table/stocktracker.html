@@ -26,12 +26,17 @@
 			    margin-right: auto; }
 			.centertitle {
 			    display: block;
-			    margin-left: auto;
-			    margin-right: auto; }
+				/* line-height: 1.9em; */
+				margin: 20px;
+				/*
+				margin-left: 60px;
+				margin-right: 60px;
+				*/
+			}
 			.centertable {
 			    display: block;
-			    margin-left: auto;
-			    margin-right: auto; }
+				margin: 20px;
+			}
 			#the_add_form > *{
 			    font-size:12px;
 			    margin-bottom:15px;
@@ -42,7 +47,27 @@
 			}
 			#the_add_form > p > input, #the_add_form > p > textarea{
 			        width:100px;
-			}    
+			}
+			.maincontent {
+				line-height: 1.9em;
+				color: #444444;
+				background-color: #ffdd99;
+				border: 1px solid #666666;
+				padding: 10px;
+				margin: 20px;
+				margin-left: 60px;
+				margin-right: 60px;
+			}
+			.todo {
+				line-height: 1.9em;
+				color: #444444;
+				background-color: lightblue;
+				border: 1px solid #666666;
+				padding: 10px;
+				margin: 20px;
+				margin-left: 60px;
+				margin-right: 60px;
+			}
 		</style>
 		
 	
@@ -56,31 +81,46 @@
 		<script src="js/jquery.blockUI.js"></script>
 		<script src="js/stocktracker.js"></script>
 
-		<h1 class="centertitle">Stock Tracker -- "My Account"</h1>
-
-		<div>	
-			<div><img  class="bullbear" src="images/bullbear.gif" alt="bull and bear"></div>
-			<p>This is a tool for people who own stocks in several different accounts, and they all present them differently, and it's very annoying to have to log into different places and see different presentations of what's happening with each stock. This page will be where I enter each purchase.  From the data captured here, I will be able to do cool graphing and maybe pull in news articles and ratings of the stocks.  Stuff like that.</p>
-
-			<p>To do:<p>
-			<ul>
-				<li>fix sort-by-column </li>
-				<li>add a note field</li>
-				<li>do a AJAX thingy to refresh current prices even if page isn't manually reloaded</li>
-				<li>keep headings at top when scrolling down<li>
-				<li><img  src="css/images/asc.gif" alt="ascending arrow"> -- I can't get these imgs to work right in column headings.</li>
-			</ul>
+		<div>
+			<div class="right"><img src="../../css/images/D3VON_logo_calculatortext.gif" alt="D3VON logo"></div>
+			<h1 class="centertitle">Stock Tracker -- "My Account"</h1>
 		</div>
-			 		
+
+		<div>
+			<div><img  class="bullbear" src="images/bullbear.gif" alt="bull and bear"></div>
+			<div class="center italic">No effort has been put into making this page responsive.</div>
+			<div class="maincontent">
+				<p>This is a tool to keep track of stocks in a single location with a uniform UI.</p>
+				<p>The motivaiton for this site is when you owns stocks in several different accounts, at different companies,
+					wih different logins, and each site present them differently, it gets annoying keeping track of all that.
+					This is a place you can keep track of all your stocks on one page.</p>
+				<p>Here, you can enter each individual purchase.  For example, you can enter IBM 100 different times at different prices purchased for different amounts, and in different accounts.</p>
+				<p>I am not seeking to implement anything new, but rather to learn how to do all the cool stuff I see in disparate places online.</p>
+				<p>So far, I have made this one page very AJAX-intensive.  It gets current information from Yahoo's YQL API.  I've also used D3.js for graphing, and I intend to use other graphing libraries to extend the usefulness of this site.  The data store is implemented with MongoDB (for me to practice using a NoSQL db), though I am strongly considering blending in a PostgreSQL db to practice good, old fashioned relational db things.</p>
+			</div>
+		</div>
+	<div class="center">
+
 		<form id="ownerForm"> 
 			Owner name: <input type="text" id="ownerName">
 			<input id="theOwnerButton"  type="submit" value="Specify Owner">
 		</form>
-		<em>Might we recommend "guest" as an owner name?</em>
- 		
-	<div id="thetable" class="centertable">
+		<em class="italic">Might we recommend "guest" as an owner name?<br>Or, make your own owner name.</em>
+
 	</div>
+
+		<div id="thetable" class="centertable">	</div>
 	<!-- input id="theslider" type="slider" name="price" value="20" />  -->
-	
+	<div class="todo">
+		<p>To do:<p>
+		<ul>
+			<li>Fix sort-by-column </li>
+			<li>Add a note field</li>
+			<li>Refresh current prices even if page isn't manually reloaded</li>
+			<li>Keep headings at top when scrolling down<li>
+			<li>I can't get these imgs to work right in column headings: <img  src="css/images/asc.gif" alt="ascending arrow"> </li>
+			<li>Add historic graphs for each stock: perhaps when you click on a row, that row's historic graph will pop up. </li>
+		</ul>
+	</div>
 </body>
 </html>
