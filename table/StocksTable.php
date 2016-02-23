@@ -312,7 +312,7 @@ POPUPS;
                         $("#editdatepicker").val("{$s['purchasedate']}");
                         $("#editaccount").val("{$s['account']}");
                         $("#editid").val("$id");
-                        $("#editowner").text("{$s['owner']}");
+                        $("#editowner").val("{$s['owner']}");
                         <!-- e.preventDefault(); -->
                         $('#the_edit_form')
                             .dialog('open');

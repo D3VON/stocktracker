@@ -172,6 +172,7 @@ $(document).ready(function() {
 		       		var fee = $("#editfee").val();
 		       		var account = $("#editaccount").val();
 		       		var owner = $("#editowner").val();
+					alert("owner is: " + owner);
 		       		var id = $("#editid").val();
 		       		// Returns successful data submission message when the entered information is stored in database.
 		       		var dataString = 'symbol='+ symbol + '&quant='+ quant + '&price='+ price + '&datepicker='+ datepicker + '&fee='+ fee + '&account='+ account + '&owner='+ owner + '&id=' + id;

@@ -99,7 +99,7 @@ https://jqueryui.com/datepicker/
 
 
 
-
+---------------This method of keeping track was just too....  reliant on discipline.  Please refer to git commit notes instead. 
 
 
 
