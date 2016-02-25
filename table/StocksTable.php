@@ -60,16 +60,16 @@ class StocksTable
                     <th>Price</th>
                     <th class="sortByColumn">$ change</th>
                     <th class="sortByColumn">% change</th>
-                    <th class="sortByColumn">Today's Gain/Loss</th>
-                    <th class="sortByColumn">Total $ Change</th>
-                    <th class="sortByColumn">Total % Change</th>
-                    <th class="sortByColumn">Total Value</th>
-                    <th class="sortByColumn">Total Cost</th>
+                    <th class="sortByColumn">Today's<br> Gain/Loss</th>
+                    <th class="sortByColumn">Total<br> $ Change</th>
+                    <th class="sortByColumn">Total<br> % Change</th>
+                    <th class="sortByColumn">Total<br> Value</th>
+                    <th class="sortByColumn">Total<br> Cost</th>
                     <th>Quantity</th>
                     <th>Purch. Price</th>
                     <th>Fee</th>
                     <th class="sortByColumn">Account</th>
-                    <th class="sortByColumn">Purchase Date</th>
+                    <th class="sortByColumn">Purchase<br> Date</th>
                     <th></th>
                 </tr>
             </thead>
