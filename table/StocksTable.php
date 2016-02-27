@@ -70,7 +70,7 @@ class StocksTable
                     <th>Fee</th>
                     <th class="sortByColumn">Account</th>
                     <th class="sortByColumn">Purchase<br> Date</th>
-                    <th></th>
+                    <th class="italic">& your gain/loss in 52 weeks</th>
                 </tr>
             </thead>
             <tbody>
