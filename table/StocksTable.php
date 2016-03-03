@@ -15,6 +15,11 @@ class StocksTable
 
     public function makeStocksTable($owner,$stocks){
 
+        if(!is_array($stocks)){
+            return "Apologies to the user: Unable to obtain current data.  Please try again later.";
+        }
+
+
         $starttable_and_head = <<<TABLEHEAD
         
         <script src="js/stocksTable.js"></script>
