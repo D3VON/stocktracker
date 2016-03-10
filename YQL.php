@@ -64,7 +64,7 @@ class YQL
 		$endDate = date('Y-m-d'); // today's date
 		
 		// initialize process at beginning of millennium
-		$startDate = "2000-01-01"; 
+		$startDate = "2009-01-01"; // near bottom
 		$endDate = date('Y-m-d'); // today's date
 		
 		// How many years since beginning of millennium
@@ -75,7 +75,7 @@ class YQL
 		
 		// this loop YQL-queries years since millennium for given symbol
 		// but not current year.
-		$endDate   = "2000-12-31";
+		$endDate   = "2009-12-31";
 		$howmanyyears = $interval->y + 1;
 		$JSON_results = array(); // this needed for avoiding foreach warnings & notices
 		for($i=1; $i <= $howmanyyears; $i++){

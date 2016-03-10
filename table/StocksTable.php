@@ -18,6 +18,7 @@ class StocksTable
         if(!is_array($stocks)){
             return "Apologies to the user: Unable to obtain current data.  Please try again later.";
         }
+        /* adding shit to test automatic upload via FTP which I'm haveing troubl ewith*/
 
 
         $starttable_and_head = <<<TABLEHEAD
