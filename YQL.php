@@ -60,22 +60,23 @@ class YQL
 	*/ 
 	function populateHistoricalData($symbol)
 	{
-		// $array[] = $var; // accomplishes pushing to array w/out function call overhead. 
-		$endDate = date('Y-m-d'); // today's date
-		
 		// initialize process at beginning of millennium
-		$startDate = "2009-01-01"; // near bottom
+		$startDate = "2009-01-01"; // chose 2009 b.c. it was near bottom of market
 		$endDate = date('Y-m-d'); // today's date
 		
 		// How many years since beginning of millennium
 		$date1 = new DateTime($startDate);
 		$date2 = new DateTime($endDate); // today's date
+
+		/* calculate number of years since 1/1/2000 */
+		/*          This is a DateTime obj,         */
 		$interval = $date1->diff($date2);// years since 2000-01-01
 		//echo "interval since 2000-01-01:  " . $interval->y . " years <br>"; 
 		
 		// this loop YQL-queries years since millennium for given symbol
 		// but not current year.
 		$endDate   = "2009-12-31";
+
 		$howmanyyears = $interval->y + 1;
 		$JSON_results = array(); // this needed for avoiding foreach warnings & notices
 		for($i=1; $i <= $howmanyyears; $i++){
@@ -267,4 +268,3 @@ class YQL
 					echo "</pre>";
 */	
 
-?>

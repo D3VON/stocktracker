@@ -5,7 +5,7 @@
  * 1. query YQL;
  * 2. do C.R.U.D. operations on the local MongoDB database.
  * 
- * Using database: 'investments'
+ * Using database: 'investments' (or 'test' for development)
  * Using collections: 'stocks', and 'history'
  *  
  */

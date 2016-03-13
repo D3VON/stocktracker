@@ -166,7 +166,7 @@ class InvestDB
 				/*************************************************************/
 				
 				foreach($JSON as $json){ // about 15 JSON elements in that array
-										
+
 					//if (!is_array($json->query->results->quote)) die("<br>That $json isn't an array<br>");
 					
 					foreach ($json->query->results->quote as $Q){
