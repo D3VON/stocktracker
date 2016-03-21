@@ -59,6 +59,11 @@ class MongoToYQL_Adapter {
 		// into a PHP variable (a multi-dimensional array), so it's easy to weedle out
 		// pieces you need with nice PHP operators.
 		$resultArray = $y->getQuote( $symbolsString );
+		//var_dump($resultArray);
+
+		if(array_key_exists(0, $resultArray) && $resultArray[0] === 0){ // 2nd test prolly not necessary
+			return $resultArray;
+		}
 	
 		// YQL gives superfluous data, so just take what we want from the JSON object,
 		// and save in a local array (need to cast it from "stdClass Object" to array.	
@@ -92,6 +97,10 @@ class MongoToYQL_Adapter {
 		// into a PHP variable (a multi-dimensional array), so it's easy to weedle out
 		// pieces you need with nice PHP operators.
 		$resultArray = $y->getQuote( $symbol );
+
+		if(array_key_exists(0, $resultArray) && $resultArray[0] === 0){ // 2nd test prolly not necessary
+			return $resultArray;
+		}
 	
 		// Grab only the part we want,
 		// Cast from "stdClass Object" to array.
@@ -403,6 +412,12 @@ class MongoToYQL_Adapter {
 	 *                         a user (used to populate the stocktracker table)
 	 */
 	function combineYQLandMongoArrays(&$mongo, &$yql){
+
+		if(array_key_exists(0, $yql) && $yql[0] === 0){ // 2nd test prolly not necessary
+			echo "woofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOFwoofWOOF";
+			return $yql;
+		}
+
 		$newArray = array();
 	
 		//$len = count($mongo);
@@ -460,14 +475,15 @@ class MongoToYQL_Adapter {
 		//	echo "<pre>"; print_r($mongo); echo "</pre>";
 		$yql = $this->fetchFromYQL($mongo);
 		//	echo "<pre>"; print_r($yql); echo "</pre>";
-		
-		//echo "finishing----MongoToYQL_Adapter:getAllStocksByOwner<br>";
-		return $this->combineYQLandMongoArrays($mongo, $yql);
-	  
+
+
+		if(array_key_exists(0, $yql) && $yql[0] === 0){ // 2nd test prolly not necessary
+			return $yql;
+		}else{
+			//echo "finishing----MongoToYQL_Adapter:getAllStocksByOwner<br>";
+			return $this->combineYQLandMongoArrays($mongo, $yql);
+		}
 	}
-
-
-
 }
 
 

@@ -35,7 +35,7 @@ class YQL
 	*/ 
     function buildHistoricalQueryString($symbol,$startDate,$endDate)
     {
-		$yqlQuery = "https://query.yahooapis.com/v1/public/yql" 
+		$yqlQuery = "https://query.yahooapis.com/v1/public/yql"
 				. "?q=select%20*%20from%20yahoo.finance.historicaldata%20"
 				. "where%20symbol%20%3D%20%22"
 				. $symbol . "%22%20and%20startDate%20%3D%20%22"
@@ -236,14 +236,16 @@ class YQL
 			}
 			if( !($response = curl_exec($ch)) ) 
 			{
-				echo "FAIL: curl_exec()"; 
-				echo '<br>Curl error: ' . curl_error($ch);
+				return array(0); // zero will signify YQL request failure
+				//echo "FAIL: curl_exec()";
+				//echo '<br>Curl error: ' . curl_error($ch);
 			} 			
 			curl_close($ch); 
 		} 
 		else
 		{
-			echo "FAIL: curl_init()"; 
+			return array(0); // zero will signify YQL request failure
+			//echo "FAIL: curl_init()";
 		}	
 			
 		

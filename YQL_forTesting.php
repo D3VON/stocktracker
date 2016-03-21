@@ -70,7 +70,7 @@ class YQL_forTesting
         $endDate = date('Y-m-d'); // today's date
 
         // initialize process at beginning of millennium
-        $startDate = "2015-01-01"; // near bottom
+        $startDate = "2016-03-11"; // near bottom
         $endDate = date('Y-m-d'); // today's date
 
         // How many years since beginning of millennium
@@ -84,7 +84,7 @@ class YQL_forTesting
 
         // this loop YQL-queries years since millennium for given symbol
         // but not current year.
-        $endDate   = "2015-12-31";
+        $endDate   = "2016-03-20";
 
         //for testing, hardcode in howmanyyears
         $howmanyyears = 1;
