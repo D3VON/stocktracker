@@ -382,7 +382,7 @@ class MongoToYQL_Adapter {
 		
 		/* REVELATION: MongoDB embeds its ids into a special little MongoID object
 		 * NOTE: just wipe out the original and replace it with a new one, rather 
-		 * than mucking around 'editing' it. 
+		 * than mucking around 'editing' it, which seems ridiculously tedious in Mongo.
 		*/
 		$collection->remove( array("_id" => new MongoId($id)) );
 
