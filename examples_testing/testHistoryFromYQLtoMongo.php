@@ -5,7 +5,7 @@
  * then to move the functions to the script historyCron.php for a cron
  * job to update daily after the market closes.
  *
- * A loooota useful ideas in here, especially good Mongo (PHP) examples. 
+ * A loooota useful ideas in here, especially good Mongo (PHP) examples.
  *
  * Also tried a bit of PostgreSQL.
  *
