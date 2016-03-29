@@ -391,11 +391,7 @@ class MongoToYQL_Adapter {
 		return $this->addPurchase($symbol, $quantity, $price, $date, $fee, $account, $owner);
 	}
 	
-	
-	function getOwner(){
-		
-	}
-	
+
 	/** Merge data from MongoDB[i] with data from YQL[j] for i and j elements in
 	 *  both arrays into a new, multidimensional array containing n elements.
 	 *

@@ -70,25 +70,23 @@ class YQL_forTesting
         $endDate = date('Y-m-d'); // today's date
 
         // initialize process at beginning of millennium
-        $startDate = "2016-03-11"; // near bottom
+        $startDate = "2009-01-01"; // near bottom of market
         $endDate = date('Y-m-d'); // today's date
 
-        // How many years since beginning of millennium
         $date1 = new DateTime($startDate);
         $date2 = new DateTime($endDate); // today's date
 
-        /* calculate number of years since 1/1/2000 */
+        /* calculate number of years since 1/1/2009 */
         /*          This is a DateTime obj,         */
         $interval = $date1->diff($date2);// years since 2000-01-01
-        //echo "interval since 2000-01-01:  " . $interval->y . " years <br>";
+        echo "interval since 2000-01-01:  " . $interval->y . " years <br>";
 
-        // this loop YQL-queries years since millennium for given symbol
-        // but not current year.
-        $endDate   = "2016-03-20";
+        // this loop YQL-queries years since 2009 for given symbol, but not current year.
+        $endDate   = "2009-12-31";
 
         //for testing, hardcode in howmanyyears
-        $howmanyyears = 1;
-        //$howmanyyears = $interval->y + 1;
+        //$howmanyyears = 1;
+        $howmanyyears = $interval->y + 1;
         $JSON_results = array(); // this needed for avoiding foreach warnings & notices
         for($i=1; $i <= $howmanyyears; $i++){
             //echo "start: $startDate     end: $endDate <br>";

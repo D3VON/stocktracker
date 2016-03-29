@@ -20,66 +20,6 @@ require_once('../YQL_forTesting.php');
 require_once("../global.php");
 
 
-/**Open PostgreSQL connection
- * loop through given JSON result passed as argument
- * saving each date's data in a separate query to PSQL
- */
-function addNewToPostgreSQL($symbol){
-
-
-    $yql = new YQL_forTesting();
-
-    //a very hard-coded db connection to PostgreSQL
-    $dbconn = pg_connect("host="	 .DB_HOST
-        ." dbname="	 .DATABASE
-        ." user="	 .DB_USERNAME
-        ." password=".DB_USERPASS
-    )
-    or die('connection failed');
-
-    // NOTE: This YQL class receives JSON from YQL query, but converts the JSON
-    // into a PHP variable (a multi-dimensional array), so it's easy to weedle out
-    // pieces you need with nice PHP operators.
-    $resultArray = $yql->populateHistoricalData($symbol);
-    /* WATCH OUT!  This was formed by querying YQL several times (once for each year), so
-       it contains a separate multi-dimensional array for each year. You'll have to
-       foreach loop through each year to weedle out the contiguous info you want.
-     */
-
-    //echo "<pre>"; var_dump($resultArray); echo "</pre>";
-
-    /* This damned thing takes like 60 seconds to run. */
-    // about 9 JSON elements in that array (representing whole years worth of quotes)
-    /* PostgreSQL version of capturing many years worth of a stock's price */
-    foreach($resultArray as $json){
-
-        //testing: just print count of days in that year to show that something happened (if not showing data for each day)
-        $index = $json['query']['count'];
-        echo "$index<br>";
-
-        //foreach ($json->query->results->quote as $Q){
-        for($index -=1; $index >= 0; $index--){
-            //each ($json['query']['results']['quote'] as $Q){
-
-            $query = "INSERT INTO history VALUES";
-            $query .= "('$symbol','";
-            $query .= $json['query']['results']['quote'][$index]['Date'] . "',";
-            $query .= $json['query']['results']['quote'][$index]['Close'] . ",";
-            $query .= $json['query']['results']['quote'][$index]['Volume'] . ")";
-            //$query .= "('$symbol','" . $Q->Date . "'," . $Q->Close . "," . $Q->Volume . ")";
-
-            $result = pg_query($query);
-            if(!$result){
-                echo 'Historicalquotes query failed: ' . pg_last_error();
-            }
-            //if(isset($json->query->results->quote))
-        }
-    }
-
-}
-/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
-//addNewToPostgreSQL($symbol);
-
 
 /**
  * Fetch quotes from YQL for the given list of symbols. Return an associative
@@ -215,11 +155,19 @@ function addNewToMongo($symbol){
 
 }
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
-//addNewToMongo("fb");
-//addNewToMongo("aapl");
-//addNewToMongo("ibm");
+//addNewToMongo("spy");
+//addNewToMongo("xhb");
+//addNewToMongo("bid");
+//addNewToMongo("wfm");
 //// ---------------------to clean up after that test if necessary-------------
-////notInHistory($symbol);
+//echo "<pre>"; var_dump(getSymbolsFromHistory()); echo "</pre>";
+//notInHistory("goog");
+//notInHistory("googl");
+//notInHistory("aapl");
+//notInHistory("bac");
+//notInHistory("bwp");
+//notInHistory("lng");
+//notInHistory("cmg");
 ////removeFromMongo($symbol);
 //notInHistory("fb");
 //notInHistory("aapl");
@@ -295,7 +243,7 @@ function dailyHistoryUpdate(){
         );
     }
 }
-dailyHistoryUpdate();
+//dailyHistoryUpdate();
 
 
 
@@ -342,7 +290,7 @@ function getLastDate($symbol){
     }
 }
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
-echo getLastDate("fb");
+//echo getLastDate("fb");
 
 
 
@@ -418,9 +366,150 @@ function removeFromMongo($symbol){
 //notInHistory($symbol);
 
 
+/************************************************************************************
+ * **********************************************************************************
+ * **********************************************************************************
+ * **********************************************************************************
+ * *************     below here, I copied this in from          *********************
+ * *************     InvestDB.php, and it's working with        *********************
+ * *************     PostgreSQL, so modify that to handle       *********************
+ * *************                                                *********************
+ * **********************************************************************************
+ * **********************************************************************************
+ * **********************************************************************************
+ * **********************************************************************************
+ * **********************************************************************************
+ * **********************************************************************************
+ * **********************************************************************************
+ * **********************************************************************************
+ */
 
 
 
+/** Build a string of coordinate points for a D3 graph.
+ *
+ * Note: Arguments conform to PHP's strtotime()-acceptable arguments
+ *
+ * @param $symbol 		string stock symbol
+ * @param $numPeriods  	int number of [days | months | years] of period
+ * @param $typePeriods 	string type of period [days | months | years]
+ * @param $endDate 		string end date of the graph
+ *
+ * @return associative array containing D3 graph information as follows:
+ *					1. string of the symbol
+2. string of coordinates
+ *					3. int of min bound of graph
+ *					4. int of max bound of graph
+ */
+function getD3Coordinates($symbol, $numPeriods, $typePeriods, $endDate, $quant=1)
+{
+    // build the start date from arguments given (calculated back from $endDate)
+    $startDate = date('Y-m-d', strtotime("-$numPeriods $typePeriods", strtotime($endDate)));
+
+    $q = "select thedate, closevalue from historicquotes where symbol = '$symbol'
+and thedate between '$startDate' and '$endDate' ORDER BY thedate ASC";
+
+    $result = pg_query($q);
+    if (!$result) {
+        echo "An error occurred in getD3Coordinates.  Tell that to the developer.<br>";
+    }
+
+    // set up min/max for Y axis bounds
+    // also store (x,y) coordinates to $priceData string
+    $min = 99999;
+    $max = 0;
+    $priceData = "";
+    while ($row = pg_fetch_row($result)) {
+        if ($min > $quant*$row[1])
+        {
+            $min = $quant*$row[1];
+        }
+        if ($max < $quant*$row[1])
+        {
+            $max = $quant*$row[1];
+        }
+        $dt = strtotime($row[0]);//nice! rickshaw uses seconds, not milliseconds!
+        $priceData .= "{ x: $dt, y: ". $row[1] ." },";
+    }
+
+    $coordInfo = array();
+    $coordInfo['symbol'] = $symbol;
+    $coordInfo['coords'] = $priceData;
+    $coordInfo['min'] = number_format(($min-($min/20)),2);
+    $coordInfo['max'] = number_format(($max+($max/20)),2);
+    return $coordInfo;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/**Open PostgreSQL connection
+ * loop through given JSON result passed as argument
+ * saving each date's data in a separate query to PSQL
+ */
+function addNewToPostgreSQL($symbol){
+
+
+    $yql = new YQL_forTesting();
+
+    //a very hard-coded db connection to PostgreSQL
+    $dbconn = pg_connect("host="	 .DB_HOST
+        ." dbname="	 .DATABASE
+        ." user="	 .DB_USERNAME
+        ." password=".DB_USERPASS
+    )
+    or die('connection failed');
+
+    // NOTE: This YQL class receives JSON from YQL query, but converts the JSON
+    // into a PHP variable (a multi-dimensional array), so it's easy to weedle out
+    // pieces you need with nice PHP operators.
+    $resultArray = $yql->populateHistoricalData($symbol);
+    /* WATCH OUT!  This was formed by querying YQL several times (once for each year), so
+       it contains a separate multi-dimensional array for each year. You'll have to
+       foreach loop through each year to weedle out the contiguous info you want.
+     */
+
+    //echo "<pre>"; var_dump($resultArray); echo "</pre>";
+
+    /* This damned thing takes like 60 seconds to run. */
+    // about 9 JSON elements in that array (representing whole years worth of quotes)
+    /* PostgreSQL version of capturing many years worth of a stock's price */
+    foreach($resultArray as $json){
+
+        //testing: just print count of days in that year to show that something happened (if not showing data for each day)
+        $index = $json['query']['count'];
+        echo "$index<br>";
+
+        //foreach ($json->query->results->quote as $Q){
+        for($index -=1; $index >= 0; $index--){
+            //each ($json['query']['results']['quote'] as $Q){
+
+            $query = "INSERT INTO history VALUES";
+            $query .= "('$symbol','";
+            $query .= $json['query']['results']['quote'][$index]['Date'] . "',";
+            $query .= $json['query']['results']['quote'][$index]['Close'] . ",";
+            $query .= $json['query']['results']['quote'][$index]['Volume'] . ")";
+            //$query .= "('$symbol','" . $Q->Date . "'," . $Q->Close . "," . $Q->Volume . ")";
+
+            $result = pg_query($query);
+            if(!$result){
+                echo 'Historicalquotes query failed: ' . pg_last_error();
+            }
+            //if(isset($json->query->results->quote))
+        }
+    }
+
+}
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+//addNewToPostgreSQL($symbol);
 
 
 /*
