@@ -61,7 +61,11 @@ function fetchManyFromYQL($symbolsString){
     $len = count($theArray);
     for ($i = 0; $i < $len; $i++){
         $value = (array)$theArray[$i];
-        $key = $value["symbol"];
+        $key = strtolower($value["symbol"]);
+                        // unfortunately, I need to do this everywhere $symbol is passed.
+                        //Annoying: YQL defaults to uppers, but, I have a lot of data already stored locally as lowers.
+                        //...so I decided in a slip-shod fashion to go with lowers for everything local. Ugh.
+        $value["symbol"] = $key;//Clobber upper case symbol string with lower case symbol string
         // make a map, using unique field 'symbol' as key
         $newArray[$key] = $value;
     }
@@ -75,7 +79,11 @@ function fetchManyFromYQL($symbolsString){
  * loop through given JSON result passed as argument
  * saving each date's data in a separate query to Mongo
  */
-function addNewToMongo($symbol){
+function addNewHistoryToMongo($symbol){
+
+    $symbol = strtolower($symbol); // unfortunately, I need to do this everywhere $symbol is passed.
+    //Annoying: YQL defaults to uppers, but, I have a lot of data already stored locally as lowers.
+    //...so I decided in a slip-shod fashion to go with lowers for everything local. Ugh.
 
     $yql = new YQL_forTesting();
 
@@ -155,10 +163,10 @@ function addNewToMongo($symbol){
 
 }
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
-//addNewToMongo("spy");
-//addNewToMongo("xhb");
-//addNewToMongo("bid");
-//addNewToMongo("wfm");
+//addNewHistoryToMongo("spy");
+//addNewHistoryToMongo("xhb");
+//addNewHistoryToMongo("bid");
+//addNewHistoryToMongo("wfm");
 //// ---------------------to clean up after that test if necessary-------------
 //echo "<pre>"; var_dump(getSymbolsFromHistory()); echo "</pre>";
 //notInHistory("goog");

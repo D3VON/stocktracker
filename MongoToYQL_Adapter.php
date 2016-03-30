@@ -343,6 +343,8 @@ class MongoToYQL_Adapter {
 			 * --those sons a bitches.
 			 */
 			$collection->remove( array("_id" => new MongoId($id)) );
+
+			// definitely don't remove history, as other users may be using that stock.
 		}
 		
 		//echo "finishing function: MongoToYQL_Adapter:removePurchase<br>";
