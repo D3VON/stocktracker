@@ -268,6 +268,7 @@ class MongoToYQL_Adapter {
 		// 1. Grab stock info from YQL
 		/*************************************************************/
 		$y = new YQL;
+		$thePurchase = array();
 
 		/****************************************************************************
 		 *  SET UP DATABASE CONNECTION FOR USE THROUGHOUT THE REST OF THIS SCRIPT
@@ -276,14 +277,14 @@ class MongoToYQL_Adapter {
 		 * into a PHP variable (a multi-dimensional array), so it's easy to weedle out 
 		 * pieces you need with nice PHP operators. 
 		 */
-		$resultArray = $y->getQuote($symbol);
+		//$resultArray = $y->getQuote($symbol);// DISCOVERED WE DON'T NEED THIS AT ALL; REMOVING. iT IS in fact misleading b.c. could add a purchase from last week, but it querying quote a week later, when we actually added it to the db would needlessly save data from the date of the add, not from the date of the actual purchase. Stuff like Name can be obtained when table needs quote.
 		$db = $this->dbconn->selectDB("test");
 		$collection = $db->stocks; 
 			
 		/* YQL gives superfluous data, so just take what we want from the JSON object,
 		 * and save in a local array (need to cast it from "stdClass Object" to array.
 		 		*/
-		$thePurchase = (array)$resultArray['query']['results']['quote'];
+		//$thePurchase = $resultArray['query']['results']['quote']['Name'];// DISCOVERED WE DON'T NEED THIS AT ALL; REMOVING
 		$thePurchase['purchasedate'] = $date;
 		$thePurchase['purchasequantity'] = $quantity;
 		$thePurchase['purchaseprice'] = $price;

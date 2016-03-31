@@ -28,7 +28,7 @@ $yql = new YQL();
 
 $dbconn = new MongoClient(); // no credentials needed b.c. the database is running on the same machine as this script, and this script is running as the same user.
 $db = $dbconn->selectDB("test");
-$collection = $db->history;
+$historycollection = $db->history;
 
 
 /**
@@ -82,10 +82,16 @@ function fetchManyFromYQL($symbolsString){
 
 
 function getSymbolsFromHistory(){
-    global $collection;
+    global $historycollection;
+    //$stock = array();
     $result = array();
 
-    foreach ($collection->find(array(),array("symbol" => 1)) as $document) {
+    foreach ($historycollection->find(array(),array("symbol" => 1)) as $document) {
+                        // I wanted to check each stock's date to see whether it needed updating, but ditched this idea.
+                        // Instead, I'm only going to check one stock to determine if the market is open or closed.
+                        //        $stock['symbol'] = $document["symbol"];
+                        //        $stock['lastday'] = $document["lastday"];
+                        //        $result[] = $stock;
         $result[] = $document["symbol"];
     }
     return $result;
@@ -114,24 +120,47 @@ function getQuotesFromYQL($stocklist){
                                         //echo "<pre>"; var_dump($quotes); echo "</pre>";
 
 function dailyHistoryUpdate(){
-    global $collection;
+    global $historycollection;
 
     $stocklist = getSymbolsFromHistory();
     $quotes = getQuotesFromYQL($stocklist);
 
+    /*  Strategy to decide whether to update.  Need to check if a weekday is a market holiday.
+    Compare two variables: history.lastday['date'] and YQL's quote['LastTradeDate']
+    If history.lastday['date'] < LastTradeDay, then could mean the market is still open, or, for this scripts purposes,
+    since this script runs after 4pm by a cron job, it will mean it's OK to update history with YQL quote.
+    (This comparison will be useful if deciding whether a graph needs the current quote, but it isn't useful here.)
+    If history.lastday['date'] == LastTradeDay, then market is closed, AND history is up to date. Do not update.
+
+    Example: if YQL quote is run on a Sunday, the LastTradeDay will be the previous Friday, which will match the date in history.
+    Example: if YQL quote is run on a Monday Holiday, it will behave just like it was run on Sunday (prev. example).
+
+    Conclusion: the only comparison we need is history.lastday['date'] == LastTradeDay.  If true, do not update.
+
+    First stock in history will act as sentinel for all the rest.
+    */
+    $yqlquotedate = current($quotes)["LastTradeDate"];
+    // note to self: Mongo always returns a JSON with _id included, so have to weedle out the part we want by de-referencing.
+    $historicdate = $historycollection->findOne(array(), array('lastday.date'))["lastday"]["date"];
+    // Check if today is a holiday.  Skip if so. See above for desc. of logic.
+    //First stock in history will act as sentinel for all the rest.
+    if (  strtotime($historicdate) == strtotime($yqlquotedate)  ){
+        return; // it is a holiday; market isn't open today. so don't do anything.
+    }
+
     foreach($quotes as $q){
         $tempDay = array();
-        $tempDay["date"] = date('Y-m-d');//YQL quote does not give date
-                                        /********** testing: */
+        $tempDay["date"] = $q["LastTradeDate"];
+                                        // testing:
                                         //$tempDay["date"] = '2014-43-TESTING-TESTING';
         $tempDay["volume"] = $q["AverageDailyVolume"];
         $tempDay["closingprice"] = $q["LastTradePriceOnly"];
 
-        $collection->update(
+        $historycollection->update(
             array("symbol" => $q["symbol"]),
             array('$push' => array("day" => $tempDay) )  // adds the daily quote array to the end of the 'day' array
         );
-        $collection->update(
+        $historycollection->update(
             array("symbol" => $q["symbol"]),
             array('$set' => array("lastday" => $tempDay) ) // clobbers existing 'lastday' array
         );

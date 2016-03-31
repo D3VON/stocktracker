@@ -184,7 +184,7 @@ class YQL_forTesting
     function buildQuoteQuery($symbols)
     {
         return "https://query.yahooapis.com/v1/public/yql"
-        . "?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20(%22"
+        . "?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"
         . $symbols . "%22)&format=json&diagnostics=true&env=store"
         . "%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
     }
@@ -267,12 +267,11 @@ class YQL_forTesting
 
 }
 
-/*
-	// test code here, making it a driver to test this class
-	echo "I'm a driver now!";
-	$y = new YQL;
-	$JSON = $y->populateHistoricalData("TWTR");
-					echo "<pre>";
-					print_r($JSON);
-					echo "</pre>";
-*/
+// test code here, making it a driver to test this class
+echo "I'm a driver now!";
+$y = new YQL_forTesting;
+
+//	$JSON = $y->populateHistoricalData("TWTR");
+//	echo "<pre>"; print_r($JSON); echo "</pre>";
+
+echo "<pre>"; print_r($y->getQuote("yhoo")); echo "</pre>";
