@@ -165,7 +165,8 @@ class MongoToYQL_Adapter {
 	
 	
 	
-	/** Query the Mongo data store for all stocks owned by that user.
+	/** Get all stocks owned by owner -- just purchase info, not current quote.
+	 *  Query the Mongo data store for all stocks owned by that user.
 	 *
 	 * @param String $owner the owner of the stocks
 	 *
@@ -466,7 +467,7 @@ class MongoToYQL_Adapter {
 		//echo "<pre>"; print_r($s); echo "</pre>";
 		return $newArray;
 	}
-	
+
 	
 	function getAllStocksByOwner($owner){ //,$sortby){
 		//echo "starting----MongoToYQL_Adapter:getAllStocksByOwner; owner is $owner <--------------------------------!<br>";
@@ -476,14 +477,120 @@ class MongoToYQL_Adapter {
 		//	echo "<pre>"; print_r($yql); echo "</pre>";
 
 
-		if(array_key_exists(0, $yql) && $yql[0] === 0){ // 2nd test prolly not necessary
-			return $yql;
-		}else{
-			//echo "finishing----MongoToYQL_Adapter:getAllStocksByOwner<br>";
-			return $this->combineYQLandMongoArrays($mongo, $yql);
+		if(array_key_exists(0, $yql) && $yql[0] === 0){
+			return $yql; // this would be where an error would be detected....................I STILL NEED TO WORK ON THIS!!!!!
+		}
+		//echo "finishing----MongoToYQL_Adapter:getAllStocksByOwner<br>";
+		return $this->combineYQLandMongoArrays($mongo, $yql);
+	}
+
+	function getSymbolsOfThisOwner($owner){
+
+		$dbconn = new MongoClient();
+		$db = $dbconn->selectDB("test");
+		$collection = $db->stocks;
+
+		$result = array();
+		$findwhere = array("owner" => $owner);
+		$getthis = array("symbol" => 1); // that is, just the symbol
+		$symbols = $collection->find($findwhere,$getthis);
+
+		foreach ($symbols as $document) {
+			$result[] = $document["symbol"];
+		}
+		return $result;
+	}
+
+
+	function getHistories($owner){
+		$dbconn = new MongoClient();
+		$db = $dbconn->selectDB("test");
+		$collection = $db->history;
+
+		$findThis = array('symbol' => $symbol);
+		$returnThis = array("lastday" => 1);
+
+		$doc = $collection->findOne($findThis,$returnThis);
+		// INTERESTING: find returns a cursor, findOne returns a nice array.
+
+		if(empty($doc)) {
+			echo "That stock doesn't exist";
+		} else {
+			//        echo "<pre>"; var_dump($doc["lastday"]["date"]); echo "</pre>";
+			//        echo "last date is: " . $doc["lastday"]["date"];
+			return $doc["lastday"]["date"];
 		}
 	}
-}
+	/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+//echo getLastDate("fb");
+
+
+
+	/** Build a string of coordinate points for a D3 graph.
+	 *
+	 * Note: Arguments conform to PHP's strtotime()-acceptable arguments
+	 *
+	 * @param $symbol 		string stock symbol
+	 * @param $numPeriods  	int number of [days | months | years] of period
+	 * @param $typePeriods 	string type of period [days | months | years]
+	 * @param $endDate 		string end date of the graph
+	 *
+	 * @return array containing D3 graph information as follows:
+	 *					1. string of the symbol
+	 * 					2. string of coordinates
+	 *					3. int of min bound of graph
+	 *					4. int of max bound of graph
+	 */
+	function getD3Coordinates($symbol, $numPeriods, $typePeriods, $endDate, $quant=1)
+	{
+		// build the start date from arguments given (calculated back from $endDate)
+		$startDate = date('Y-m-d', strtotime("-$numPeriods $typePeriods", strtotime($endDate)));
+
+		$q = "select thedate, closevalue from historicquotes where symbol = '$symbol'
+and thedate between '$startDate' and '$endDate' ORDER BY thedate ASC";
+
+		$result = pg_query($q);
+		if (!$result) {
+			echo "An error occurred in getD3Coordinates.  Tell that to the developer.<br>";
+		}
+
+		// set up min/max for Y axis bounds
+		// also store (x,y) coordinates to $priceData string
+		$min = 99999;
+		$max = 0;
+		$priceData = "";
+		while ($row = pg_fetch_row($result)) {
+			if ($min > $quant*$row[1])
+			{
+				$min = $quant*$row[1];
+			}
+			if ($max < $quant*$row[1])
+			{
+				$max = $quant*$row[1];
+			}
+			$dt = strtotime($row[0]);//nice! rickshaw uses seconds, not milliseconds!
+			$priceData .= "{ x: $dt, y: ". $row[1] ." },";
+		}
+
+		$coordInfo = array();
+		$coordInfo['symbol'] = $symbol;
+		$coordInfo['coords'] = $priceData;
+		$coordInfo['min'] = number_format(($min-($min/20)),2);
+		$coordInfo['max'] = number_format(($max+($max/20)),2);
+		return $coordInfo;
+	}
+
+
+
+
+} // end of class
+
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+//$stocklist = getSymbolsFromHistory();
+//echo "<pre>"; var_dump($stocklist); echo "</pre>";
+$testTheClass = new MongoToYQL_Adapter();
+echo "<pre>"; var_dump($testTheClass->getSymbolsOfThisOwner("me")); echo "</pre>";
+
 
 
 /*	for sorting:

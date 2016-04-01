@@ -81,7 +81,7 @@ function fetchManyFromYQL($symbolsString){
  */
 function addNewHistoryToMongo($symbol){
 
-    $symbol = strtolower($symbol); // unfortunately, I need to do this everywhere $symbol is passed.
+    $symbol = strtolower($symbol); // unfortuately, I need to do this everywhere $symbol is passed.
     //Annoying: YQL defaults to uppers, but, I have a lot of data already stored locally as lowers.
     //...so I decided in a slip-shod fashion to go with lowers for everything local. Ugh.
 
@@ -301,8 +301,8 @@ function getLastDate($symbol){
 //echo getLastDate("fb");
 
 
-
-
+// BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD BAD
+// this is bad.  Rewwrite it.  Much better method can be found in historyCron.php
 function needsHistoricUpdate($symbol){
 
     $lastdate = getLastDate($symbol);
@@ -372,90 +372,6 @@ function removeFromMongo($symbol){
 //notInHistory($symbol);
 //removeFromMongo($symbol);
 //notInHistory($symbol);
-
-
-/************************************************************************************
- * **********************************************************************************
- * **********************************************************************************
- * **********************************************************************************
- * *************     below here, I copied this in from          *********************
- * *************     InvestDB.php, and it's working with        *********************
- * *************     PostgreSQL, so modify that to handle       *********************
- * *************                                                *********************
- * **********************************************************************************
- * **********************************************************************************
- * **********************************************************************************
- * **********************************************************************************
- * **********************************************************************************
- * **********************************************************************************
- * **********************************************************************************
- * **********************************************************************************
- */
-
-
-
-/** Build a string of coordinate points for a D3 graph.
- *
- * Note: Arguments conform to PHP's strtotime()-acceptable arguments
- *
- * @param $symbol 		string stock symbol
- * @param $numPeriods  	int number of [days | months | years] of period
- * @param $typePeriods 	string type of period [days | months | years]
- * @param $endDate 		string end date of the graph
- *
- * @return associative array containing D3 graph information as follows:
- *					1. string of the symbol
-2. string of coordinates
- *					3. int of min bound of graph
- *					4. int of max bound of graph
- */
-function getD3Coordinates($symbol, $numPeriods, $typePeriods, $endDate, $quant=1)
-{
-    // build the start date from arguments given (calculated back from $endDate)
-    $startDate = date('Y-m-d', strtotime("-$numPeriods $typePeriods", strtotime($endDate)));
-
-    $q = "select thedate, closevalue from historicquotes where symbol = '$symbol'
-and thedate between '$startDate' and '$endDate' ORDER BY thedate ASC";
-
-    $result = pg_query($q);
-    if (!$result) {
-        echo "An error occurred in getD3Coordinates.  Tell that to the developer.<br>";
-    }
-
-    // set up min/max for Y axis bounds
-    // also store (x,y) coordinates to $priceData string
-    $min = 99999;
-    $max = 0;
-    $priceData = "";
-    while ($row = pg_fetch_row($result)) {
-        if ($min > $quant*$row[1])
-        {
-            $min = $quant*$row[1];
-        }
-        if ($max < $quant*$row[1])
-        {
-            $max = $quant*$row[1];
-        }
-        $dt = strtotime($row[0]);//nice! rickshaw uses seconds, not milliseconds!
-        $priceData .= "{ x: $dt, y: ". $row[1] ." },";
-    }
-
-    $coordInfo = array();
-    $coordInfo['symbol'] = $symbol;
-    $coordInfo['coords'] = $priceData;
-    $coordInfo['min'] = number_format(($min-($min/20)),2);
-    $coordInfo['max'] = number_format(($max+($max/20)),2);
-    return $coordInfo;
-}
-
-
-
-
-
-
-
-
-
 
 
 

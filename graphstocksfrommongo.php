@@ -27,30 +27,32 @@
     <script src="js/bootstrap.min.js"></script>
 
     <?php
-    include_once('testHistoryFromYQLtoMongo.php');
+    include_once('MongoToYQL_Adapter.php');
 
-    $db = new InvestDB;
-    $result = $db->populateTable();
+    $owner = "me";
+
+    $db = new MongoToYQL_Adapter;
+    $quotes = $db->getAllStocksByOwner($owner);
 
     //set up unique styles for each graph in header
-    while($row=pg_fetch_assoc($result)){
+    foreach($quotes as $q){
         $headStyle = "<style>"
-            ."			#".$row['symbol']."_chart_container {"
+            ."			#".$q['symbol']."_chart_container {"
             ."					width: 960px;"
             ."					position: relative;"
             ."					font-family: Arial, Helvetica, sans-serif;"
             ."			}"
-            ."			#".$row['symbol']."_chart {"
+            ."			#".$q['symbol']."_chart {"
             ."					position: relative;"
             ."					left: 40px;"
             ."			}"
-            ."			#".$row['symbol']."_y_axis {"
+            ."			#".$q['symbol']."_y_axis {"
             ."					position: absolute;"
             ."					top: 0;"
             ."					bottom: 0;"
             ."					width: 40px;"
             ."			}"
-            ."			#".$row['symbol']."_legend {"
+            ."			#".$q['symbol']."_legend {"
             ."				text-align: center;"
             ."			}"
             ."		</style>";
@@ -58,32 +60,31 @@
     }
     echo "</head><body><h1>Stock Charts</h1>";
 
-    $result = $db->populateTable();
     $graphInfo = array();
-    while($row=pg_fetch_assoc($result))
+    foreach($quotes as $q){
     {
 
-        // hardcode period now, but that should be selected by user in the future.
-        //$result = getD3Coordinates($row['symbol'], $numPeriods, $typePeriods, date('Y-m-d'));
+        // hard-code period now, but that should be selected by user in the future.
+        //$result = getD3Coordinates($q['symbol'], $numPeriods, $typePeriods, date('Y-m-d'));
         // contains 2d array, each array has 3 elements: 'symbol','coords','min','max'
-        $graphInfo[] = $db->getD3Coordinates($row['symbol'], 3, 'months', date('Y-m-d'));
+        $graphInfo[] = $db->getD3Coordinates($q['symbol'], 3, 'months', date('Y-m-d'));
 
         // set up div to hold each graph
         $stockDiv = ""
-            ."<div id=\"".$row['symbol']."_chart_container\">"
+            ."<div id=\"".$q['symbol']."_chart_container\">"
             ."	<table>"
             ."		<tr>"
-            ."			<td>".$row['name']."</td>"
+            ."			<td>".$q['name']."</td>"
             ."		</tr>"
             ."		<tr>"
             ."			<td>"
-            ."				<div id=\"".$row['symbol']."_legend\"></div>"
+            ."				<div id=\"".$q['symbol']."_legend\"></div>"
             ."			</td>"
             ."			<td>"
             ."			</td>"
             ."			<td>"
-            ."				<div id=\"".$row['symbol']."_y_axis\"></div>"
-            ."				<div id=\"".$row['symbol']."_chart\"></div>"
+            ."				<div id=\"".$q['symbol']."_y_axis\"></div>"
+            ."				<div id=\"".$q['symbol']."_chart\"></div>"
             ."			</td>"
             ."		</tr>"
             ."	</table>"
@@ -92,7 +93,7 @@
     }
 
     //	use Stock objects to build rickshaw graph
-    //while($row=pg_fetch_assoc($result)){
+    //while($q=pg_fetch_assoc($result)){
     foreach($graphInfo as $coordInfo)
     {
         $text = ""
