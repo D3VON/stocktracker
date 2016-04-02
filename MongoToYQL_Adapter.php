@@ -502,27 +502,34 @@ class MongoToYQL_Adapter {
 	}
 
 
-	function getHistories($owner){
+	function getHistory($symbol){
 		$dbconn = new MongoClient();
 		$db = $dbconn->selectDB("test");
 		$collection = $db->history;
+		$temp = array();
+		$datesAndValues = array();
 
 		$findThis = array('symbol' => $symbol);
-		$returnThis = array("lastday" => 1);
 
-		$doc = $collection->findOne($findThis,$returnThis);
+		$doc = $collection->findOne($findThis);
 		// INTERESTING: find returns a cursor, findOne returns a nice array.
 
 		if(empty($doc)) {
-			echo "That stock doesn't exist";
+			echo "That stock doesn't exist"; // how to handle this error? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ? ?
 		} else {
-			//        echo "<pre>"; var_dump($doc["lastday"]["date"]); echo "</pre>";
-			//        echo "last date is: " . $doc["lastday"]["date"];
-			return $doc["lastday"]["date"];
+			foreach($doc["day"] as $day){
+//				$temp["date"] = $day["date"];
+//				$temp["closingprice"] = $day["closingprice"];
+//				$datesAndValues[] = $temp;
+				// ALTERNATIVE STRUCTURE: "date" is key whose value is "closingprice"
+				$datesAndValues[$day["date"]] = $day["closingprice"];
+				//$datesAndValues[] = $temp;
+			}
+			return $datesAndValues;
 		}
 	}
 	/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
-//echo getLastDate("fb");
+//echo getHistory("fb");
 
 
 
@@ -586,11 +593,10 @@ and thedate between '$startDate' and '$endDate' ORDER BY thedate ASC";
 } // end of class
 
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
-//$stocklist = getSymbolsFromHistory();
-//echo "<pre>"; var_dump($stocklist); echo "</pre>";
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
 $testTheClass = new MongoToYQL_Adapter();
-echo "<pre>"; var_dump($testTheClass->getSymbolsOfThisOwner("me")); echo "</pre>";
-
+//echo "<pre>"; var_dump($testTheClass->getHistory("aapl")); echo "</pre>";
+echo "<pre>"; print_r($testTheClass->getHistory("aapl")); echo "</pre>";
 
 
 /*	for sorting:

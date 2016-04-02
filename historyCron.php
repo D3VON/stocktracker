@@ -150,9 +150,7 @@ function dailyHistoryUpdate(){
 
     foreach($quotes as $q){
         $tempDay = array();
-        $tempDay["date"] = $q["LastTradeDate"];
-                                        // testing:
-                                        //$tempDay["date"] = '2014-43-TESTING-TESTING';
+        $tempDay["date"] = date('Y-m-d', strtotime($q["LastTradeDate"])); // some acrobatics to make date conform
         $tempDay["volume"] = $q["AverageDailyVolume"];
         $tempDay["closingprice"] = $q["LastTradePriceOnly"];
 

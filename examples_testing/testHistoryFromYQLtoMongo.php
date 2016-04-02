@@ -345,8 +345,8 @@ function addFakeDay($symbol){
     $findThis = array('symbol' => $symbol);
 
     // works to destroy the last one, but won't show you what it was. Bitches!
-    // $poplast = array('$pop' => array('day' => 1)); // -1 is first elem. +1 is last elem.
-    // $doc = $collection->update($findThis,$poplast);
+     $poplast = array('$pop' => array('day' => 1)); // -1 is first elem. +1 is last elem.
+     $doc = $collection->update($findThis,$poplast);
 
     echo "<pre>"; var_dump($doc); echo "</pre>";
 
