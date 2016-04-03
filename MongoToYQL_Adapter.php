@@ -484,6 +484,26 @@ class MongoToYQL_Adapter {
 		return $this->combineYQLandMongoArrays($mongo, $yql);
 	}
 
+
+	/**
+	 *  Query the Mongo data store for all owners.
+	 *
+	 * @return array $owners all owners that show up in the stocks data store
+	 */
+	function getAllOwners(){
+
+		$dbconn = new MongoClient();
+		// get connection to db
+		$db = $dbconn->selectDB("test");
+		$collection = $db->stocks;
+
+		$aNiceArrayNotACursor = $collection->distinct("owner");
+
+		return $aNiceArrayNotACursor;
+	}
+
+
+
 	function getSymbolsOfThisOwner($owner){
 
 		$dbconn = new MongoClient();
@@ -525,6 +545,11 @@ class MongoToYQL_Adapter {
 				$datesAndValues[$day["date"]] = $day["closingprice"];
 				//$datesAndValues[] = $temp;
 			}
+								// for testing: get rid of this when done:
+//								$temp[] = $symbol;
+//								end($datesAndValues);
+//								$temp[] = key($datesAndValues);
+//								array_pop($datesAndValues);
 			return $datesAndValues;
 		}
 	}
@@ -536,6 +561,7 @@ class MongoToYQL_Adapter {
 	/** Build a string of coordinate points for a D3 graph.
 	 *
 	 * Note: Arguments conform to PHP's strtotime()-acceptable arguments
+	 * Note: Original PostgreSQL version is in InvestDB.php
 	 *
 	 * @param $symbol 		string stock symbol
 	 * @param $numPeriods  	int number of [days | months | years] of period
@@ -551,32 +577,33 @@ class MongoToYQL_Adapter {
 	function getD3Coordinates($symbol, $numPeriods, $typePeriods, $endDate, $quant=1)
 	{
 		// build the start date from arguments given (calculated back from $endDate)
-		$startDate = date('Y-m-d', strtotime("-$numPeriods $typePeriods", strtotime($endDate)));
+//		$startDate = date('Y-m-d', strtotime("-$numPeriods $typePeriods", strtotime($endDate)));
 
-		$q = "select thedate, closevalue from historicquotes where symbol = '$symbol'
-and thedate between '$startDate' and '$endDate' ORDER BY thedate ASC";
+//		$q = "select thedate, closevalue from historicquotes where symbol = '$symbol' and thedate between '$startDate' and '$endDate' ORDER BY thedate ASC";
+//		$result = pg_query($q);
+//		if (!$result) {
+//			echo "An error occurred in getD3Coordinates.  Tell that to the developer.<br>";
+//		}
 
-		$result = pg_query($q);
-		if (!$result) {
-			echo "An error occurred in getD3Coordinates.  Tell that to the developer.<br>";
-		}
+		$history = $this->getHistory($symbol);
 
 		// set up min/max for Y axis bounds
 		// also store (x,y) coordinates to $priceData string
 		$min = 99999;
 		$max = 0;
 		$priceData = "";
-		while ($row = pg_fetch_row($result)) {
-			if ($min > $quant*$row[1])
+		//while ($row = pg_fetch_row($result)) {
+		foreach($history as $date => $value){
+			if ($min > $quant*$value)
 			{
-				$min = $quant*$row[1];
+				$min = $quant*$value;
 			}
-			if ($max < $quant*$row[1])
+			if ($max < $quant*$value)
 			{
-				$max = $quant*$row[1];
+				$max = $quant*$value;
 			}
-			$dt = strtotime($row[0]);//nice! rickshaw uses seconds, not milliseconds!
-			$priceData .= "{ x: $dt, y: ". $row[1] ." },";
+			$dt = strtotime($date);//nice! rickshaw uses seconds, not milliseconds!
+			$priceData .= "{ x: $dt, y: ". $value ." },";
 		}
 
 		$coordInfo = array();
@@ -587,16 +614,33 @@ and thedate between '$startDate' and '$endDate' ORDER BY thedate ASC";
 		return $coordInfo;
 	}
 
-
-
-
 } // end of class
 
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
 $testTheClass = new MongoToYQL_Adapter();
+//$symbol = 'aapl';
+
+// testing getAllOwners()
+//echo "<pre>"; print_r($testTheClass->getAllOwners()); echo "</pre>";
+
+//foreach($testTheClass->getAllOwners() as $owner){
+//	foreach($testTheClass->getSymbolsOfThisOwner($owner) as $symbol){
+//
+//		echo $symbol . "<br>";
+//		echo "<pre>"; print_r($testTheClass->getHistory($symbol)); echo "</pre>";
+//
+//
+//	}
+//}
+
+$result = $testTheClass->getD3Coordinates("hd", 3, "months", date('Y-m-d') );
+echo "<pre>"; print_r($result); echo "</pre>";
+
+
+
 //echo "<pre>"; var_dump($testTheClass->getHistory("aapl")); echo "</pre>";
-echo "<pre>"; print_r($testTheClass->getHistory("aapl")); echo "</pre>";
+//echo "<pre>"; print_r($testTheClass->getHistory("aapl")); echo "</pre>";
 
 
 /*	for sorting:
