@@ -504,7 +504,7 @@ class MongoToYQL_Adapter {
 
 
 
-	function getSymbolsOfThisOwner($owner){
+	function getSymbolsOfThisOwnerALLPurchases($owner){
 
 		$dbconn = new MongoClient();
 		$db = $dbconn->selectDB("test");
@@ -519,6 +519,45 @@ class MongoToYQL_Adapter {
 			$result[] = $document["symbol"];
 		}
 		return $result;
+	}
+
+	function getSymbolsOfThisOwnerDISTINCT($owner){
+
+		$dbconn = new MongoClient();
+		$db = $dbconn->selectDB("test");
+		$collection = $db->stocks;
+
+		$findwhere = array("owner" => $owner);
+		$matchthis = array('$match'=>$findwhere);
+		/* This is flagrantly nasty MongoDB syntax. the _id field is mandatory (seems to be an id made-up on the fly
+		 * for each item in the group).  But more despicable: the field you're trying to group by (in my case 'symbol'
+		 * must have a dollar sign affixed to it, and it must be in quotes. So, rather than just say
+		 * something like "groupby symbol" I have to do the following cryptic mess: */
+		$groupby = array('$group'=>array('_id' => '$symbol'));
+		$sortthisway = array('$sort'=>array('_id'=>1));//_id was created by $group operation
+
+		// ->distinct cannot sort.  ->distinct is just a convenience version of ->aggregate
+		// Would have been clearer to use distinct instead of aggregate, then sort with PHP.
+		//$symbols = $collection->distinct("symbol",$findwhere);
+
+		$mongoresult = $collection->aggregate(array($matchthis,$groupby,$sortthisway));
+
+		// mongo returns *such* a rat's nest of JSON structure, like this:
+		//		Array
+		//		( [result] => Array
+		//			( [0] => Array ( [_id] => aapl )  [1] => Array ( [_id] => bac )
+		//			)
+		//			[ok] => 1
+		//		)
+		if($mongoresult['ok']){ // should be 1
+			$result = array();
+			foreach($mongoresult['result'] as $symbol){ // unMongo-ify
+				$result[] = $symbol['_id'];
+			}
+			return $result;
+		}else{
+			return $mongoresult['ok'];
+		}
 	}
 
 
@@ -577,13 +616,7 @@ class MongoToYQL_Adapter {
 	function getD3Coordinates($symbol, $numPeriods, $typePeriods, $endDate, $quant=1)
 	{
 		// build the start date from arguments given (calculated back from $endDate)
-//		$startDate = date('Y-m-d', strtotime("-$numPeriods $typePeriods", strtotime($endDate)));
-
-//		$q = "select thedate, closevalue from historicquotes where symbol = '$symbol' and thedate between '$startDate' and '$endDate' ORDER BY thedate ASC";
-//		$result = pg_query($q);
-//		if (!$result) {
-//			echo "An error occurred in getD3Coordinates.  Tell that to the developer.<br>";
-//		}
+		$startDate = date('Y-m-d', strtotime("-$numPeriods $typePeriods", strtotime($endDate)));
 
 		$history = $this->getHistory($symbol);
 
@@ -594,7 +627,8 @@ class MongoToYQL_Adapter {
 		$priceData = "";
 		//while ($row = pg_fetch_row($result)) {
 		foreach($history as $date => $value){
-			if ($min > $quant*$value)
+
+			if ($min > $quant*$value) // if value lower than current min, then min becomes current lower value
 			{
 				$min = $quant*$value;
 			}
@@ -609,7 +643,7 @@ class MongoToYQL_Adapter {
 		$coordInfo = array();
 		$coordInfo['symbol'] = $symbol;
 		$coordInfo['coords'] = $priceData;
-		$coordInfo['min'] = number_format(($min-($min/20)),2);
+		$coordInfo['min'] = number_format($min,2);
 		$coordInfo['max'] = number_format(($max+($max/20)),2);
 		return $coordInfo;
 	}
@@ -618,7 +652,15 @@ class MongoToYQL_Adapter {
 
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
-$testTheClass = new MongoToYQL_Adapter();
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+//$testTheClass = new MongoToYQL_Adapter();
 //$symbol = 'aapl';
 
 // testing getAllOwners()
@@ -634,13 +676,22 @@ $testTheClass = new MongoToYQL_Adapter();
 //	}
 //}
 
-$result = $testTheClass->getD3Coordinates("hd", 3, "months", date('Y-m-d') );
-echo "<pre>"; print_r($result); echo "</pre>";
+//$result = $testTheClass->getD3Coordinates("hd", 3, "months", date('Y-m-d') );
+//echo "<pre>"; print_r($result); echo "</pre>";
 
 
 
 //echo "<pre>"; var_dump($testTheClass->getHistory("aapl")); echo "</pre>";
 //echo "<pre>"; print_r($testTheClass->getHistory("aapl")); echo "</pre>";
+
+//$owner = 'me';
+//echo "<pre>"; print_r($testTheClass->getSymbolsOfThisOwnerDISTINCT($owner)); echo "</pre>";
+
+
+
+
+
+
 
 
 /*	for sorting:
