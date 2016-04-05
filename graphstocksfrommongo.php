@@ -84,17 +84,17 @@
             $endDate = date('Y-m-d');
             //$startDate = strtotime(date('Y-m-d', strtotime("-$numPeriods $typePeriods", strtotime($endDate))));
 
-            if("goog" == $q['symbol'] || "bac" == $q['symbol']){
-
-                echo "<pre>"; var_dump($graphInfo); echo "</pre>";
-                
-
-                foreach($graphinfojson["coords"] as $coord){
-                    //if($coord["x"]>$startDate){
-                        echo $coord["x"] . ", " . $coord["y"];
-                    //}
-                }
-            }
+//            if("goog" == $q['symbol'] || "bac" == $q['symbol']){
+//
+//                echo "<pre>"; var_dump($graphInfo); echo "</pre>";
+//
+//// failed attempt at I forget what
+////                foreach($graphinfojson["coords"] as $coord){
+////                    //if($coord["x"]>$startDate){
+////                        echo $coord["x"] . ", " . $coord["y"];
+////                    //}
+////                }
+//            }
 
 
             // set up div to hold each graph

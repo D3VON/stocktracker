@@ -581,7 +581,14 @@ class MongoToYQL_Adapter {
 //				$temp["closingprice"] = $day["closingprice"];
 //				$datesAndValues[] = $temp;
 				// ALTERNATIVE STRUCTURE: "date" is key whose value is "closingprice"
-				$datesAndValues[$day["date"]] = $day["closingprice"];
+
+				$numberOfMonths = 23.4;
+				$start = 1456790400 - (86400*30*$numberOfMonths);
+
+				// QUICK FIX FOR TESTING: LIMITING WHAT'S RETURNED: ONLY SINCE 3/1/16 (1456790400 IN UNIX) --- very brittle, server side bad code
+				if($start<strtotime($day["date"])) {
+					$datesAndValues[$day["date"]] = $day["closingprice"];
+				}
 				//$datesAndValues[] = $temp;
 			}
 								// for testing: get rid of this when done:
@@ -628,14 +635,25 @@ class MongoToYQL_Adapter {
 		//while ($row = pg_fetch_row($result)) {
 		foreach($history as $date => $value){
 
-			if ($min > $quant*$value) // if value lower than current min, then min becomes current lower value
+			// for the life o' me, I can't remember why I wanted to multiply by $quant
+//			if ($min > $quant*$value) // if value lower than current min, then min becomes current lower value
+//			{
+//				$min = $quant*$value;
+//			}
+//			if ($max < $quant*$value)
+//			{
+//				$max = $quant*$value;
+//			}
+
+			if ($min > $value) // if value lower than current min, then min becomes current lower value
 			{
-				$min = $quant*$value;
+				$min = $value;
 			}
-			if ($max < $quant*$value)
+			if ($max < $value)
 			{
-				$max = $quant*$value;
+				$max = $value;
 			}
+
 			$dt = strtotime($date);//nice! rickshaw uses seconds, not milliseconds!
 			$priceData .= "{ x: $dt, y: ". $value ." },";
 		}
@@ -643,8 +661,8 @@ class MongoToYQL_Adapter {
 		$coordInfo = array();
 		$coordInfo['symbol'] = $symbol;
 		$coordInfo['coords'] = $priceData;
-		$coordInfo['min'] = number_format($min,2);
-		$coordInfo['max'] = number_format(($max+($max/20)),2);
+		$coordInfo['min'] = number_format(($min-($min/20)),2, '.', '');// english notation without thousands separator
+		$coordInfo['max'] = number_format(($max+($max/20)),2, '.', '');// english notation without thousands separator
 		return $coordInfo;
 	}
 
