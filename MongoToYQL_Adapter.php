@@ -582,13 +582,14 @@ class MongoToYQL_Adapter {
 //				$datesAndValues[] = $temp;
 				// ALTERNATIVE STRUCTURE: "date" is key whose value is "closingprice"
 
-				$numberOfMonths = 23.4;
-				$start = 1456790400 - (86400*30*$numberOfMonths);
-
-				// QUICK FIX FOR TESTING: LIMITING WHAT'S RETURNED: ONLY SINCE 3/1/16 (1456790400 IN UNIX) --- very brittle, server side bad code
-				if($start<strtotime($day["date"])) {
+// Here is where I manually manipulate the period that shows up on my rickshaw graphs
+//				$numberOfMonths = 23.4;
+//				$start = 1456790400 - (86400*30*$numberOfMonths);
+//
+//				// QUICK FIX FOR TESTING: LIMITING WHAT'S RETURNED: ONLY SINCE 3/1/16 (1456790400 IN UNIX) --- very brittle, server side bad code
+//				if($start<strtotime($day["date"])) {
 					$datesAndValues[$day["date"]] = $day["closingprice"];
-				}
+//				}
 				//$datesAndValues[] = $temp;
 			}
 								// for testing: get rid of this when done:

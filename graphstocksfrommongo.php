@@ -29,7 +29,8 @@
     <?php
     include_once('MongoToYQL_Adapter.php');
 
-    $owner = "me";
+    $owner = htmlspecialchars($_GET["owner"]);
+//    $owner = "me";
 
     $db = new MongoToYQL_Adapter;
     $quotes = $db->getAllStocksByOwner($owner);
@@ -141,6 +142,7 @@
         $text .= "{	data: [  ".$coordInfo['coords']." ], "
             ."		scale: d3.scale.linear().domain(["
             .		$coordInfo['min'].", ".$coordInfo['max']."]).nice(),"
+            /* NOTE: coord time period limited manually in MongoToYQL_Adapter.php in getHistory($symbol) until I can make a JS thing that the user can manipulate the date range with. */
             ."		color: '$color', name: '".$coordInfo['symbol']."'}";
         $text .= "] } );"
             ."	var xAxis = new Rickshaw.Graph.Axis.Time({"

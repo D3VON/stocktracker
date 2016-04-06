@@ -40,6 +40,15 @@ $(document).ready(function() {
 					$(".blockUI").fadeOut("slow"); // unblockui won't work without this additional mess
 				}
 			});
+			$.ajax({
+				type: "POST",
+				url: "makeShowGraphsButton.php",
+				data: dataString,
+				cache: false,
+				success: function(result){
+					$("#showgraphs").html(result);
+				}
+			});
 		}
 	});
 });
@@ -47,7 +56,7 @@ $(document).ready(function() {
 
 /* Notes
  *
- * Note 1. About the 'loading' overlay.
+ * 'loading' overlay.
  * That came from http://malsup.com/jquery/block/  See demos at http://jquery.malsup.com/block/#demos
  * (Other cool variations and options available there.)
  * Steps:
