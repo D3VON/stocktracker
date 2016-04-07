@@ -51,6 +51,59 @@ $(document).ready(function() {
 			});
 		}
 	});
+
+
+	// on button click, present that owner's table (send to that div)
+	//$('#theOwnerButton').click(function(e){	//works in the .php version, but not in the .html version. :^(
+	$("#showgraphs").on("submit", function (e) {	//works in both .php and .html version.
+
+		e.preventDefault();
+
+		var owner = $("#ownerName").val();
+		//alert("owner is: " + owner);
+		//$("#ownerName").html(owner);
+		var dataString = '&owner='+ owner;
+		if(owner=='')
+		{
+			alert("Please indicate which owner.  Thank you.");
+		}
+		else
+		{
+			// 'loading' overlay while data is being fetched. --See Note 1 below
+			$.blockUI({ css: {
+				border: 'none',
+				padding: '15px',
+				backgroundColor: '#000',
+				'-webkit-border-radius': '10px',
+				'-moz-border-radius': '10px',
+				opacity: .5,
+				color: '#fff'
+			} });
+			$.ajax({
+				type: "POST",
+				url: "presentTable.php",
+				data: dataString,
+				cache: false,
+				success: function(result){
+					//document.getElementById("stocktablebody").innerHTML = result;
+					$("#thetable").html(result);
+					// unblock (get rid of 'loading' overlay) --See Note 1 below
+					$.unblockUI();
+					$(".blockUI").fadeOut("slow"); // unblockui won't work without this additional mess
+				}
+			});
+			$.ajax({
+				type: "POST",
+				url: "makeShowGraphsButton.php",
+				data: dataString,
+				cache: false,
+				success: function(result){
+					$("#showgraphs").html(result);
+				}
+			});
+		}
+	});
+
 });
 
 
