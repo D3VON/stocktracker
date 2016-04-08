@@ -10,8 +10,15 @@
 	$owner = $_POST['owner'];
 
 // YIKES: this is super brittle with all the hard-coding of paths.  Yuck.
-    $pieceOfHTML = "<a  href=\"../graphstocksfrommongo.php?owner=$owner\">"
-                 . "<img src=\"../table/css/images/graphicon.png\" alt=\"show graphs for this user\"/>"
-                 . "</a>";
 
-    echo $pieceOfHTML;
+    // static html link
+//    $pieceOfHTML = "<a  href=\"../graphstocksfrommongo.php?owner=$owner\">"
+//                 . "<img src=\"../table/css/images/graphicon.png\" alt=\"show graphs for this user\"/>"
+//                 . "</a>";
+
+    // js way
+    $jsButton  = "<input type=\"hidden\" name=\"owner\" id=\"owner\" value=\"$owner\" />";
+    $jsButton .= "<input  type=\"submit\" id=\"graphbutton\" value=\"show graphs for $owner\"></input>";
+
+    //echo $pieceOfHTML;
+    echo $jsButton;

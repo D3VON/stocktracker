@@ -26,7 +26,7 @@ class StocksTable
         <script src="js/stocksTable.js"></script>
 
         <table id="stockstable" class="center">
-            <caption>There is no caption.  Giggidy.</caption>
+            <caption>Using HTML5's caption tag.  Giggidy.</caption>
             <thead>
                 <tr>
                     <input type="hidden" name="owner" id="owner" value="$owner" /><!--Just populates the owner field in this form -->

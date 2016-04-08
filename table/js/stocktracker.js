@@ -1,6 +1,18 @@
 
 $(document).ready(function() {
 
+
+
+	// opens a pop-up form as an overlay (id: #the_add_form) that has its own buttons
+	$('#addy').click(function(e){
+		//e.preventDefault();
+		$('#the_add_form').dialog('open');
+	});
+
+
+
+
+
 	// on button click, present that owner's table (send to that div)
 	//$('#theOwnerButton').click(function(e){	//works in the .php version, but not in the .html version. :^(
 	$("#ownerForm").on("submit", function (e) {	//works in both .php and .html version.
