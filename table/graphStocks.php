@@ -1,36 +1,23 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> Graphs using Rickshaw / D3 </title>
+<?php // graphStocks.php
+/**
+ * copy of independent script named graphstocksfrommongo.php.
+ * User: devonmcb
+ * Date: 4/9/16
+ * Time: 12:47 AM
+ */
 
-    <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    $returnstring = "";
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <!--script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script-->
-    <!--script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script-->
-    <![endif]-->
-    <!-- dumb mistake: putting "/" at beginning of source files doesn't mean 'this directory' -->
-    <link rel="stylesheet" href="rickshaw.min.css">
-    <script src="d3.min.js"></script>
-    <script src="d3.v2.js"></script>
-    <script src="d3.layout.min.js"></script>
-    <script src="rickshaw.min.js"></script>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    $returnstring .= "<script src=\"d3.min.js\"></script>";
+    $returnstring .= "<script src=\"d3.v2.js\"></script>";
+    $returnstring .= "<script src=\"d3.layout.min.js\"></script>";
+    $returnstring .= "<script src=\"rickshaw.min.js\"></script>";
+    $returnstring .= "<!-- REMOVED: (SEE graphstocksfrommongo.php if needed) jQuery (necessary for Bootstrap's JavaScript plugins) -->";
 
-    <?php
     include_once('MongoToYQL_Adapter.php');
 
     $owner = htmlspecialchars($_POST["owner"]);
-//    $owner = "me";
+    // $owner = "me";
 
     $db = new MongoToYQL_Adapter;
     $quotes = $db->getAllStocksByOwner($owner);
@@ -63,10 +50,10 @@
                 ."				text-align: center;"
                 ."			}"
                 ."		</style>";
-            echo $headStyle;
+            $returnstring .=  $headStyle;
         }
     }
-    echo "</head><body><h1>Stock Charts</h1>";
+
     $mapB = array();
     $graphInfo = array();
     foreach($quotes as $q){
@@ -120,7 +107,7 @@
                 . "		</tr>"
                 . "	</table>"
                 . "</div>";
-            echo "<br>" . $stockDiv . "<br><hr>";
+            $returnstring .= "<br>" . $stockDiv . "<br><hr>";
         }
     }
 
@@ -166,8 +153,7 @@
             ."	});"
             ."	graph.render();"
             ."		</script>";
-        echo $text;
+        $returnstring .= $text;
     }
 
-    //$colors = array("#0000FF", "#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33","#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33", "#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33","#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33", "#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33","#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33", "#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33","#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33", "#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33","#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33", "#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33","#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33", "#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33","#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33", "#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33","#0066FF", "#0099FF", "#00FFFF", "#66FF99", "#6699FF", "#339900", "#33FF33");
-?>
+    echo $returnstring;

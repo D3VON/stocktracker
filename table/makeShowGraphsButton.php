@@ -17,8 +17,10 @@
 //                 . "</a>";
 
     // js way
-    $jsButton  = "<input type=\"hidden\" name=\"owner\" id=\"owner\" value=\"$owner\" />";
-    $jsButton .= "<input  type=\"submit\" id=\"graphbutton\" value=\"show graphs for $owner\"></input>";
+    $jsButton  = "<form id=\"graphForm\">";
+    $jsButton .= "    <input type=\"hidden\" name=\"owner\" id=\"owner\" value=\"$owner\" />";
+    $jsButton .= "    <input  type=\"submit\" id=\"graphbutton\" value=\"show graphs for $owner\"></input>";
+    $jsButton .= "</form>";
 
     //echo $pieceOfHTML;
     echo $jsButton;

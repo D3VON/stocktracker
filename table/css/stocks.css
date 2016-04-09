@@ -56,7 +56,7 @@ table table th {
 }
 */
 
-#thetable th, #thetable td{
+#appdiv th, #appdiv td{
     border:solid 1px #000;
     padding:.25em;
     border: 1px solid #666666;
@@ -68,7 +68,7 @@ table table th {
     cursor:pointer;
 }
 
-#thetable th.asc:after{
+#appdiv th.asc:after{
     /* background-image: url(images/asc.gif);  */
     content:'Asc';
     /* content:'Asc';  */
@@ -76,7 +76,7 @@ table table th {
     padding:0 .5em;
     color:green;
 }
-#thetable th.desc:after{
+#appdiv th.desc:after{
     content:'Desc';
     /* background-image: url("images/desc.gif"); */
     /* content:'Desc'; background-image: url(../images/desc.gif); */
@@ -126,7 +126,8 @@ caption {
 
 .center {
     width:100%;
-    text-align:       center;
+    text-align:center;
+    margin:auto;
 }
 
 .right {
@@ -208,16 +209,14 @@ ul.disc {
   /*list-style-image: url('sqpurple.gif'); */
 
 input#graphbutton {
-    /* float: right; */
-    margin: 30 7px 0 0;
-
-    /* cannot figure out how to get this to show. */
-    background: #ffff00 url('images/graphicon.png') no-repeat top center;
-       text-decoration: none;
+    background-repeat: no-repeat;
+    background-position: top center;
+    background-image: url('images/graphicon.png');
+    background-color: #9dfdfa;
+    text-decoration: none;
        border: 1px solid #dedede;
        border-top: 1px solid #eee;
        border-left: 1px solid #eee;
-       padding: 5px;
        padding: 35px 10px 6px 7px;
         display: block;
         cursor: pointer;
@@ -225,11 +224,6 @@ input#graphbutton {
         line-height: 130%;
         color: #333;
         font-weight: bold;*/
+    display: table;
+    margin: 0 auto
 }
-/* EXAMPLE I found
-input#image-button{
-    background: #ccc url('icon.png') no-repeat top left;
-    padding-left: 16px;
-    height: 16px;
-}
-*/

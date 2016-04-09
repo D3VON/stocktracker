@@ -1,18 +1,6 @@
 
 $(document).ready(function() {
 
-
-
-	// opens a pop-up form as an overlay (id: #the_add_form) that has its own buttons
-	$('#addy').click(function(e){
-		//e.preventDefault();
-		$('#the_add_form').dialog('open');
-	});
-
-
-
-
-
 	// on button click, present that owner's table (send to that div)
 	//$('#theOwnerButton').click(function(e){	//works in the .php version, but not in the .html version. :^(
 	$("#ownerForm").on("submit", function (e) {	//works in both .php and .html version.
@@ -46,7 +34,7 @@ $(document).ready(function() {
 				cache: false,
 				success: function(result){
 					//document.getElementById("stocktablebody").innerHTML = result;
-					$("#thetable").html(result);
+					$("#appdiv").html(result);
 					// unblock (get rid of 'loading' overlay) --See Note 1 below
 					$.unblockUI();
 					$(".blockUI").fadeOut("slow"); // unblockui won't work without this additional mess
@@ -67,12 +55,12 @@ $(document).ready(function() {
 
 	// on button click, present that owner's table (send to that div)
 	//$('#theOwnerButton').click(function(e){	//works in the .php version, but not in the .html version. :^(
-	$("#showgraphs").on("submit", function (e) {	//works in both .php and .html version.
+	$("#graphForm").on("submit", function (e) {	//works in both .php and .html version.
 
 		e.preventDefault();
 
-		var owner = $("#ownerName").val();
-		//alert("owner is: " + owner);
+		var owner = $("#owner").val();
+		alert("owner is: " + owner);
 		//$("#ownerName").html(owner);
 		var dataString = '&owner='+ owner;
 		if(owner=='')
@@ -93,24 +81,14 @@ $(document).ready(function() {
 			} });
 			$.ajax({
 				type: "POST",
-				url: "presentTable.php",
+				url: "graphStocks.php",
 				data: dataString,
 				cache: false,
 				success: function(result){
-					//document.getElementById("stocktablebody").innerHTML = result;
-					$("#thetable").html(result);
+					$("#appdiv").html(result);
 					// unblock (get rid of 'loading' overlay) --See Note 1 below
 					$.unblockUI();
 					$(".blockUI").fadeOut("slow"); // unblockui won't work without this additional mess
-				}
-			});
-			$.ajax({
-				type: "POST",
-				url: "makeShowGraphsButton.php",
-				data: dataString,
-				cache: false,
-				success: function(result){
-					$("#showgraphs").html(result);
 				}
 			});
 		}
