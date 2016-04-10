@@ -29,7 +29,7 @@
     <?php
     include_once('MongoToYQL_Adapter.php');
 
-    $owner = htmlspecialchars($_POST["owner"]);
+    $owner = htmlspecialchars($_GET["owner"]);
 //    $owner = "me";
 
     $db = new MongoToYQL_Adapter;

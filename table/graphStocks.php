@@ -8,13 +8,13 @@
 
     $returnstring = "";
 
-    $returnstring .= "<script src=\"d3.min.js\"></script>";
-    $returnstring .= "<script src=\"d3.v2.js\"></script>";
-    $returnstring .= "<script src=\"d3.layout.min.js\"></script>";
-    $returnstring .= "<script src=\"rickshaw.min.js\"></script>";
+    $returnstring .= "<script src=\"js/d3.min.js\"></script>";
+    $returnstring .= "<script src=\"js/d3.v2.js\"></script>";
+    $returnstring .= "<script src=\"js/d3.layout.min.js\"></script>";
+    $returnstring .= "<script src=\"js/rickshaw.min.js\"></script>";
     $returnstring .= "<!-- REMOVED: (SEE graphstocksfrommongo.php if needed) jQuery (necessary for Bootstrap's JavaScript plugins) -->";
 
-    include_once('MongoToYQL_Adapter.php');
+    include_once('../MongoToYQL_Adapter.php');
 
     $owner = htmlspecialchars($_POST["owner"]);
     // $owner = "me";
