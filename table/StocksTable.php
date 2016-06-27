@@ -11,6 +11,20 @@
  */
 class StocksTable
 {
+    /*Make an RGB code with a consistent mapping from a string (stock symbol)
+     to a 6 position hex value. Use md5 as a way to create a hex value,
+    and then take the first 6 digits? */
+    public function rgbcode($str){
+        return '#'.substr(md5($str), 0, 6);
+    }
+
+    // another function to make hex values based on a strong (symbol)
+    public function stringToColorCode($str) {
+        $code = dechex(crc32($str));
+        $code = substr($code, 0, 6);
+        return $code;
+    }
+
     // This table is holds all the stock purchases and buttons
 
     public function makeStocksTable($owner,$stocks){
@@ -290,9 +304,10 @@ POPUPS;
             $pozornegTotPercentChng = ($totalChangePercent>0) ? $pos : $neg;
             $todaysGainLoss = $s['Change'] * $s['purchasequantity'];
             $todaysTotalGainLoss += $todaysGainLoss;
+            $rowcolor = $this->rgbcode($s['symbol']);
 
             $tablebody .= <<<BEGINTABLEBODY
-    <tr>
+    <tr  bgcolor="$rowcolor">
         <td>
             <input type="checkbox" name="remove[]" value="$id">
         </td>
