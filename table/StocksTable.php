@@ -15,14 +15,43 @@ class StocksTable
      to a 6 position hex value. Use md5 as a way to create a hex value,
     and then take the first 6 digits? */
     public function rgbcode($str){
-        return '#'.substr(md5($str), 0, 6);
+        // if first number is a digit, make it a letter -- to make colors more pastelish, lighter
+        $letters = array('a','b','c','d','e','f','a','b','c','d');
+        $preliminarystring = substr(md5($str), 0, 6);
+        if($preliminarystring[0]<10){ $preliminarystring[0] = $letters[$preliminarystring[0]]; }
+        return '#$preliminarystring';
     }
 
+    // another function to make hex values based on a string (symbol)
+    // Also, force numbers to be letters in the hex code, as a way to make colors pastel
+    public function stringToColorCode($str,$quant) {
+        if($quant==0){
+            return '#999999';
+        }else{
+
+            $letters = array('a','b','c','d','e','f','a','b','c','d');
+            //$code = dechex(crc32($str));
+            $code = substr(crc32($str), 0, 6);
+
+            /* I just learned all grayscale hex codes repeat like this for example: #efefef or #ababab, etc... */
+            $code[0] = $letters[$code[0]];
+            $code[1] = $letters[$code[1]];
+            $code[2] = $code[0];
+            $code[3] = $code[1];
+            //$code[4] = $code[0];
+            $code[4] = $letters[$code[4]]; // this one breaks the pattern (of grayscale) to add a little more color variation.
+            //$code[5] = $letters[$code[5]];
+            $code[5] = $code[1];
+    //        $code[0] = $letters[$code[0]];
+    //        $code[0] = $letters[$code[0]];
+            return'#'.$code;
+        }
+    }
+
+
     // another function to make hex values based on a strong (symbol)
-    public function stringToColorCode($str) {
-        $code = dechex(crc32($str));
-        $code = substr($code, 0, 6);
-        return $code;
+    public function doColor($str) {
+        return'#'.substr($str, 0, 6);
     }
 
     // This table is holds all the stock purchases and buttons
@@ -304,7 +333,17 @@ POPUPS;
             $pozornegTotPercentChng = ($totalChangePercent>0) ? $pos : $neg;
             $todaysGainLoss = $s['Change'] * $s['purchasequantity'];
             $todaysTotalGainLoss += $todaysGainLoss;
-            $rowcolor = $this->rgbcode($s['symbol']);
+            //$rowcolor = $this->rgbcode($s['symbol']);
+            $rowcolor = $this->stringToColorCode($s['symbol'],$s['purchasequantity']);
+            //$rowcolor = $this->doColor($s['symbol']);
+
+
+
+
+
+//            $rowcolor[0] = 'f';
+//            $rowcolor[2] = 'f';
+//            $rowcolor[4] = 'f';
 
             $tablebody .= <<<BEGINTABLEBODY
     <tr  bgcolor="$rowcolor">
