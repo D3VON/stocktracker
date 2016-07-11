@@ -10,6 +10,21 @@
 	$remove = explode(',', $_POST['remove']);
 	//var_dump($remove);
 
+	// check all user input!!!
+	foreach($remove as $id){
+		if (!ctype_alnum($id)) {
+			echo "symbol is $symbol, so, ya know...<br>";
+			echo "Erroneously formed symbol.  Please try again.";
+			exit;
+		}
+	}
+	if (ctype_alnum($_POST['owner'])) {
+		$owner = $_POST['owner'];
+	} else {
+		echo "Erroneously formed owner name.  Please try again.";
+		exit;
+	}
+
 	require_once('StocksTable.php');
 	require_once('../MongoToYQL_Adapter.php');
 	
@@ -17,15 +32,17 @@
 		$doTable = new StocksTable;
 	} catch (Exception $e) {
 		echo 'Caught exception: ',  $e->getMessage(), "<br>";
+		exit;
 	}
 	
 	try{ 
 		$mongo = new MongoToYQL_Adapter;
 	} catch (Exception $e) {
     	echo 'Caught exception: ',  $e->getMessage(), "<br>";
-	}	
-	
-	$stocks = $mongo->removePurchase($remove, $_POST['owner']);
+		exit;
+	}
+
+	$stocks = $mongo->removePurchase($remove, $owner);
 	//echo "<br>back in removePurch.php; now running makeStocksTable()<br>";
 	echo $doTable->makeStocksTBODY($stocks);
 ?>

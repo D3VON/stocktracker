@@ -26,7 +26,7 @@ class StocksTable
     // Also, force numbers to be letters in the hex code, as a way to make colors pastel
     public function stringToColorCode($str,$quant) {
         if($quant==0){
-            return '#999999';
+            return '#878787';
         }else{
 
             $letters = array('a','b','c','d','e','f','a','b','c','d');

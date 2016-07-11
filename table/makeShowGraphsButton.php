@@ -7,15 +7,21 @@
  */
 
 
-	$owner = $_POST['owner'];
 
-    // static html link
-    $pieceOfHTML = "<a  href=\"../graphstocksfrommongo.php?owner=$owner\">"
-                 . "<img src=\"../table/css/images/graphicon.png\" alt=\"show graphs for $owner\"/>"
-                 . "</a>";
+    $owner = $_POST['owner'];
 
+    if($owner == "" || !ctype_alnum($owner) ){
+        exit; // error message will be generated elsewhere: presentTable.php called at the same time as this script
+    }else {
 
-    echo $pieceOfHTML;
+        // static html link -- URL GET value for $owner will have to be checked for possible tampering
+
+        $pieceOfHTML = "<a  href=\"../graphstocks.php?owner=$owner\">"
+            . "<img src=\"../table/css/images/graphicon.png\" alt=\"show graphs for $owner\"/>"
+            . "</a>";
+
+        echo $pieceOfHTML;
+    }
 
     // js way   This will not work: data isn't flowing to the final destination div for some reason. 
 /*
