@@ -35,7 +35,6 @@
         echo "<br>No owner specified.  Please input an owner.<br>";
         exit;
     }elseif(!ctype_alnum($owner)){
-        echo "$owner is owner name given. <br>";
         echo "<br>Not a valid owner-name.  Please input an owner.<br>";
         exit;
     }

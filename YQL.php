@@ -50,54 +50,55 @@ class YQL
 	*		NOTE 1: YQL will only let you grab 1 year's worth at a time, so have
 	* 		to loop to get multiple years.
 	*		NOTE 2: This function is designed to fill data for given $symbol
-	*		regardless of when it's run.  It will start at the Millennium (1/1/2000), 
+	*		regardless of when it's run.  It will start at 1/1/2009 (around when the market crashed),
 	*		and obtain data up to the last trading day (not including today if trading is
 	*		still happening this minute).
 	*	
 	* @param   string	$query    the ticker symbol 
 	* @return  array 	array of JSON objects, each containing one year of quotes,
 	*								but last element contains this YTD
+	* 			NOTE about format of returned array: each year is in reverse chronological order
 	*/ 
 	function populateHistoricalData($symbol)
 	{
 		// initialize process at beginning of millennium
 		$startDate = "2009-01-01"; // chose 2009 b.c. it was near bottom of market
-		$endDate = date('Y-m-d'); // today's date
 		
-		// How many years since beginning of millennium
+		// Calculate how many years since beginning of millennium
 		$date1 = new DateTime($startDate);
-		$date2 = new DateTime($endDate); // today's date
+		$date2 = new DateTime(date('Y-m-d')); // today's date
+		/*          Note: $interval is an object         */
+		$interval = $date1->diff($date2);// whole years since 2009-01-01 (will truncate/ignore/not count current year)
+		//echo "interval since 2009-01-01:  " . $interval->y . " years <br>";
 
-		/* calculate number of years since 1/1/2000 */
-		/*          This is a DateTime obj,         */
-		$interval = $date1->diff($date2);// years since 2000-01-01
-		//echo "interval since 2000-01-01:  " . $interval->y . " years <br>"; 
-		
-		// this loop YQL-queries years since millennium for given symbol
-		// but not current year.
-		$endDate   = "2009-12-31";
+		// this loop queries YQL for each year since 2009 for given symbol but not current year.
+		$endDate   = "2009-12-31"; // set up first year; loop will increment this for each year it deals with.
 
-		$howmanyyears = $interval->y + 1;
+		$howmanyyears = $interval->y + 1; // add 1 so as to also capture current year
 		$JSON_results = array(); // this needed for avoiding foreach warnings & notices
 		for($i=1; $i <= $howmanyyears; $i++){
 			//echo "start: $startDate     end: $endDate <br>";
 			
-			// 1. query YQL for this year
+			// 1. query YQL for that year
 			// 2. push resulting JSON object into array
-			
+
 			$queryResult = $this->runQuery($this->buildHistoricalQueryString($symbol,$startDate,$endDate));
-			// Verify if data was returned (if not, you will be storing a NULL, 
+			// Verify if data was returned (if not, you will be storing a NULL,
 			// and will throw Warnings and Notices accessed in a foreach loop).
-			//if(!is_null($queryResult->query->results)){
 			if(!is_null($queryResult['query']['results'])){
 				//more efficient than array_push()
 				$JSON_results[] = $queryResult;
 			}		
-				
+
 			// advance each by 1 year
 			$startDate = date('Y-m-d', strtotime("+1 year", strtotime($startDate)));
 			$endDate   = date('Y-m-d', strtotime("+1 year", strtotime($endDate)));
 		}
+
+		// NOTE: YQL returns years in reverse chronological order, so
+		// So, each element of $JSON_results contains an array representing a year's worth of data.  The
+		// first element in that array is the last business day of that year.  The least element in that
+		// array is the first business day of that year.
 		return $JSON_results; // array of JSON objs
 	}
 		

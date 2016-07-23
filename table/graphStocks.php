@@ -16,7 +16,12 @@
 
     include_once('../MongoToYQL_Adapter.php');
 
-    $owner = htmlspecialchars($_POST["owner"]);
+    if (ctype_alnum($_POST['owner'])) {//Returns TRUE if every character in text is either a letter or a digit, FALSE otherwise.
+        $owner = $_POST['owner'];
+    } else {
+        echo "Erroneously formed owner name.  Please try again.";
+        exit;
+    }
     // $owner = "me";
 
     $db = new MongoToYQL_Adapter;

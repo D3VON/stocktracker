@@ -203,11 +203,140 @@
 	
 		return $newArray;	
 	}
+
+
+
+
+	/**Open MongoDB connection
+	 * loop through given JSON result passed as argument
+	 * saving each date's data in a separate query to Mongo
+	 */
+	function addNewHistoryToMongo($symbol){
+
+		$symbol = strtolower($symbol); // unfortuately, I need to do this everywhere $symbol is passed.
+		//Annoying: YQL defaults to uppers, but, I have a lot of data already stored locally as lowers.
+		//...so I decided in a slip-shod fashion to go with lowers for everything local. Ugh.
+
+		$yql = new YQL_forTesting();
+
+		// NOTE: This YQL class receives JSON from YQL query, but converts the JSON
+		// into a PHP variable (a multi-dimensional array), so it's easy to weedle out
+		// pieces you need with nice PHP operators.
+		$resultArray = $yql->populateHistoricalData($symbol);
+		//echo "<pre>"; var_dump($resultArray); echo "</pre>";
+		/* WATCH OUT!  This was formed by querying YQL several times (once for each year), so
+		   it contains a separate multi-dimensional array for each year. You'll have to
+		   foreach loop through each year to weedle out the contiguous info you want.
+		 */
+
+		/****************************************************************************
+		 *  SET UP DATABASE CONNECTION
+		 *****************************************************************************/
+		/* NOTE: YQL class receives JSON from YQL query, but converts the JSON
+		 * into a PHP variable (a multi-dimensional array), so it's easy to weedle out
+		 * pieces you need with nice PHP operators.
+		 */
+		$dbconn = new MongoClient();
+		$db = $dbconn->selectDB("test");
+		$collection = $db->history;
+
+		/* YQL gives superfluous data, so just take what we want from the JSON object,
+		 * and save in a local array (need to cast it from "stdClass Object" to array.
+		 */
+		$theHistory['symbol'] = $symbol;
+		$theHistory['day'] = array(); // to hold each day's data
+
+		/* This damned thing takes like 60 seconds to run. */
+		// about 9 JSON elements in that array (representing whole years worth of quotes)
+		/* MongoDB version of capturing many years worth of a stock's price */
+		foreach($resultArray as $json){
+
+			//testing: just print count of days in that year to show that something happened (if not showing data for each day)
+			$index = $json['query']['count'] - 1;
+			echo "days in that year: $index<br>";
+
+			//foreach ($json->query->results->quote as $Q){
+			for($index; $index >= 0; $index--){
+
+				/* instead of making an insert query for each date like in PostgreSQL,
+				   we instead make a huge JSON object, and shove that into the
+				   MongoDB document store. So, if you query a symbol, you'll get the
+				   whole shebang.
+				 */
+				$day = array(); // make a new one each loop.
+
+				$day['date']         = $json['query']['results']['quote'][$index]['Date'];
+				$day['volume']       = $json['query']['results']['quote'][$index]['Volume'];
+				$day['closingprice'] = $json['query']['results']['quote'][$index]['Close'];
+				//$theHistory['day'] = $day; // since $theHistory['day'] is an array, I believe it will simply append $day to it.
+				array_push($theHistory['day'], $day); // I don't think we need this level of formality
+
+			}
+
+			// Have to add a special array to contain the data for the last day.
+			// Back-story: Mongo doesn't permit you to peek at the last element of an array.
+			// You can remove the last element, but you can't know what you removed
+			// without loading the entire document (which here is very large) into a local
+			// instance. But you can peek at a specially-made (what do you call it?) data member
+			// designed to hold the last element in the array in question. Bitches!
+			$lastday = array();
+			$lastday['date']         = $json['query']['results']['quote'][0]['Date'];
+			$lastday['volume']       = $json['query']['results']['quote'][0]['Volume'];
+			$lastday['closingprice'] = $json['query']['results']['quote'][0]['Close'];
+			$theHistory['lastday'] = $lastday;
+		}
+
+		//echo "<pre>"; var_dump($theHistory); echo "</pre>";
+
+		/* The PHP MongoDB Driver accepts only PHP arrays for inserts and queries
+		 * (see here: http://www.php.net/manual/en/mongo.queries.php)
+		 */
+		$collection->insert($theHistory);
+
+	}
+	/* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+	//addNewHistoryToMongo("spy");
+	//addNewHistoryToMongo("xhb");
+	//addNewHistoryToMongo("bid");
+	//addNewHistoryToMongo("wfm");
+	//// ---------------------to clean up after that test if necessary-------------
+	//echo "<pre>"; var_dump(getSymbolsFromHistory()); echo "</pre>";
+	//notInHistory("goog");
+	//notInHistory("googl");
+	//notInHistory("aapl");
+	//notInHistory("bac");
+	//notInHistory("bwp");
+	//notInHistory("lng");
+	//notInHistory("cmg");
+	////removeFromMongo($symbol);
+	//notInHistory("fb");
+	//notInHistory("aapl");
+	//notInHistory("ibm");
+	//notInHistory("zx");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	function populateOneHistoryFromYQL($symbol){
 		$dbconn = new MongoClient();
 		$db = $dbconn->selectDB("test");
-		$collection = $db->histories;
+		$collection = $db->histories; // this is an apocryphal data store.  The "real" one is history
 		
 		// check if symbol exists already
 		$findThis = array('symbol' => $symbol);
@@ -305,7 +434,7 @@
 	
 	
 		
-	$owner = "me";
+	$owner = "guest66";
 	$arrayOfStocksFromMongo = queryMongoMany($owner);
 	// echo "<pre>"; print_r($arrayOfStocksFromMongo); echo "</pre>";
 	foreach($arrayOfStocksFromMongo as $s){ echo $s['symbol'] . "<br>"; }
@@ -317,7 +446,7 @@
 	
 // 	echo "<pre>"; print_r($finalArray); echo "</pre>";
 	
-	$symbol = "aapl";
+	$symbol = "fds";
 	/* @return  array 	array of JSON objects, each containing one year of quotes,
 	*								but last element contains this YTD
 	*/
@@ -326,7 +455,7 @@
 	echo "<br>Time: " . time() . "<br>";
 	
 	
-	queryMongoHistories($symbol, 90);
+	queryMongoHistories($symbol, 90);  // spits out dates
 	
 	
 	

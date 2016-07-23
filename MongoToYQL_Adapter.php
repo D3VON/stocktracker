@@ -6,7 +6,9 @@
  * 2. do C.R.U.D. operations on the local MongoDB database.
  * 
  * Using database: 'investments' (or 'test' for development)
- * Using collections: 'stocks', and 'history'
+ * Using collections: 'stocks', and 'history' --  and apocryphal 'histories'
+ *
+ * WARNING: BE VERY HESITANT TO REMOVE ANY STOCK HISTORY, AS OTHER USERS MAY BE USING IT
  *  
  */
 
@@ -658,6 +660,10 @@ class MongoToYQL_Adapter {
 
 
 	function populateOneHistoryFromYQL($symbol){
+
+		// always ensure symbols are upper case
+		$symbol = strtoupper($symbol);
+
 		$dbconn = new MongoClient();
 		$db = $dbconn->selectDB("test");
 		$collection = $db->histories;
@@ -669,14 +675,13 @@ class MongoToYQL_Adapter {
 		$returnThis = array("symbol" => 1, "_id" => 0);
 		$cursor = $collection->find($findThis, $returnThis);
 		$foundIt = $cursor->getNext()['symbol'];
-// 		echo "<pre>"; print_r($foundIt); echo "</pre>";
-// 		echo "-----------------------------------------------------<br>";
-
-// 		// TESTING: verifying only one in the whole collection
-// 		foreach ($cursor as $document) {
-// 			echo "<br>-->" .  $document['symbol'] . "<br>";
-// 		}
-// 		echo "-----------------------------------------------------<br>";
+						// 		echo "<pre>"; print_r($foundIt); echo "</pre>";
+						// 		echo "-----------------------------------------------------<br>";
+						// 		// TESTING: verifying if there is only one of the given symbol in the whole collection
+						// 		foreach ($cursor as $document) {
+						// 			echo "<br>-->" .  $document['symbol'] . "<br>";
+						// 		}
+						// 		echo "-----------------------------------------------------<br>";
 
 		// if not already in the collection, query YQL and save to collection
 		if ($foundIt !== $symbol){
@@ -708,6 +713,7 @@ class MongoToYQL_Adapter {
 			$collection->insert($finishedArray);
 			//return $newArray;
 		}
+
 	}
 
 

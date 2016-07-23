@@ -6,19 +6,6 @@
 	//echo "requiring<br>";
 	require_once('StocksTable.php');
 	require_once('../MongoToYQL_Adapter.php');
-
-	try {
-		$doTable = new StocksTable;
-	} catch (Exception $e) {
-		echo 'Caught exception: ', $e->getMessage(), "<br>";
-	}
-
-	try {
-		$mongo = new MongoToYQL_Adapter;
-	} catch (Exception $e) {
-		echo 'Caught exception: ', $e->getMessage(), "<br>";
-	}
-
 	// check all user input!!!
 	$moneypattern = '/^\d?(?:\.\d{1,3})?$/';
 	$datepattern = "#^(0[1-9]|1[0-2])/(0[1-9]|[1-2][0-9]|3[0-1]/[0-9]{4})$#";
@@ -38,13 +25,13 @@
 				\b      # word boundary assertion
 				$ 		# end of string
 	 */
-	if (ctype_alpha($_POST['symbol'])) {
+	if (ctype_alpha($_POST['symbol'])) {//Returns TRUE if every character in text is a letter from the current locale, FALSE otherwise.
 		$symbol = strtoupper($_POST['symbol']);
 	} else {
 		echo "Erroneously formed symbol.  Please try again.";
 		exit;
 	}
-	if (ctype_digit($_POST['quant'])) {
+	if (ctype_digit($_POST['quant'])) {//Returns TRUE if every character in the string text is a decimal digit, FALSE otherwise.
 		$quant = $_POST['quant'];
 	} else {
 		echo "Erroneously formed quantity.  Please try again.";
@@ -56,7 +43,7 @@
 		echo "Erroneously formed price.  Please try again.";
 		exit;
 	}
-	if (preg_match($moneypattern, $_POST['datepicker']) == '1') { //preg_match() returns 1 if the pattern matches given subject, 0 if it does not, or FALSE if an error
+	if (preg_match($datepattern, $_POST['datepicker']) == '1') { //preg_match() returns 1 if the pattern matches given subject, 0 if it does not, or FALSE if an error
 		$date = $_POST['datepicker'];
 	} else {
 		echo "Erroneously formed date.  Please try again.";
@@ -68,16 +55,30 @@
 		echo "Erroneously formed fee.  Please try again.";
 		exit;
 	}
-	if (ctype_alnum($_POST['account'])) {
+	if (ctype_alnum($_POST['account'])) {//Returns TRUE if every character in text is either a letter or a digit, FALSE otherwise.
 		$account = $_POST['account'];
 	} else {
 		echo "Erroneously formed account.  Please try again.";
 		exit;
 	}
-	if (ctype_alnum($_POST['owner'])) {
+	if (ctype_alnum($_POST['owner'])) {//Returns TRUE if every character in text is either a letter or a digit, FALSE otherwise.
 		$owner = $_POST['owner'];
 	} else {
 		echo "Erroneously formed owner name.  Please try again.";
+		exit;
+	}
+
+	try {
+		$doTable = new StocksTable;
+	} catch (Exception $e) {
+		echo 'Caught exception: ', $e->getMessage(), "<br>";
+		exit;
+	}
+
+	try {
+		$mongo = new MongoToYQL_Adapter;
+	} catch (Exception $e) {
+		echo 'Caught exception: ', $e->getMessage(), "<br>";
 		exit;
 	}
 

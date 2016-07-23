@@ -6,10 +6,7 @@
  * Time: 4:15 PM
  */
 
-
-
     $owner = $_POST['owner'];
-
     if($owner == "" || !ctype_alnum($owner) ){
         exit; // error message will be generated elsewhere: presentTable.php called at the same time as this script
     }else {

@@ -1,9 +1,4 @@
 <?php
-	//echo "woof<br>";
-	
-	//echo "<br>here is var_dump of POST:<br>";
-	//var_dump($_POST);
-	//echo "<br>";
 	
 	// checked rows are coming over (via POST) as just a comma separated list that i have to 
 	// explode into an array for use in the removePurchase() function 
@@ -12,9 +7,8 @@
 
 	// check all user input!!!
 	foreach($remove as $id){
-		if (!ctype_alnum($id)) {
-			echo "symbol is $symbol, so, ya know...<br>";
-			echo "Erroneously formed symbol.  Please try again.";
+		if (!ctype_alnum($id)) { // should be just mongo ids, so only alpha/text
+			echo "Erroneously formed identifying ids.  Please try again.";
 			exit;
 		}
 	}

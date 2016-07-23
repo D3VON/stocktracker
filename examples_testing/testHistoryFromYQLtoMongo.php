@@ -106,6 +106,7 @@ function addNewHistoryToMongo($symbol){
      */
     $dbconn = new MongoClient();
     $db = $dbconn->selectDB("test");
+    //$collection = $db->histories;
     $collection = $db->history;
 
     /* YQL gives superfluous data, so just take what we want from the JSON object,

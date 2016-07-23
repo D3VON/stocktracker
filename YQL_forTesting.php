@@ -267,8 +267,10 @@ class YQL_forTesting
 
 }
 
+// STUFF HERE RUNS BY MERELY INCLUDING THIS CLASS.
+
 // test code here, making it a driver to test this class
-echo "I'm a driver now!";
+echo "I'm a driver now! (class: YQL_forTesting.php)";
 $y = new YQL_forTesting;
 
 //	$JSON = $y->populateHistoricalData("TWTR");
