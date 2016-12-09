@@ -2,42 +2,31 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<!-- Add this meta tag into your header to placate IE -->
 		<meta http-equiv="X-UA-Compatible" content="IE=edge; IE=10; IE=9; IE=8; IE=7" />
 		<title>StockTracker -- keeping track of your stock purchases</title>
 		<link rel="stylesheet" href="css/reset.css">
-		<link rel="stylesheet" href="rickshaw.min.css">
-<!-- 		
-		<link rel="stylesheet" href="rickshaw.min.css">
- -->
+		<link rel="stylesheet" href="css/rickshaw.min.css">
+
 		<link type="text/css" rel="stylesheet" href="css/graph.css">
 		<link type="text/css" rel="stylesheet" href="css/stocks.css">
 		
 		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
     	<!--  didn't work script type="text/javascript" src="table/js/floatingtableheader.js"></script> -->
     	<!--  can't get any of this shit to work: <script type="text/javascript" src="table/js/stickyTableHeaders.js"></script> -->
-    	
-		<!--script src="js/bootstrap.min.js"></script -->	
+
 
 	</head>
 	<body>
-		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
-		<script src="//d3js.org/d3.v3.min.js"></script>
-
-		<script src="js/jquery.blockUI.js"></script>
-		<script src="js/stocktracker.js"></script>
-
 		<div>
 			<div class="right"><img src="../../css/images/D3VON_logo_calculatortext.gif" alt="D3VON logo"></div>
 			<h1>Stock Tracker -- "My Account"</h1>
 		</div>
 
 		<div>
-			<div><img  class="bullbear" src="images/bullbear.gif" alt="bull and bear"></div>
+			<div><img  class="bullbear" src="images/bullbear.jpg" alt="bull and bear"></div>
+            <p class="center">Changed background color to black, so now have to fix this image. later.</p>
 			<div class="center italic">No effort has been put into making this page responsive.</div>
 			<div class="maincontent">
 				<p>Monitor all your stocks on a single page.</p>
@@ -77,5 +66,14 @@
 			<p>I am not seeking to implement anything new, but rather to learn how to do all the cool stuff I see in disparate places online.</p>
 			<p>So far, I have made this one page very AJAX-intensive.  It gets current information from Yahoo's YQL API.  I've also used D3.js for graphing, and I intend to use other graphing libraries to extend the usefulness of this site.  The data store is implemented with MongoDB (for me to practice using a NoSQL db), though I am strongly considering blending in a PostgreSQL db to practice good, old fashioned relational db things.</p>
 		</div>
-</body>
+
+
+		<!--script src="js/bootstrap.min.js"></script -->
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+		<script src="//d3js.org/d3.v3.min.js"></script>
+		<script src="js/jquery.blockUI.js"></script>
+		<script src="js/stocktracker.js"></script>
+	</body>
 </html>

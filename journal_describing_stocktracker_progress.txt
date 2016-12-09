@@ -3,6 +3,42 @@ Journal of what I'm doing with this StockTracker web app
 
 ----------in reverse chronological order-----------
 
+
+
+
+
+
+
+
+
+
+
+August 7, 2016
+==============
+(I've very neglected this journal)
+
+I'm trying to finally deal with a delecate, thorny issue: adding a stock to the
+history data store.
+
+I know I've done it before, but I can't find the necessary code.  So far, I can only
+find where I add to the histories data store, not the history data store (note spelling diff).
+That particular data store, histories, was an early attempt at development, and I went with
+the history version instead.
+
+historyCron.php offers some reliable code about updating history each day, but none for
+adding an entire history.  Where did I do that??
+
+Meanwhile, I've created php script called addHistory.php to add the history, but again, I don't
+know what function to call (should be in MongoToYQLAdapter.php).
+
+BINGO: FOUND IT IN testMergeYQLandMongo.php
+
+So, I added it to MongoToYQLAdapter.php, along with helper function
+
+
+
+
+
 Currently, I'm working on:
 http://localhost/stocktracker/table/stocktracker.html
 http://localhost/stocktracker/table/stocks.php 

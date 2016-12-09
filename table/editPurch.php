@@ -8,11 +8,13 @@
 	require_once('../MongoToYQL_Adapter.php');
 
 	// check all user input!!!
-	$moneypattern = '/^\d?(?:\.\d{1,3})?$/';
-	$datepattern = "#^(0[1-9]|1[0-2])/(0[1-9]|[1-2][0-9]|3[0-1]/[0-9]{4})$#";
+	//$moneypattern =  '/^\d+(?:\.\d{0-3})?$/';
+	$moneypattern = '#[0-9]+(\.[0-9]{0-3})?#';
+	$datepattern = '/(0[1-9]|1[012])[- \/.](0[1-9]|[12][0-9]|3[01])[- \/.](19|20)\d\d/';
+//wrong: $datepattern = "#^(0[1-9]|1[0-2])/(0[1-9]|[1-2][0-9]|3[0-1]/[0-9]{4})$#";
 	/*
 	 * Explanation:
-	 * 				+		# one or more of the previous thing
+	 * 			+		# one or more of the previous thing
 				\b      # word boundary assertion
 				\d{1,3} # 1-3 digits
 				(?:     # followed by this group...
@@ -24,7 +26,23 @@
 				 \d{2}  # exactly two digits
 				)?      # ...zero or one times
 				\b      # word boundary assertion
-				$ 		# end of string
+				$ 		# end of string <-----------won't work for me...maybe variable is coming in padded with spaces
+
+	another way, similar:
+
+	^[0-9]+(\.[0-9]{0-3})?$
+			And since regular expressions are horrible to read, much less understand,
+			here is the verbose equivalent:
+
+			^                   # Start of string. <-----------won't work for me...maybe variable is coming in padded with spaces
+			[0-9]+              # Must have one or more numbers.
+			(                   # Begin optional group.
+				\.              # The decimal point, . must be escaped,
+								# or it is treated as "any character".
+				[0-9]{1,2}      # One or two numbers.
+			)?                  # End group, signify it's optional with ?
+			$                   # End of string. <-----------won't work for me...maybe variable is coming in padded with spaces
+
 	 */
 	if (ctype_alnum($_POST['id'])) {//Returns TRUE if every character in text is either a letter or a digit, FALSE otherwise.
 		$id = $_POST['id'];
@@ -47,6 +65,7 @@
 	if (preg_match($moneypattern, $_POST['price']) == '1') { //preg_match() returns 1 if the pattern matches given subject, 0 if it does not, or FALSE if an error
 		$price = $_POST['price'];
 	} else {
+		//echo "You entered $price, so...";
 		echo "Erroneously formed price.  Please try again.";
 		exit;
 	}
@@ -76,7 +95,7 @@
 	}
 
 	try{
-		$doTable = new StocksTable;
+		$StocksTableObj = new StocksTable;
 	} catch (Exception $e) {
 		echo "Caught exception (couldn't make table of stocks): ".  $e->getMessage(). "<br>";
 		exit;
@@ -89,6 +108,7 @@
 		exit;
 	}
 	$stocks = $mongo->editPurchase($id,$symbol,$quant,$price,$date,$fee,$account,$owner);
-	echo $doTable->makeStocksTBODY($stocks);
+	echo $StocksTableObj->makeStocksTable($owner,$stocks);
+	//echo $StocksTableObj->makeStocksTBODY($stocks);
 
 ?>

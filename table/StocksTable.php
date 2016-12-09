@@ -59,24 +59,26 @@ class StocksTable
     public function makeStocksTable($owner,$stocks){
 
         if(!is_array($stocks)){
-            return "Apologies to the user: Unable to obtain current data.  Please try again later.";
+            return "Apologies to the user: Unable to obtain current data.  Please try again later. (StocksTable62)";
         }
-        /* adding shit to test automatic upload via FTP which I'm haveing troubl ewith*/
+
+//        if(!array_key_exists('_id', $stocks)){ // arbitarily chose _id -- it's one of many needed keys
+//            var_dump($stocks);
+//            return "There was a problem retrieving current information from Yahoo. Check back later. (StocksTable66) ";
+//        }
 
 
         $starttable_and_head = <<<TABLEHEAD
-        
-        <script src="js/stocksTable.js"></script>
 
         <table id="stockstable" class="center">
-            <caption>Using HTML5's caption tag.  Giggidy.</caption>
+            <caption>Using the caption tag.  Giggidy.</caption>
             <thead>
                 <tr>
                     <input type="hidden" name="owner" id="owner" value="$owner" /><!--Just populates the owner field in this form -->
                     <th colspan="2">
                         <button id="removie">Remove</button>
                     </th>
-                    <th colspan="2">
+                    <th colspan="3">
                         <!--  triggers the Add form to pop up. -->
                         <input  type="submit" id="addy" value="Add a stock purchase">
                     </th>
@@ -93,6 +95,7 @@ class StocksTable
                         <input type="checkbox" name="remove[]" id="selectAll" value="all">
                     </th>
                     <th>Edit</th>
+                    <th>Graph</th>
                     <!--
                         TRYING TO FIGURE OUT HOW TO SORT COLUMNS, ASCENDING / DESCENDING...
                         <a id="sort_ascend" href="good/1.html">Name</a>
@@ -122,10 +125,13 @@ class StocksTable
                     <th class="italic">& your gain/loss in 52 weeks</th>
                 </tr>
             </thead>
-            <tbody>
+
+            <tbody class="stockstablebody">
                 {$this->makeStocksTBODY($stocks)}
             </tbody>
         </table>
+        <div id="bottom_anchor"></div>
+        <script src="js/stocksTable.js"></script>
 TABLEHEAD;
 
         // this div holds the little "Add a stock purchase" pop-up form (as a table)
@@ -244,7 +250,7 @@ TABLEHEAD;
                                 </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td class="right">
                                     <label for="price">Price for each: </label>
                                 </td>
                                 <td>
@@ -283,7 +289,7 @@ TABLEHEAD;
                         </tbody>
                     </table>
                 </form>
-            </div
+            </div>
 POPUPS;
         return $starttable_and_head . $popups;
 
@@ -358,12 +364,16 @@ POPUPS;
                 <!-- adding multiple $(documents).ready()s is not a problem. All will be executed on the ready event. -->
                             <!-- for testing: -->
                             <!-- alert("in the <script> function"); -->
-                            <!-- alert($("input[name='editfields$id']").val()); -->
                             <!-- alert("{$s['Name']}"); -->
                             <!-- this group is to populate 'existing' fields into the form. -->
+                <!-- Cool behavior when this is put into the script tag below -->
+                <!-- if this alert is added: each row's graph  -->
+                <!-- is only finished after you click 'OK' on each one's alert  -->
+                <!--  alert($("input[name='editfields$id']").val()); -->
             <script>
                 $(document).ready(function() {
-                    $("#edit$id").click(function(e){
+                    event.preventDefault();
+                    $("#edit$id").on("click",function(e){
                         $("#companyname").text("{$s['Name']}");
                         $("#editsymbol").val("{$s['symbol']}");
                         $("#editquant").val("{$s['purchasequantity']}");
@@ -374,15 +384,17 @@ POPUPS;
                         $("#editid").val("$id");
                         $("#editowner").val("{$s['owner']}");
                         <!-- e.preventDefault(); -->
-                        $('#the_edit_form')
-                            .dialog('open');
+                        $('#the_edit_form').dialog('open');
                     });
                 });
             </script>
         </td>
 
+        <td>
+            <input type="image" name="graph$id" id="graph$id" class="center" src="images/graphButton.png" alt="Graph this stock"  value="$id">
+        </td>
         <td class="left">{$s['Name']}</td>
-        <td class="left">{$s['symbol']}</td>
+        <td class="left"><a href='https://search.yahoo.com/search?p={$s['symbol']}' target=_blank>{$s['symbol']}</a></td>
         <td class="right current">\${$s['LastTradePriceOnly']}</td>
         <td class="$pozornegDollarChng current">\${$s['Change']}</td>
         <td class="right $pozornegPercentChng current">{$number_format_hack($percentchangetoday, 2, '.', ',')}%</td>

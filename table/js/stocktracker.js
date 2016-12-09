@@ -1,3 +1,5 @@
+// unblock when ajax activity stops
+$(document).ajaxStop($.unblockUI);
 
 $(document).ready(function() {
 
@@ -18,28 +20,19 @@ $(document).ready(function() {
 		else
 		{
 			// 'loading' overlay while data is being fetched. --See Note 1 below
-			$.blockUI({ css: {
-				border: 'none',
-				padding: '15px',
-				backgroundColor: '#000',
-				'-webkit-border-radius': '10px',
-				'-moz-border-radius': '10px',
-				opacity: .5,
-				color: '#fff'
-			} });
-			$.ajax({
-				type: "POST",
-				url: "presentTable.php",
-				data: dataString,
-				cache: false,
-				success: function(result){
-					//document.getElementById("stocktablebody").innerHTML = result;
-					$("#appdiv").html(result);
-					// unblock (get rid of 'loading' overlay) --See Note 1 below
-					$.unblockUI();
-					$(".blockUI").fadeOut("slow"); // unblockui won't work without this additional mess
-				}
-			});
+			//$.growlUI("","Fetching current quotes...");// = function(title, message, timeout, onClose)
+			//$.blockUI({
+			//	//message: "Fetching current quotes...",
+			//	css: {
+			//	border: 'none',
+			//	padding: '15px',
+			//	backgroundColor: '#000',
+			//	'-webkit-border-radius': '10px',
+			//	'-moz-border-radius': '10px',
+			//	opacity: .5,
+			//	color: '#fff'
+			//	}
+			//});
 			$.ajax({
 				type: "POST",
 				url: "makeShowGraphsButton.php",
@@ -49,10 +42,52 @@ $(document).ready(function() {
 					$("#showgraphs").html(result);
 				}
 			});
+			$.ajax({
+				type: "POST",
+				url: "presentTable.php",
+				data: dataString,
+				cache: false,
+				beforeSend: function () {
+					//$(".right_con").css("min-height", "300px");
+					//$(".blockOverlay").css("background-color", "");
+					//$.blockUI();  //<---add this
+					$.blockUI({
+						//message: "Fetching current quotes...",
+						css: {
+							border: 'none',
+							padding: '15px',
+							backgroundColor: '#000',
+							'-webkit-border-radius': '10px',
+							'-moz-border-radius': '10px',
+							opacity: .5,
+							color: '#fff'
+						}
+					});
+				},
+				// THIS DOESN'T WORK FOR ME ON FIREFOX OR IE, BUT WORKS FINE IN CROME
+				//complete: function () {
+				//	//$(".right_con").unblock();
+				//	$.unblockUI(); // <----and this
+				//	$(".blockUI").fadeOut("slow"); // unblockui won't work without this additional mess
+				//},
+				success: function(result){
+					//document.getElementById("stocktablebody").innerHTML = result;
+					$("#appdiv").html(result);
+					// unblock (get rid of 'loading' overlay) --See Note below
+					//$('html').unblockUI();// unblockUI wasn't working in Firefox, so tried this, also didn't work.
+					//alert("unblockUI should happen now");
+					//$.unblockUI(); // works fine in crome, but not in Firefox or IE. (see ".always" function added to entire $.ajax below.
+					//$(".blockUI").fadeOut("slow"); // unblockui won't work without this additional mess
+				}
+			}).always(function() { // this 'always' function is necessary for unblockUI to fire in Firefox and IE; no other way worked.
+				$.unblockUI(); // <----and this
+				$(".blockUI").fadeOut("slow"); // unblockui won't work without this additional mess
+			});
 		}
 	});
 
 });
+
 
 
 /* Notes
@@ -61,7 +96,7 @@ $(document).ready(function() {
  * That came from http://malsup.com/jquery/block/  See demos at http://jquery.malsup.com/block/#demos
  * (Other cool variations and options available there.)
  * Steps:
- * A. I copied the unique jQuery file and am serving it myself because I don't want to risk
+ * A. I copied the jQuery file and am serving it myself because I don't want to risk
  * refer to that web site in case it's updated and breaks my code. So I added this
  * to the HTML page: <script src="js/jquery.blockUI.js"></script>
  * B. In the jQuery (in this file)

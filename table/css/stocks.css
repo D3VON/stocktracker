@@ -6,6 +6,8 @@
 body {
     font-family:     Verdana, Geneva, Arial, sans-serif;
     font-size:       small;
+    background-color: black;
+    color: lightgray;
 }
 h1, h2 {
     color:           #FC9E40;
@@ -43,11 +45,13 @@ table.popuptable h2 {
 }
 
 table {
+    color: black;
     margin:      20px 20px 20px 20px; /* no commas; order: top, right, bottom, left*/
     caption-side:     bottom;
     padding:			0;
     margin: 0;
     border-collapse:  collapse; /* eliminates gap between cells */
+    white-space: nowrap;
 }
 /*
 table table th {
@@ -101,11 +105,11 @@ td, th {
 th {
     background-color: #ff9933; /* #FC9E40; #ff9933 #C1F0F6 */
 }
-
+/*
 tr:hover {
-    background-color: #ffdd99; /* grayish: #efeff5; /* bright green: #99ff33; */
+    background-color: #ffdd99; /* grayish: #efeff5; !* bright green: #99ff33;
 }
-
+*/
 .cellcolor {
     background-color: #ff9933; /* fcba7a; */
 }
@@ -125,17 +129,17 @@ caption {
 }
 
 .center {
-    width:100%;
+    /*width:100%; this will make the td in a table as wide as it can possibly be. */
     text-align:center;
     margin:auto;
 }
 
 .right {
-    width:100%;
+    /*width:100%; this will make the td in a table as wide as it can possibly be. */
     text-align:       right;
 }
 .left {
-    width:100%;
+    /*width:100%; this will make the td in a table as wide as it can possibly be. */
     text-align:       left;
 }
 
@@ -227,3 +231,16 @@ input#graphbutton {
     display: table;
     margin: 0 auto
 }
+
+input.center{
+    display: block;
+    margin: 0 auto;
+}
+
+ tr.highlight {
+     background-color: orange;
+     /*background-color: rgba(41, 103, 182, 0.89);*/
+     color: #FFF;
+     outline: thin solid;
+     border: 1px red;
+ }

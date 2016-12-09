@@ -59,12 +59,12 @@
         }
     }
 
-    $mapB = array();
+    $mapB = array();    // just realized I actually never use this and never have a problem.  It shows up just a couple places here.
     $graphInfo = array();
     foreach($quotes as $q){
         // guard against redundancies.  See 'PROBLEM' note above
         if(!array_key_exists($q['symbol'],$mapB)) {
-            $mapB[$q['symbol']] = NULL;
+            $mapB[$q['symbol']] = NULL;  // just realized I actually never use this and never have a problem.  It shows up just a couple places here.
 
             // hard-code period now, but that should be selected by user in the future.
             //$result = getD3Coordinates($q['symbol'], $numPeriods, $typePeriods, date('Y-m-d'));

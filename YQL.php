@@ -174,11 +174,11 @@ class YQL
 	*	
 	*/ 
     function buildQuoteQuery($symbols)
-    {	
+    {
 		return "https://query.yahooapis.com/v1/public/yql"
 				. "?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22"
 				. $symbols . "%22)&format=json&diagnostics=true&env=store"
-				. "%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback=";
+				. "%3A%2F%2Fdatatables.org%2Falltableswithkeys";
     }	
 	
 	/** 
@@ -192,6 +192,9 @@ class YQL
 	{
 		$quoteJSONobject = $this->runQuery($this->buildQuoteQuery($symbol));
 		//echo $quoteJSONobject->query->results->quote->Name;
+//		echo $this->buildQuoteQuery($symbol);
+		//echo "<br>SORRY: I'M TESTING. TABLE SHOULD APPEAR AT BOTTOM OF THIS PAGE. <br>";
+		//var_dump($quoteJSONobject);
 		return $quoteJSONobject;
 	}
 	
@@ -237,6 +240,7 @@ class YQL
 			}
 			if( !($response = curl_exec($ch)) ) 
 			{
+				/* inadequate here: YQL typically returns *something* when the query doesn't work */
 				return array(0); // zero will signify YQL request failure
 				//echo "FAIL: curl_exec()";
 				//echo '<br>Curl error: ' . curl_error($ch);
@@ -245,11 +249,12 @@ class YQL
 		} 
 		else
 		{
+			/* inadequate here: YQL typically returns *something* when the query doesn't work */
 			return array(0); // zero will signify YQL request failure
 			//echo "FAIL: curl_init()";
-		}	
-			
-		
+		}
+
+		//var_dump($response);
 		/* The PHP MongDB Driver accepts only PHP arrays for inserts and queries
 		 * (see here: http://www.php.net/manual/en/mongo.queries.php)
 		* So you need to convert your JSON to an array.

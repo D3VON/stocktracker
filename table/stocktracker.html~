@@ -1,0 +1,79 @@
+<!doctype html> 
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- Add this meta tag into your header to placate IE -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge; IE=10; IE=9; IE=8; IE=7" />
+		<title>StockTracker -- keeping track of your stock purchases</title>
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/rickshaw.min.css">
+
+		<link type="text/css" rel="stylesheet" href="css/graph.css">
+		<link type="text/css" rel="stylesheet" href="css/stocks.css">
+		
+		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    	<!--  didn't work script type="text/javascript" src="table/js/floatingtableheader.js"></script> -->
+    	<!--  can't get any of this shit to work: <script type="text/javascript" src="table/js/stickyTableHeaders.js"></script> -->
+
+
+	</head>
+	<body>
+		<div>
+			<div class="right"><img src="../../css/images/D3VON_logo_calculatortext.gif" alt="D3VON logo"></div>
+			<h1>Stock Tracker -- "My Account"</h1>
+		</div>
+
+		<div>
+			<div><img  class="bullbear" src="images/bullbear.jpb" alt="bull and bear"></div>
+            <p class="center">Changed background color to black, so now have to fix this image. later.</p>
+			<div class="center italic">No effort has been put into making this page responsive.</div>
+			<div class="maincontent">
+				<p>Monitor all your stocks on a single page.</p>
+				<p>The motivaiton for this site is when you owns stocks in several different accounts, at different companies,
+					wih different logins, and each site present them differently, it gets annoying keeping track of all that.
+			</div>
+		</div>
+		<div class="center">
+			<form id="ownerForm">
+				Owner name: <input type="text" id="ownerName">
+				<input id="theOwnerButton"  type="submit" value="Specify Owner">
+				<br>
+				<em class="italic">Might we recommend "guest" as an owner name?<br>Or, make your own owner name.</em>
+			</form>
+			<br>
+		</div>
+		<div id="showgraphs" class="center"></div>
+		<div id="appdiv" class="centertable">	</div>
+	<!-- input id="theslider" type="slider" name="price" value="20" />  -->
+	<div class="todo">
+		<p>To do:<p>
+		<ul class="disc">
+			<li>Fix sort-by-column </li>
+			<li>Add a note field</li>
+			<li>Refresh current prices even if page isn't manually reloaded</li>
+			<li>Keep headings at top when scrolling down<li>
+			<li>I can't get these imgs to work right in column headings: <img  src="css/images/asc.gif" alt="ascending arrow"> </li>
+			<li>Add historic graphs for each stock: perhaps when you click a little icon, that row's historic graph will pop up. </li>
+		</ul>
+	</div>
+		<div class="maincontent">
+			<p>This is a tool to keep track of stocks in a single location with a uniform UI.</p>
+			<p>The motivaiton for this site is when you owns stocks in several different accounts, at different companies,
+				wih different logins, and each site present them differently, it gets annoying keeping track of all that.
+				This is a place you can keep track of all your stocks on one page.</p>
+			<p>Here, you can enter each individual purchase.  For example, you can enter IBM 100 different times at different prices purchased for different amounts, and in different accounts.</p>
+			<p>I am not seeking to implement anything new, but rather to learn how to do all the cool stuff I see in disparate places online.</p>
+			<p>So far, I have made this one page very AJAX-intensive.  It gets current information from Yahoo's YQL API.  I've also used D3.js for graphing, and I intend to use other graphing libraries to extend the usefulness of this site.  The data store is implemented with MongoDB (for me to practice using a NoSQL db), though I am strongly considering blending in a PostgreSQL db to practice good, old fashioned relational db things.</p>
+		</div>
+
+
+		<!--script src="js/bootstrap.min.js"></script -->
+		<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+		<script src="//d3js.org/d3.v3.min.js"></script>
+		<script src="js/jquery.blockUI.js"></script>
+		<script src="js/stocktracker.js"></script>
+	</body>
+</html>

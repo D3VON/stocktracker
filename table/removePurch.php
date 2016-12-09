@@ -23,7 +23,7 @@
 	require_once('../MongoToYQL_Adapter.php');
 	
 	try{
-		$doTable = new StocksTable;
+		$StocksTableObj = new StocksTable;
 	} catch (Exception $e) {
 		echo 'Caught exception: ',  $e->getMessage(), "<br>";
 		exit;
@@ -38,5 +38,6 @@
 
 	$stocks = $mongo->removePurchase($remove, $owner);
 	//echo "<br>back in removePurch.php; now running makeStocksTable()<br>";
-	echo $doTable->makeStocksTBODY($stocks);
+	echo $StocksTableObj->makeStocksTable($owner,$stocks);
+	//echo $doTable->makeStocksTBODY($stocks);
 ?>

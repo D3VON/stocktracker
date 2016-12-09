@@ -213,11 +213,12 @@
 	 */
 	function addNewHistoryToMongo($symbol){
 
-		$symbol = strtolower($symbol); // unfortuately, I need to do this everywhere $symbol is passed.
+		$symbol = strtouppwer($symbol); // unfortuately, I need to do this everywhere $symbol is passed.
 		//Annoying: YQL defaults to uppers, but, I have a lot of data already stored locally as lowers.
 		//...so I decided in a slip-shod fashion to go with lowers for everything local. Ugh.
 
-		$yql = new YQL_forTesting();
+		//$yql = new YQL_forTesting();
+		$yql = new YQL();
 
 		// NOTE: This YQL class receives JSON from YQL query, but converts the JSON
 		// into a PHP variable (a multi-dimensional array), so it's easy to weedle out
@@ -247,7 +248,7 @@
 		$theHistory['day'] = array(); // to hold each day's data
 
 		/* This damned thing takes like 60 seconds to run. */
-		// about 9 JSON elements in that array (representing whole years worth of quotes)
+		// many JSON elements in that array (representing many whole years worth of quotes)
 		/* MongoDB version of capturing many years worth of a stock's price */
 		foreach($resultArray as $json){
 
@@ -304,11 +305,11 @@
 	//notInHistory("goog");
 	//notInHistory("googl");
 	//notInHistory("aapl");
-	//notInHistory("bac");
+	//notInHistory("bac");   <--------this function is no longer in this script
 	//notInHistory("bwp");
 	//notInHistory("lng");
 	//notInHistory("cmg");
-	////removeFromMongo($symbol);
+	////removeFromMongo($symbol);   <--------this function is no longer in this script
 	//notInHistory("fb");
 	//notInHistory("aapl");
 	//notInHistory("ibm");
