@@ -1,10 +1,10 @@
 <?php // historyCron.php
 /**
  * This is to be run as a cron job.  It queries the 'history' collection
- * in the Mongo database.  (Currently just the test data store.)
+ * in the Mongo database.  (Currently just in the 'test' data store.)
  * After it gets the set of symbols from 'history', it querys YQL
  * for the quotes.  The cron job runs after the market closes
- * (say at 5 pm, 1/2 an hour after closing--to be safe because right now
+ * (say at 5 pm, an hour after closing--to be safe because right now
  * I don't have an account with YQL to get (nearly) real time quotes, and so,
  * quotes are officially delayed by 15 minutes; I don't trust that, so I am
  * adding another 15 minutes to get the certain last values of the day).
@@ -19,6 +19,13 @@
  * User: devonmcb
  * Date: 3/20/16
  * Time: 11:20 PM
+ *
+ * FUNCTIONS:
+ * fetchManyFromYQL($symbolsString)
+ * getSymbolsFromHistory()
+ * getQuotesFromYQL($stocklist)
+ * dailyHistoryUpdate()
+ * 
  */
 
 require_once('YQL.php');

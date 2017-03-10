@@ -1,16 +1,45 @@
 <?php  // TestMongoToYQLAdapter.php
 
-    //woof
 
-    /*	This script is more to prove concepts than to test MongoToYQL_Adapter.php.
-        In fact, it does not test that script.
-
+    /*
+     * 	functions to poke and prod my datastores in the 'test' database:
+     *      history -- the one used by stocktracker, quite simple, updated by cron
+     *      histories -- more complete, not used, not updated by cron
+     *
+     * FUNCTIONS:
+     *
+     * AreArraysPassedByValOrRef(&$arr)
+     * fetchOneFromYQL($symbol)
+     * fetchFromYQL(&$mongoArray)
+     * fetchManyFromYQL($symbols)
+     * queryMongoMany($owner)
+     * combineYQLandMongoArrays($mongo, $yql)
+     * function getAllStocksByOwner($owner,$sortby)
+     *
+     * ....THESE SHOULD BE DONE BY JAVASCRIPT IN THE BROWSER.
+     * sortByAccountAsc($a,$b)
+     * sortByAccountDesc($a,$b)
+     * sortBySymbolAsc($a,$b)
+     * sortBySymbolDesc($a,$b)
+     * sortByPurchaseDateAsc($a, $b)
+     * sortByPurchaseDateDesc($a, $b)
+     * sortByNameAsc($a,$b)
+     * sortByNameDesc($a,$b)
+     * sortByPercentChangeTodayAsc($a,$b)
+     * sortByPercentChangeTodayDesc($a,$b)
+     * sortByTotalChangePercentAsc($a,$b)
+     * sortByTotalChangePercentDesc($a,$b)
+     * sortByPurchaseTotalAsc($a,$b)
+     * sortByPurchaseTotalDesc($a,$b)
     */
 
 error_reporting(E_ALL);
 
     // handles querying YQL
 include_once('YQL.php');//incude sends warning if fails, require is fatal.
+
+
+// this was my attempt at an enum
 include_once('ColumnIdentity.php');//incude sends warning if fails, require is fatal.
 
     function AreArraysPassedByValOrRef(&$arr){
@@ -23,7 +52,6 @@ include_once('ColumnIdentity.php');//incude sends warning if fails, require is f
 
 
     function fetchOneFromYQL($symbol){
-
 
         // set up YQL connection to get current stock info
         $y = new YQL;

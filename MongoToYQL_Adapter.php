@@ -9,7 +9,27 @@
  * Using collections: 'stocks', and 'history' --  and apocryphal 'histories'
  *
  * WARNING: BE VERY HESITANT TO REMOVE ANY STOCK HISTORY, AS OTHER USERS MAY BE USING IT
- *  
+ *
+ * AVAILABLE METHODS:
+ * __construct() sets up $this->dbconn = new MongoClient();
+ * fetchManyFromYQL($symbolsString)
+ * fetchOneFromYQL($symbol)
+ * fetchFromYQL(&$mongoArray)
+ * queryMongoMany($owner){
+ * addPurchase($symbol, $quantity, $price, $date, $fee, $account, $owner)
+ * removePurchase($remove, $owner)
+ * editPurchase($id, $symbol, $quantity, $price, $date, $fee, $account, $owner)
+ * combineYQLandMongoArrays(&$mongo, &$yql)
+ * getAllStocksByOwner($owner)
+ * getAllOwners()
+ * getSymbolsOfThisOwnerALLPurchases($owner)
+ * getSymbolsOfThisOwnerDISTINCT($owner)
+ * getHistory($symbol)
+ * getD3Coordinates($symbol, $numPeriods, $typePeriods, $endDate, $quant=1)
+ * addNewHistoryToMongo($symbol)
+ * populateOneHistoryFromYQL($symbol)
+ * queryMongoHistories($symbol, $goBack)
+ *
  */
 
 // handles querying YQL
@@ -582,6 +602,15 @@ class MongoToYQL_Adapter {
 	}
 
 
+	/**
+	 * Get from datastore 'history' the given symbol's entire closing price history.
+	 *
+	 * @param String $symbol the symbol to query
+	 *
+	 * @return array $theStocksArray of key/value pairs like this: [2012-05-18] => 38.23,
+	 * which is naturally ordered by key, which is a date.
+	 *
+	 */
 	function getHistory($symbol){
 		$dbconn = new MongoClient();
 		$db = $dbconn->selectDB("test");
@@ -781,9 +810,10 @@ class MongoToYQL_Adapter {
 
 
 
-	/* DEPRICATED -- uses histories data store, not history data store.
+	/* DEPRICATED -- but may be reserected because it's a better bunch of data
+	   -- uses histories data store, not history data store.
 	   Note: this version has many more fields for each day than the history data store.
-	   Stocktracker initially used the simpler history data store.
+	   Stocktracker uses the simpler history data store.
 	 */
 	function populateOneHistoryFromYQL($symbol){
 
@@ -902,12 +932,30 @@ class MongoToYQL_Adapter {
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
 //$testTheClass = new MongoToYQL_Adapter();
 //$symbol = 'aapl';
-
-// testing getAllOwners()
+//
+//// TEST: getAllOwners()
 //echo "<pre>"; print_r($testTheClass->getAllOwners()); echo "</pre>";
+/** Output:
+ *
+ 	Array
+	(
+		[0] => guest
+		[1] => me
+		[2] =>
+		[3] => Brando
+		[4] => dave
+		[5] => soandso
+		[6] => Ggg
+		[7] => test
+		[8] => test1
+	)
+ */
 
+
+// Monstrously large output for owners with a lot of purchases.
+// Each stock has many years worth of data.
 //foreach($testTheClass->getAllOwners() as $owner){
-//	foreach($testTheClass->getSymbolsOfThisOwner($owner) as $symbol){
+//	foreach($testTheClass->getSymbolsOfThisOwnerALLPurchases($owner) as $symbol){
 //
 //		echo $symbol . "<br>";
 //		echo "<pre>"; print_r($testTheClass->getHistory($symbol)); echo "</pre>";
@@ -916,12 +964,24 @@ class MongoToYQL_Adapter {
 //	}
 //}
 
-//$result = $testTheClass->getD3Coordinates("hd", 3, "months", date('Y-m-d') );
+// Less large than above, but still monstrously large.
+//foreach($testTheClass->getAllOwners() as $owner){
+//	foreach($testTheClass->getSymbolsOfThisOwnerDISTINCT($owner) as $symbol){
+//
+//		echo $symbol . "<br>";
+//		echo "<pre>"; print_r($testTheClass->getHistory($symbol)); echo "</pre>";
+//
+//
+//	}
+//}
+
+// gets sets data for a stock for a D3 graph
+//$result = $testTheClass->getD3Coordinates("FB", 3, "months", date('Y-m-d') );
 //echo "<pre>"; print_r($result); echo "</pre>";
 
 
-
-//echo "<pre>"; var_dump($testTheClass->getHistory("aapl")); echo "</pre>";
+// ONLY TAKES CAPITALIZED SYMBOLS
+//echo "<pre>"; var_dump($testTheClass->getHistory("AAPL")); echo "</pre>";
 //echo "<pre>"; print_r($testTheClass->getHistory("aapl")); echo "</pre>";
 
 //$owner = 'me';
