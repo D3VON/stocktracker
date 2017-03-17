@@ -21,11 +21,11 @@
  * Time: 11:20 PM
  *
  * FUNCTIONS:
- * fetchManyFromYQL($symbolsString)
- * getSymbolsFromHistory()
- * getQuotesFromYQL($stocklist)
- * dailyHistoryUpdate()
- * 
+ * fetchManyFromYQL($symbolsString) returns key=symbol, value=the data for the datastore: history
+ * getSymbolsFromHistory() returns an array of symbols
+ * getQuotesFromYQL($stocklist) returns stuff from YQL
+ * dailyHistoryUpdate() returns void, but updates the datastore: history
+ *
  */
 
 require_once('YQL.php');
