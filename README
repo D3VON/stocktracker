@@ -1,4 +1,4 @@
-A way to track my stocks in different accounts in a unified way. Using JavaScript, PHP, MongoDB, AJAX, Rickshaw.js, jQuery...
+A way to track my stocks in different accounts in a unified way. Using JavaScript, PHP, MongoDB, AJAX, D3.js, Rickshaw.js, jQuery...
 
 Check out the file journal_describing_stocktracker_progress.txt
 
@@ -7,4 +7,14 @@ The goal is twofold:
 1. have a nice table that is fully functional (add, delete, modify records; and also sort by column);
 2. have cool graphing abilities.  I currently have been using rickshaw.js for that.  One MAJOR ISSUE is that Yahoo's YQL (where I'm getting my data) is INTENSELY SLOW for large amounts of historical data.  
 
-That is all. 
+There is no MVC, but rather the inescapable fact that:
+a) there needs to be a script(s) to handle interaction with the data store
+   (sometimes called a 'model')
+b) there needs to be some code that receives data and presents it to the user (sometimes called a 'view')
+c) there needs to be some code to handle user input and decide what to do (sometimes called a 'controller').
+
+Again, this is just a sandbox.
+
+Bad design:
+
+As a consequence of unfettered curiosity and experimentation, the web app being developed in these directories has nonsensically relegated itself to the 'table' directory.  This directory structure is not very rational as it engenders odd '..' paths to critical components.  No biggie, though.

@@ -412,9 +412,6 @@ POPUPS;
         <td class="left">{$s['purchasedate']}</td>
 
         <td>
-            <table class="graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>
-                <tr class="graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>
-                    <td class="left graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;' id="graph_$id">
 BEGINTABLEBODY;
 
                 /***************************************************************************************
@@ -427,15 +424,24 @@ BEGINTABLEBODY;
                  * NOTE: very shaggy hacking: Instead of declaring, e.g., "var x" many times
                  * (this code is called many times in a loop) causing it to be declared many times
                  * in the same script, I'm 'augmenting' the name, e.g., "var x", with the database id
-                 * of each stock thusly: _$id so as to make each declaration UNIQUE!
+                 * of each stock thusly: _$id so as to make each declaration unique.
                  ***************************************************************************************
                  ***************************************************************************************/
+
+            /***************************************************************************************
+             * Glitch to handle: Some index funds do not publish 52 week highs/lows. While Yahoo will
+             * show current price, those other values mess up my d3.js here.
+             *
+             * Therefore, I must skip those graphs and give a graceful message to the user instead.
+             ***************************************************************************************/
+            if(isset($s['YearLow'])) {
 
                 // ONLY SHOW 52 WEEK DATA, not longer ago than that (may have gained or lost more, but only show 1 year)
                 // this boolean does 2 things: controls whether graph is red or green,
                 // and controls order in graph of purchase price & current price
                 $redboolean = (($s['LastTradePriceOnly'] - $s['purchaseprice']) < 0) ? TRUE : FALSE;
-                $graphcolor = ($redboolean) ? "#ffb3b3" /*reddish*/ : "#d5ff80" /*greenish*/;
+                $graphcolor = ($redboolean) ? "#ffb3b3" /*reddish*/ : "#d5ff80" /*greenish*/
+                ;
 
                 // guard against stocks purchased more than 52 weeks ago at a lower or higher price
                 $purchPriceTooLow = ($s['YearLow'] > $s['purchaseprice']) ? TRUE : FALSE;
@@ -443,27 +449,30 @@ BEGINTABLEBODY;
                 //Then we can only have two colored ranges instead of three
 
                 // handle possible overflow of 52 week values
-                if($purchPriceTooLow){
+                if ($purchPriceTooLow) {
                     $pp = $s['YearLow'];
-                }elseif($purchPriceTooHigh){
+                } elseif ($purchPriceTooHigh) {
                     $pp = $s['YearHigh'];
-                }else{
+                } else {
                     $pp = $s['purchaseprice'];
                 }
 
-                if($redboolean){ //  will be red, showing loss
+                if ($redboolean) { //  will be red, showing loss
                     $middleBar = $s['LastTradePriceOnly'] . "," . $pp;
-                }else{ // willbe green showing gain
+                } else { // willbe green showing gain
                     $middleBar = $pp . "," . $s['LastTradePriceOnly'];
                 }
 
-                $low = ($s['YearLow']=='') ? 'no data' : '$'.$s['YearLow'];
-                $high = ($s['YearHigh']=='') ? 'no data' : '$'.$s['YearHigh'];
+                $low = ($s['YearLow'] == '') ? 'no data' : '$' . $s['YearLow'];
+                $high = ($s['YearHigh'] == '') ? 'no data' : '$' . $s['YearHigh'];
                 $d_withID = "d_" . $id; // this is a real, ugly, hack as a result of heredoc.  See inside <script>
                 // end local php block for use in the following heredoc block of javascript
 
-            $tablebody .= <<<GRAPH
+                $tablebody .= <<<GRAPHINATABLE
 
+            <table class="graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>
+                <tr class="graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;'>
+                    <td class="left graph" style='border:0  !important; padding: 0 !important; margin: 0 !important;' id="graph_$id">
                         <!--  DO NOT PUT HTML COMMENTS INSIDE THE SCRIPT TAG. --Makes javascript go haywire. -->
                         <!--  I have a lot of comments in my "StocksTable_orig-worksVeryWell.php", and also... -->
                         <!--  ...in thresholdkeygraphexample.html -->
@@ -511,7 +520,8 @@ BEGINTABLEBODY;
                                     .attr("height", 1)
                                     .attr("width", 201);
                         </script>
-                                <!-- End of inline D3.js graph in this table cell -->
+                        <!-- End of inline D3.js graph in this table cell -->
+                        
                     </td>
                 </tr>
                 <tr class="graph" style='border:0  !important; height: 8px !important; padding: 0 !important; margin: 0 !important;'>
@@ -526,11 +536,19 @@ BEGINTABLEBODY;
                         </table>
                     </td>
                 </tr>
-            </table>
-        </td>
-    </tr>
-</tr>
-GRAPH;
+            </table>  
+GRAPHINATABLE;
+
+
+            }else{
+
+                $tablebody .= <<<JUSTACOMMENTINSTEADOFGRAPH
+            No data available.    
+        </td >
+    </tr >
+</tr >
+JUSTACOMMENTINSTEADOFGRAPH;
+            }///closing bracket of else
 
         }// end of foreach loop, populating each row
 

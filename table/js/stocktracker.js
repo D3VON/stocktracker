@@ -34,6 +34,7 @@ $(document).ready(function() {
 			//	}
 			//});
 			$.ajax({
+                async: true,   // yes, you actually have to tell .ajax that it's asynchronous.
 				type: "POST",
 				url: "makeShowGraphsButton.php",
 				data: dataString,
@@ -43,6 +44,7 @@ $(document).ready(function() {
 				}
 			});
 			$.ajax({
+                async: true,   // yes, you actually have to tell .ajax that it's asynchronous.
 				type: "POST",
 				url: "presentTable.php",
 				data: dataString,

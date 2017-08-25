@@ -15,9 +15,9 @@
     try {
         $mongo = new MongoToYQL_Adapter;
         $mongo->addNewHistoryToMongo($symbol);
-        echo "Stock was added to history.";
-    } catch (Exception $e) {
-        echo 'Caught exception: ', $e->getMessage(), "<br>";
+        //echo "Stock was added to history.";
+    } catch (Throwable $t) {
+        echo '<br>Caught exception in removePurch.php on line: ' , __LINE__ , '<br>error message: ',  $t->getMessage(), "<br>";
         exit;
     }
 

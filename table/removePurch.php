@@ -21,20 +21,20 @@
 
 	require_once('StocksTable.php');
 	require_once('../MongoToYQL_Adapter.php');
-	
+
 	try{
 		$StocksTableObj = new StocksTable;
-	} catch (Exception $e) {
-		echo 'Caught exception: ',  $e->getMessage(), "<br>";
-		exit;
-	}
-	
-	try{ 
+	} catch (Throwable $t) {
+        echo '<br>Caught exception in removePurch.php on line: ' , __LINE__ , '<br>error message: ',  $t->getMessage(), "<br>";
+        exit;
+    }
+
+	try{
 		$mongo = new MongoToYQL_Adapter;
-	} catch (Exception $e) {
-    	echo 'Caught exception: ',  $e->getMessage(), "<br>";
-		exit;
-	}
+    } catch (Throwable $t) {
+        echo '<br>Caught exception in removePurch.php on line: ' , __LINE__ , '<br>error message: ',  $t->getMessage(), "<br>";
+        exit;
+    }
 
 	$stocks = $mongo->removePurchase($remove, $owner);
 	//echo "<br>back in removePurch.php; now running makeStocksTable()<br>";

@@ -6,8 +6,6 @@
 body {
     font-family:     Verdana, Geneva, Arial, sans-serif;
     font-size:       small;
-    background-color: black;
-    color: lightgray;
 }
 h1, h2 {
     color:           #FC9E40;
@@ -45,7 +43,6 @@ table.popuptable h2 {
 }
 
 table {
-    color: black;
     margin:      20px 20px 20px 20px; /* no commas; order: top, right, bottom, left*/
     caption-side:     bottom;
     padding:			0;

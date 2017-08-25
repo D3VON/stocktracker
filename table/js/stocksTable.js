@@ -100,10 +100,10 @@ $(document).ready(function() {
         // strip out $, %, and comma if it's that kind of data 
         // (so it sorts correctly as purely numeric, not as text)
           var Astuff = $(a).find("td").eq(colIndex).text();
-          var A = Number(Astuff.replace(/[^0-9\.\+\-]+/g,""));
+          var A = Number(Astuff.replace(/[^0-9.+\-]+/g,""));
           
           var Bstuff = $(b).find("td").eq(colIndex).text();
-          var B = Number(Bstuff.replace(/[^0-9\.\+\-]+/g,""));
+          var B = Number(Bstuff.replace(/[^0-9.\+\-]+/g,""));
 
 		  if (!isNaN(A)) { A = Number(A); }
 		  if (!isNaN(B)) { B = Number(B); }
@@ -459,19 +459,18 @@ function sortColumn(strategy) { // could literally try to use the strategy patte
 /* @param owner owner of the stocks
  * THIS FUNCTION IS NEVER USED, BUT IT SHOWS "raw" javascript for your FYI.
 */
-function showStocksTable(owner) { 
-     if (owner.length === 0) {
-         document.getElementById("theTable").innerHTML = "That owner has no stocks.";
-         return;
-     } else {
-         var xmlhttp = new XMLHttpRequest();
-         xmlhttp.onreadystatechange = function() {
-             if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-                 document.getElementById("theTable").innerHTML = xmlhttp.responseText;
-             }
-         };
-         xmlhttp.open("POST", "justGetStocksTable.php", true);
-         xmlhttp.send();
-         
-     }
-}
+// function showStocksTable(owner) {
+//      if (owner.length === 0) {
+//          document.getElementById("theTable").innerHTML = "That owner has no stocks.";
+//      } else {
+//          var xmlhttp = new XMLHttpRequest();
+//          xmlhttp.onreadystatechange = function() {
+//              if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
+//                  document.getElementById("theTable").innerHTML = xmlhttp.responseText;
+//              }
+//          };
+//          xmlhttp.open("POST", "justGetStocksTable.php", true);
+//          xmlhttp.send();
+//
+//      }
+// }

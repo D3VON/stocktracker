@@ -6,6 +6,7 @@
  * Time: 4:15 PM
  */
 
+
     $owner = $_POST['owner'];
     if($owner == "" || !ctype_alnum($owner) ){
         exit; // error message will be generated elsewhere: presentTable.php called at the same time as this script
@@ -20,7 +21,7 @@
         echo $pieceOfHTML;
     }
 
-    // js way   This will not work: data isn't flowing to the final destination div for some reason. 
+    // js way   This will not work: data isn't flowing to the final destination div for some reason.
 /*
 $jsButton  = "<form id=\"graphForm\">";
 $jsButton .= "    <input type=\"hidden\" name=\"owner\" id=\"owner\" value=\"$owner\" />";

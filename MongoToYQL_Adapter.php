@@ -1,5 +1,8 @@
 <?php  // MongoToYQL_Adapter.php
 
+// useful for development:     echo "<pre>"; print_r($SOMEVARIABLENAME); echo "</pre>";
+// echo '<br>A bad thing happened in MongoToYQL_Adapter.php on line:  __LINE__ <br>";
+
 /****************************************************************************
  * This class provides an API to accomplish two things:
  * 1. query YQL;
@@ -11,11 +14,11 @@
  * WARNING: BE VERY HESITANT TO REMOVE ANY STOCK HISTORY, AS OTHER USERS MAY BE USING IT
  *
  * AVAILABLE METHODS:
- * __construct() sets up $this->dbconn = new MongoClient();
- * fetchManyFromYQL($symbolsString)
- * fetchOneFromYQL($symbol)
- * fetchFromYQL(&$mongoArray)
- * queryMongoMany($owner){
+ * REFACTORED/SAFE: __construct() sets up $this->dbconn = new MongoClient();
+ * REFACTORED/SAFE: fetchManyFromYQL($symbolsString)
+ * REFACTORED/SAFE: fetchOneFromYQL($symbol)
+ * REFACTORED/SAFE: fetchFromYQL(&$mongoArray)
+ * REFACTORED/SAFE: queryMongoMany($owner){
  * addPurchase($symbol, $quantity, $price, $date, $fee, $account, $owner)
  * removePurchase($remove, $owner)
  * editPurchase($id, $symbol, $quantity, $price, $date, $fee, $account, $owner)
@@ -40,8 +43,10 @@ class MongoToYQL_Adapter {
 	 Data members
 	**************************************************************************/
 	private $dbconn;
-	//private $result; // UNUSED: WHY IS THIS HERE?
-	
+    private $stocksCollection;
+    private $historyCollection;
+
+
 	/**
 	 * Class constructor.
 	 */
@@ -50,24 +55,56 @@ class MongoToYQL_Adapter {
 		/****************************************************************************
 		 *  SET UP DATABASE CONNECTION FOR USE THROUGHOUT THE REST OF THIS SCRIPT
 		*****************************************************************************/
-		
-		$this->dbconn = new MongoClient();// when I was having problems, try/catch was uselessly silent, so screw it!
+        try {
+            // $uri = "mongodb://user:pass@host:port/db";
+            $this->dbconn = new MongoDB\Driver\Manager("mongodb://localhost:27017");
+            $this->stocksCollection = 'test.stocks';
+            $this->historyCollection = 'test.history';
 
+                                    // example using the stats of a collection
+                                    //            $stats = new MongoDB\Driver\Command(["dbstats" => 1]);
+                                    //            $res = $this->dbconn->executeCommand("test", $stats);
+                                    //            $stats = current($res->toArray());
+                                    //            print_r($stats);
+
+                                    //// example of a simple query
+                                    //            $findThis = ['symbol' => 'FB'];
+                                    //            $findThis = array('owner' => $owner);
+                                    //            $findThis = [];
+                                    //            $options = [
+                                    //            ];
+                                    //            $options = array(
+                                    //                "sort" => array('symbol' => 1),    // +1 is ascending order
+                                    //                //'projection' => ['_id' => 0],
+                                    //            );
+                                    //            $db = 'test.stocks';
+                                    //            $query = new MongoDB\Driver\Query($findThis, $options);
+                                    //            $cursor = $this->dbconn->executeQuery( $db, $query );
+                                    //            foreach ($cursor as $document) {
+                                    //                echo "<pre>"; print_r($document); echo "</pre>";
+                                    //            }
+        }
+        catch (Throwable $t) {
+            echo '<br>Caught exception in MongoToYQL_Adapter.php on line: ' , __LINE__ , '<br>error message: ',  $t->getMessage(), "<br>";
+            exit;
+        }
 	}
-	
-	// to test to see if the object instantiation works and a method can be called.
-	function dummy(){ return "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"; }
-	
-	/** 
+
+
+
+    // to test to see if the object instantiation works and a method can be called.
+    function dummy(){ return "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"; }
+
+	/**
 	 * Fetch quotes from YQL for the given list of symbols. Return an associative
 	 * array of arrays. The key is stock symbols (obviously unique), the value is
-	 * an array being the fields of the quote (including redundantly the symbol). 
-	 * 
+	 * an array being the fields of the quote (including redundantly the symbol).
+	 *
 	 * Rationale for making it this way: I need to merge the user-specific data of
-	 * stock purchases with this current stock data, and being able to access current 
-	 * data with an efficiency of 1 is optimal: e.g., scenario: many records of 
-	 * purchases of the same stock; access current data of that stock reliably. 
-	 * 
+	 * stock purchases with this current stock data, and being able to access current
+	 * data with an efficiency of 1 is optimal: e.g., scenario: many records of
+	 * purchases of the same stock; access current data of that stock reliably.
+	 *
 	 * @param String $symbolsString  a YQL-acceptible string of symbols to search for
 	 *
 	 * @return array $newArray An associative array of arrays of stock quotes, keyed by symbol
@@ -76,13 +113,11 @@ class MongoToYQL_Adapter {
 		//echo $symbolsString;
 		// set up YQL connection to get current stock info
 		$y = new YQL;
-	
+
 		// NOTE: This YQL class receives JSON from YQL query, but converts the JSON
 		// into a PHP variable (a multi-dimensional array), so it's easy to weedle out
 		// pieces you need with nice PHP operators.
 		$resultArray = $y->getQuote( $symbolsString );
-
-		//var_dump($resultArray);
 
 		if(!array_key_exists('query', $resultArray)){ // 2nd test prolly not necessary
 			return  "<br>MongoToYQL_Adapter line " . __LINE__ . "<br />" . var_dump($resultArray); // Magic constant
@@ -90,34 +125,32 @@ class MongoToYQL_Adapter {
 		if(array_key_exists(0, $resultArray) && $resultArray[0] === 0){ // 2nd test prolly not necessary
 			return  "<br>MongoToYQL_Adapter line " . __LINE__ . "<br />" . var_dump($resultArray); // Magic constant
 		}
-	
+
 		// YQL gives superfluous data, so just take what we want from the JSON object,
-		// and save in a local array (need to cast it from "stdClass Object" to array.	
+		// and save in a local array (need to cast it from "stdClass Object" to array.
 		//$theArray = $resultArray->{'query'}->{'results'}->{'quote'};
 		$theArray = $resultArray['query']['results']['quote'];
-		
+
 		$newArray = array();
 		// This is an Array of stdClass Objects, so each stdClass Object should
 		// be cast to an array, so we have a multidimensional array.
 		$len = count($theArray);
-		for ($i = 0; $i < $len; $i++){ 
+		for ($i = 0; $i < $len; $i++){
 			$value = (array)$theArray[$i];
 			$key = $value["symbol"];
 			// make a map, using unique field 'symbol' as key
 			$newArray[$key] = $value;
-		}	
-		
-		//echo "finishing function: MongoToYQL_Adapter:fetchManyFromYQL<br>";
+		}
+
 		return $newArray;
 	}
-	
-	
+
+
 	function fetchOneFromYQL($symbol){
-		//echo $symbol;
-	
+
 		// set up YQL connection to get current stock info
 		$y = new YQL;
-	
+
 		// Get current data on that stock from YQL
 		// NOTE: This YQL class receives JSON from YQL query, but converts the JSON
 		// into a PHP variable (a multi-dimensional array), so it's easy to weedle out
@@ -127,71 +160,59 @@ class MongoToYQL_Adapter {
 		if(array_key_exists(0, $resultArray) && $resultArray[0] === 0){ // 2nd test prolly not necessary
 			return $resultArray;
 		}
-	
+
 		// Grab only the part we want,
 		// Cast from "stdClass Object" to array.
 		$theStock = (array)$resultArray['query']['results']['quote'];
 
-		//var_dump($theStock);
 		if(empty($theStock)){
 			return "Sorry, there are no stocks for that user at this time.";
 
 		}
-	
+
 		$theArray = array();
-		//var_dump($theArray);
 		$theArray[$theStock["symbol"]] = $theStock;
-		
-		//echo "finishing function: MongoToYQL_Adapter:fetchOneFromYQL<br>";
 		return $theArray;
 	}
-	/*
-	 // YQL gives superfluous data, so just take what we want from the JSON object,
-	// and save in a local array (need to cast it from "stdClass Object" to array.
-			$theArray = $resultArray->{'query'}->{'results'}->{'quote'};
-	
-	
-	
-			// Grab only the part we want,
-			// Cast from "stdClass Object" to array.
-			//$theStock = $resultArray['query']['results']['quote'];
-	
-	
-			//$key = $value["symbol"];
-		 */
-	
-	
+                            /*
+                                    // YQL gives superfluous data, so just take what we want from the JSON object,
+                                    // and save in a local array (need to cast it from "stdClass Object" to array.
+                                    $theArray = $resultArray->{'query'}->{'results'}->{'quote'};
+
+                                    // Grab only the part we want,
+                                    // Cast from "stdClass Object" to array.
+                                    //$theStock = $resultArray['query']['results']['quote'];
+
+                                    //$key = $value["symbol"];
+                            */
+
    /* Loop over the $mongoArray to discover which stock symbols the user has.
 	* Then call the appropriate YQL fetching function
-	* 
-	* NOTE: if copying this function: it relies on two other functions!!
-	* 
 	*/
 	function fetchFromYQL(&$mongoArray){
-		
 		$len = count($mongoArray);
-		 // TEST: $type = ($len > 0) ? "many" : "single";
-		 // echo $type;
-		
+                                    //		  TEST: $type = ($len > 0) ? "many" : "single";
+                                    //		  echo $type;
+
 		// get the symbols and make the string for the YQL query
 		$symbolsString = "";
 		for ($i = 0; $i < $len; $i++){
-			$symbolsString .= $mongoArray[$i]["symbol"];
+			// old style: $symbolsString .= $mongoArray[$i]["symbol"];
+            $symbolsString .= $mongoArray[$i]->symbol;  // new mongodb class returned obj. instead of array
 			if ($i+1 < $len){ $symbolsString .= "%22%2C%22"; }
-			// example of what I'm trying to form here: 
+			// example of what I'm trying to form here:
 			// YHOO%22%2C%22AAPL%22%2C%22GOOG%22%2C%22MSFT
 			// (Opening and closing quotes (%22) are not needed because
 			// they are already in the pre-built YQL query in the YQL class.)
-		}	
-		
-		//echo "finishing function: MongoToYQL_Adapter:fetchFromYQL<br>";
+		}
+
 		if ($len > 1){
 			return $this->fetchManyFromYQL($symbolsString);
 		}else{
 			return $this->fetchOneFromYQL($symbolsString);
 		}
 	}
-	
+
 
 	/** Get all stocks owned by owner -- just purchase info, not current quote.
 	 *  Query the Mongo data store for all stocks owned by that user.
@@ -203,31 +224,24 @@ class MongoToYQL_Adapter {
 	 * @return array $theStocksArray a complete array the stocks owned by the given user
 	 */
 	 function queryMongoMany($owner){
-	
-		$dbconn = new MongoClient();
-		// get connection to db
-		$db = $dbconn->selectDB("test");
-		$collection = $db->stocks;
-		
-		$findThis = array('owner' => $owner);
-		$sortByThis = array('Name' => 1 );// +1 is ascending order
-		
-		$cursor = $collection->find($findThis)->sort($sortByThis);
-		//var_dump($cursor);
-		$theStocks = array();
-		foreach ($cursor as $document) {
-			//echo "<br>Now document in cursor:<br>";
-			//var_dump($document);
-			$theStocks[] = $document;
-		}
-		 //var_dump($theStocks);
-		//echo "finishing function: MongoToYQL_Adapter:queryMongoMany<br>";
-		//returns beautiful array of arrays
-		return $theStocks;
-	
+        $findThis = array('owner' => $owner);
+        $options = array(
+            "sort" => array('symbol' => 1), // +1 is ascending order
+        );
+
+        $query = new MongoDB\Driver\Query($findThis, $options);
+        $cursor = $this->dbconn->executeQuery( $this->stocksCollection, $query );
+
+        $theStocks = array();
+        foreach ($cursor as $document) {
+            // echo "<pre>"; print_r($document); echo "</pre>";
+            $theStocks[] = $document;
+        }
+        // echo "<pre>"; print_r($theStocks); echo "</pre>";
+		return $theStocks; //returns beautiful array of arrays
 	}
-	
-	
+
+
 	 /** Merge data from MongoDB[i] with data from YQL[i] for all n elements in
 	 *  both arrays into a new, multidimensional array containing n elements.
 	 *
@@ -242,13 +256,13 @@ class MongoToYQL_Adapter {
 	 *                         a user (used to populate the stocktracker table)
 	 function combineYQLandMongoArrays($mongo, $yql){
 		 $newArray = array();
-		
+
 		 $len = count($mongo);
 		 // potentially many purchases of same symbol means $mongo could be longer
-		 // than $yql array.  
-		
+		 // than $yql array.
+
 		 $stock = array();
-			
+
 		 for ($i = 0; $i < $len; $i++){ // can't use foreach b.c. need to refer back to orig. element
 		 	if (isset($yql[$i]) && isset($mongo[$i])) {
 				$stock["symbol"] 				= $yql[$i]["symbol"];
@@ -274,12 +288,12 @@ class MongoToYQL_Adapter {
 		 	}
 			 $newArray[$i] = $stock;
 		 }
-		
+
 		 return $newArray;
-	
+
 	 }
 	 */
-	
+
 	/** add a stock purchase to our database
 	 *
 	 *
@@ -290,7 +304,7 @@ class MongoToYQL_Adapter {
 	 * @param String $fee the fee that was paid to purchase the thing
 	 * @param String $account the account where this stock will live
 	 * @param String $owner the owner of the stock
-	 * 
+	 *
 	 * @return array $theStocks -- via a call to member function getAllStocksByOwner($owner)
 	 */
 	function addPurchase($symbol, $quantity, $price, $date, $fee, $account, $owner){
@@ -305,27 +319,16 @@ class MongoToYQL_Adapter {
 		$thePurchase['purchasefee'] = $fee;
 		$thePurchase['account'] = $account;
 		$thePurchase['owner'] = $owner;
-		
-		/*******************************************************
-		 *         ADD SYMBOL (YHOO) TO THE DATABASE
-		 *******************************************************/
-		/* The PHP MongDB Driver accepts only PHP arrays for inserts and queries
-		 * (see here: http://www.php.net/manual/en/mongo.queries.php)
-		* So you need to convert your JSON to an array.
-		*/
-		/****************************************************************************
-		 *  SET UP DATABASE CONNECTION FOR USE THROUGHOUT THE REST OF THIS SCRIPT
-		 *****************************************************************************/
-		$db = $this->dbconn->selectDB("test");
-		$collection = $db->stocks;
-		$collection->insert($thePurchase);
-		
-		//echo "finishing function: MongoToYQL_Adapter:addPurchase<br>";
+
+        $bulkwrite = new MongoDB\Driver\BulkWrite;
+        $bulkwrite->insert($thePurchase);
+        $this->dbconn->executeBulkWrite($this->stocksCollection, $bulkwrite);
+
 		return $this->getAllStocksByOwner($owner);
 	}
-		
-	
-	
+
+
+
 	/** remove one or more stocks from the db
 	 *
 	 * @param array $remove an array of ids (the MongoDB-generated ids of the documents) to be removed
@@ -336,46 +339,32 @@ class MongoToYQL_Adapter {
 	 * @return array $theStocksArray an array of PHP arrays of the stocks owned by that dude
 	 */
 	function removePurchase($remove, $owner){
-	
-		//echo "<br>WE'RE IN MongoToYQL_Adapter, calling removePurchase()<br>";
-		//var_dump($owner);
-		
-		/****************************************************************************
-		 *  SET UP DATABASE CONNECTION FOR USE THROUGHOUT THE REST OF THIS SCRIPT
-		*****************************************************************************/
-		$db = $this->dbconn->selectDB("test");
-		$collection = $db->stocks;
-		
+
 		/* If it's the whole table, user may have chose the 'all' checkbox, so that would
 		 * just an artifact I don't really need (because jQuery would then have checked
 		 * all the boxes, and POSTed all the specific ids). However, we could perhaps
 		 * instead have done a query to remove all by user.  I feel this is a bit safer
-		 * to remove the specific ids returned by the calling script, though. 
-		 */ 
+		 * to remove the specific ids returned by the calling script, though.
+		 */
 		if ($remove[0] == 'all') { array_shift($remove); }
-		
-		//echo "<br>WE'RE IN MongoToYQL_Adapter, calling removePurchase()<br>";
-		//var_dump($owner);
-		//var_dump($remove);
-		// do the deed
-		foreach ($remove as $id){
-			/* REVELATION: MongoDB embeds its ids into a special little MongoID object
-			 * --those sons a bitches.
-			 */
-			$collection->remove( array("_id" => new MongoId($id)) );
 
+        $bulkwrite = new MongoDB\Driver\BulkWrite;
+		foreach ($remove as $id){
+			/* MongoDB embeds its ids into a special little MongoID object */
+            $bulkwrite->delete(array('_id' => new MongoDB\BSON\ObjectID($id)));
 			// definitely don't remove history, as other users may be using that stock.
 		}
-		
+        $this->dbconn->executeBulkWrite($this->stocksCollection, $bulkwrite);
+
 		//echo "finishing function: MongoToYQL_Adapter:removePurchase<br>";
 		return $this->getAllStocksByOwner($owner);
 	}
-	
-	
+
+
 	/** edit one stock in the db
 	 *
 	 * TRICK: I'm removing the original record, then adding it back with the new
-     * 		  information, rather than modifying the original record. 
+     * 		  information, rather than modifying the original record.
 	 *
 	 * @param String $id the id (the MongoDB-generated id of the document) to be edited
 	 * @param String $symbol the symbol to be edited
@@ -389,30 +378,24 @@ class MongoToYQL_Adapter {
 	 * @property mixed I HAVE NO IDEA HOW TO DOCUMENT "$db->stocks" TO SATISFY PHPDOC HERE
 	 *
 	 * @return array $theStocksArray a refreshed array of PHP arrays of the stocks owned by that dude
-	 * 
+	 *
 	 */
 	function editPurchase($id, $symbol, $quantity, $price, $date, $fee, $account, $owner){
-	
+
 		//echo "<br>WE'RE IN MongoToYQL_Adapter, calling removePurchase()<br>";
 		//var_dump($owner);
-	
-		/****************************************************************************
-		 *  SET UP DATABASE CONNECTION FOR USE THROUGHOUT THE REST OF THIS SCRIPT
-		*****************************************************************************/
-		$db = $this->dbconn->selectDB("test");
-		$collection = $db->stocks;
-		
-		/* REVELATION: MongoDB embeds its ids into a special little MongoID object
-		 * NOTE: just wipe out the original and replace it with a new one, rather 
+
+		/* NOTE: just wipe out the original and replace it with a new one, rather
 		 * than mucking around 'editing' it, which seems ridiculously tedious in Mongo.
 		*/
-		$collection->remove( array("_id" => new MongoId($id)) );
+        $bulkwrite = new MongoDB\Driver\BulkWrite;
+        $bulkwrite->delete(array('_id' => new MongoDB\BSON\ObjectID($id)));
+        $this->dbconn->executeBulkWrite($this->stocksCollection, $bulkwrite);
 
-		
-		//echo "finishing function: MongoToYQL_Adapter:editPurchase<br>";
+        //echo "finishing function: MongoToYQL_Adapter:editPurchase<br>";
 		return $this->addPurchase($symbol, $quantity, $price, $date, $fee, $account, $owner);
 	}
-	
+
 
 	/** Merge data from MongoDB[i] with data from YQL[j] for i and j elements in
 	 *  both arrays into a new, multidimensional array containing n elements.
@@ -430,79 +413,84 @@ class MongoToYQL_Adapter {
 	 *                         a user (used to populate the stocktracker table)
 	 */
 	function combineYQLandMongoArrays(&$mongo, &$yql){
-
+        // echo "<pre>"; print_r($yql); echo "</pre>";
+        // echo "<pre>"; print_r($mongo); echo "</pre>";
 		/* inadequate test here: YQL typically returns *something* when the query doesn't work */
 		if(!is_array($yql)){
-			echo "<br>MongoToYQL_Adapter 416 YQL failure.  Huh.<br>";
+			echo "<br>MongoToYQL_Adapter, YQL failure,  on line: ' , __LINE__.<br>";
 			var_dump($yql);
 			return $yql;
 		}
 
 		/* inadequate test here: YQL typically returns *something* when the query doesn't work */
 		if(array_key_exists(0, $yql) && $yql[0] === 0){
-			echo "<br>MongoToYQL_Adapter 423 YQL failure.  Huh.<br>";
+			echo "<br>MongoToYQL_Adapter, YQL failure,  on line: ' , __LINE__.<br>";
 			var_dump($yql);
 			return $yql;
 		}
 
 		$newArray = array();
-	
+
 		//$len = count($mongo);
 		//echo $len;
 		$s = array(); // the stock
 		//$agrigateChangeDollars = 0;
-	
+
 		/* notetoself: calculated fields are calculated in StocksTable.php
 		 * That cannot continue.  I'm also calculating them here as I receive them
 		 * from the db.
 		 */
 		// never used: $dollarchange = $s['LastTradePriceOnly'] - $s['purchaseprice'];
 		foreach($mongo as $m){
-			$s["symbol"] = $m["symbol"];
-			$s["AverageDailyVolume"] 	= $yql[$m["symbol"]]["AverageDailyVolume"];
-			$s["Change"] 				= $yql[$m["symbol"]]["Change"];
-			$s["DaysLow"] 				= $yql[$m["symbol"]]["DaysLow"];
-			$s["DaysHigh"] 				= $yql[$m["symbol"]]["DaysHigh"];
-			$s["YearLow"] 				= $yql[$m["symbol"]]["YearLow"];
-			$s["YearHigh"] 				= $yql[$m["symbol"]]["YearHigh"];
-			$s["MarketCapitalization"] 	= $yql[$m["symbol"]]["MarketCapitalization"];
-			$s["LastTradePriceOnly"] 	= $yql[$m["symbol"]]["LastTradePriceOnly"];
+			$s["symbol"] = $m->symbol;
+			$s["AverageDailyVolume"] 	= $yql[$m->symbol]["AverageDailyVolume"];
+			$s["Change"] 				= $yql[$m->symbol]["Change"];
+			$s["DaysLow"] 				= $yql[$m->symbol]["DaysLow"];
+			$s["DaysHigh"] 				= $yql[$m->symbol]["DaysHigh"];
+			$s["YearLow"] 				= $yql[$m->symbol]["YearLow"];
+			$s["YearHigh"] 				= $yql[$m->symbol]["YearHigh"];
+			$s["MarketCapitalization"] 	= $yql[$m->symbol]["MarketCapitalization"];
+			$s["LastTradePriceOnly"] 	= $yql[$m->symbol]["LastTradePriceOnly"];
 			if ($s['LastTradePriceOnly'] == 0){
 				$s["percentchangetoday"] = "no value";
 			}else{
-				$s["percentchangetoday"]	= $yql[$m["symbol"]]["Change"] / $s['LastTradePriceOnly'] * 100;
+				$s["percentchangetoday"]	= $yql[$m->symbol]["Change"] / $s['LastTradePriceOnly'] * 100;
 			}
-			$s["DaysRange"] 			= $yql[$m["symbol"]]["DaysRange"];
-			$s["Name"] 					= $yql[$m["symbol"]]["Name"];
-			$s["Volume"] 				= $yql[$m["symbol"]]["Volume"];
-			$s["StockExchange"] 		= $yql[$m["symbol"]]["StockExchange"];
-			$s["_id"] 					= $m["_id"];
-			$s["purchasedate"] 			= $m["purchasedate"];
-			$s["purchasequantity"] 		= $m["purchasequantity"];
-			$s["purchaseprice"] 		= $m["purchaseprice"];
-			$s["purchasefee"] 			= $m["purchasefee"];
-			$s["purchasetotal"] 		= $m["purchasefee"] + ($m["purchaseprice"] * $m["purchasequantity"]);
-			$s["account"] 				= $m["account"];
-			$s["owner"] 				= $m["owner"];
+			$s["DaysRange"] 			= $yql[$m->symbol]["DaysRange"];
+			$s["Name"] 					= $yql[$m->symbol]["Name"];
+			$s["Volume"] 				= $yql[$m->symbol]["Volume"];
+			$s["StockExchange"] 		= $yql[$m->symbol]["StockExchange"];
+			$s["_id"] 					= $m->_id;
+			$s["purchasedate"] 			= $m->purchasedate;
+			$s["purchasequantity"] 		= $m->purchasequantity;
+			$s["purchaseprice"] 		= $m->purchaseprice;
+			$s["purchasefee"] 			= $m->purchasefee;
+			$s["purchasetotal"] 		= $m->purchasefee + ($m->purchaseprice * $m->purchasequantity);
+			$s["account"] 				= $m->account;
+			$s["owner"] 				= $m->owner;
 			$s["totalCurrentValue"] 	= $s["purchasequantity"] * $s['LastTradePriceOnly'] - $s['purchasefee'];
 			$s["totalChangeDollar"] 	= $s["totalCurrentValue"] - $s["purchasetotal"];
 			$s["totalChangePercent"]	= $s["purchasetotal"] > 0 ? $s["totalChangeDollar"] / $s["purchasetotal"] * 100 : 0;
-	
+
 			$newArray[] = $s;
 		}
-		//echo "finishing function: MongoToYQL_Adapter:combineYQLandMongoArrays<br>";
-		//echo "<pre>"; print_r($s); echo "</pre>";
+//		echo "finishing function: MongoToYQL_Adapter:combineYQLandMongoArrays<br>";
+//		echo "<pre>"; print_r($s); echo "</pre>";
 		return $newArray;
 	}
 
-	
-	function getAllStocksByOwner($owner){ //,$sortby){
-		//echo "starting----MongoToYQL_Adapter:getAllStocksByOwner; owner is $owner <--------------------------------!<br>";
+
+	function getAllStocksByOwner($owner){
+	    //echo "<br>in getAllStocksByOwner in MTYQLA";
 		$mongo = $this->queryMongoMany($owner); // $mongo is an array of arrays
 
-		//owner might not exist in mongo
+//        echo "<br>here's mongo = this->queryMongoMany(owner)";
+//        echo "<pre>"; print_r($mongo); echo "</pre>";
 
-		//var_dump($mongo);
+		//owner might not exist in mongo
+        if($owner == ""){
+            $owner = "guest";
+        }
 
 		/*	if owner has no stocks, I have to handle that gracefully! */
 		//var_dump($theStock);
@@ -510,10 +498,9 @@ class MongoToYQL_Adapter {
 			return "Sorry, there are no stocks for that user at this time.";
 		}
 
-
-		//	echo "<pre>"; print_r($mongo); echo "</pre>";
+        //echo "<br>BLAH here's yqlarray = this->fetchFromYQL(mongo);";
 		$yqlarray = $this->fetchFromYQL($mongo);
-		//	echo "<pre>"; print_r($yql); echo "</pre>";
+		//echo "<pre>"; print_r($yqlarray); echo "</pre>";
 
 
 		if(is_array($yqlarray) && array_key_exists(0, $yqlarray) && $yqlarray[0] === 0){
@@ -521,8 +508,11 @@ class MongoToYQL_Adapter {
 			var_dump($yqlarray);
 			return $yqlarray; // this would be where an error would be detected....................I STILL NEED TO WORK ON THIS!!!!!
 		}
-		//echo "finishing----MongoToYQL_Adapter:getAllStocksByOwner<br>";
-		return $this->combineYQLandMongoArrays($mongo, $yqlarray);
+
+//		$woof = $this->combineYQLandMongoArrays($mongo, $yqlarray);
+//        echo "<br>woofies!!!!<pre>"; print_r($woof); echo "</pre>";
+//        exit;
+        return $this->combineYQLandMongoArrays($mongo, $yqlarray);
 	}
 
 
@@ -533,73 +523,88 @@ class MongoToYQL_Adapter {
 	 */
 	function getAllOwners(){
 
-		$dbconn = new MongoClient();
-		// get connection to db
-		$db = $dbconn->selectDB("test");
-		$collection = $db->stocks;
+	                // old php5 way of doing a 'distinct' query (very easy!)
+                    //		$aNiceArrayNotACursor = $collection->distinct("owner");
+                    //		return $aNiceArrayNotACursor;
 
-		$aNiceArrayNotACursor = $collection->distinct("owner");
 
-		return $aNiceArrayNotACursor;
+                    // NOTE: THIS WAS A GOOD EXAMPLE OF USING PHP7'S NEW MONGODB DRIVER'S EXECUTECOMMAND METHOD.
+                    // KEY INSIGHT: IT'S EXECUTING MONGO COMMANDS, NOT SOME PHP VERSION OF MONGO COMMANDS. --WITH
+                    // THE CAVIAT THAT YOU HAVE TO PACKAGE UP THE MONGO COMMAND INTO A PHP KEY-VALUE ARRAY.
+
+                    // direct MongoDB command:
+                    // test.stocks.distinct("owner")
+        $query = array(); // your typical MongoDB query
+        $cmd = new MongoDB\Driver\Command([
+            // build the 'distinct' command
+            'distinct' => 'stocks', // specify the collection name
+            'key' => 'owner', // specify the field for which we want to get the distinct values
+            //'query' => $query // criteria to filter documents <---------this made everything choak -- mine was an empty array
+        ]);
+        $cursor = $this->dbconn->executeCommand('test', $cmd); // retrieve the results
+        $result = current($cursor->toArray())->values; // get the distinct values as an array
+        //echo "<br>distinct users in this datastore<pre>"; print_r($result); echo "</pre>";
+
+        return $result;
 	}
 
 
 
-	function getSymbolsOfThisOwnerALLPurchases($owner){
+//	function getSymbolsOfThisOwnerALLPurchases($owner){
+//
+//		$dbconn = new MongoClient();
+//		$db = $dbconn->selectDB("test");
+//		$collection = $db->stocks;
+//
+//		$result = array();
+//		$findwhere = array("owner" => $owner);
+//		$getthis = array("symbol" => 1); // that is, just the symbol
+//		$symbols = $collection->find($findwhere,$getthis);
+//
+//		foreach ($symbols as $document) {
+//			$result[] = $document["symbol"];
+//		}
+//		return $result;
+//	}
 
-		$dbconn = new MongoClient();
-		$db = $dbconn->selectDB("test");
-		$collection = $db->stocks;
-
-		$result = array();
-		$findwhere = array("owner" => $owner);
-		$getthis = array("symbol" => 1); // that is, just the symbol
-		$symbols = $collection->find($findwhere,$getthis);
-
-		foreach ($symbols as $document) {
-			$result[] = $document["symbol"];
-		}
-		return $result;
-	}
-
-	function getSymbolsOfThisOwnerDISTINCT($owner){
-
-		$dbconn = new MongoClient();
-		$db = $dbconn->selectDB("test");
-		$collection = $db->stocks;
-
-		$findwhere = array("owner" => $owner);
-		$matchthis = array('$match'=>$findwhere);
-		/* This is flagrantly nasty MongoDB syntax. the _id field is mandatory (seems to be an id made-up on the fly
-		 * for each item in the group).  But more despicable: the field you're trying to group by (in my case 'symbol'
-		 * must have a dollar sign affixed to it, and it must be in quotes. So, rather than just say
-		 * something like "groupby symbol" I have to do the following cryptic mess: */
-		$groupby = array('$group'=>array('_id' => '$symbol'));
-		$sortthisway = array('$sort'=>array('_id'=>1));//_id was created by $group operation
-
-		// ->distinct cannot sort.  ->distinct is just a convenience version of ->aggregate
-		// Would have been clearer to use distinct instead of aggregate, then sort with PHP.
-		//$symbols = $collection->distinct("symbol",$findwhere);
-
-		$mongoresult = $collection->aggregate(array($matchthis,$groupby,$sortthisway));
-
-		// mongo returns *such* a rat's nest of JSON structure, like this:
-		//		Array
-		//		( [result] => Array
-		//			( [0] => Array ( [_id] => aapl )  [1] => Array ( [_id] => bac )
-		//			)
-		//			[ok] => 1
-		//		)
-		if($mongoresult['ok']){ // should be 1
-			$result = array();
-			foreach($mongoresult['result'] as $symbol){ // unMongo-ify
-				$result[] = $symbol['_id'];
-			}
-			return $result;
-		}else{
-			return $mongoresult['ok'];
-		}
-	}
+//	function getSymbolsOfThisOwnerDISTINCT($owner){
+//
+//		$dbconn = new MongoClient();
+//		$db = $dbconn->selectDB("test");
+//		$collection = $db->stocks;
+//
+//		$findwhere = array("owner" => $owner);
+//		$matchthis = array('$match'=>$findwhere);
+//		/* This is flagrantly nasty MongoDB syntax. the _id field is mandatory (seems to be an id made-up on the fly
+//		 * for each item in the group).  But more despicable: the field you're trying to group by (in my case 'symbol'
+//		 * must have a dollar sign affixed to it, and it must be in quotes. So, rather than just say
+//		 * something like "groupby symbol" I have to do the following cryptic mess: */
+//		$groupby = array('$group'=>array('_id' => '$symbol'));
+//		$sortthisway = array('$sort'=>array('_id'=>1));//_id was created by $group operation
+//
+//		// ->distinct cannot sort.  ->distinct is just a convenience version of ->aggregate
+//		// Would have been clearer to use distinct instead of aggregate, then sort with PHP.
+//		//$symbols = $collection->distinct("symbol",$findwhere);
+//
+//		$mongoresult = $collection->aggregate(array($matchthis,$groupby,$sortthisway));
+//
+//		// mongo returns *such* a rat's nest of JSON structure, like this:
+//		//		Array
+//		//		( [result] => Array
+//		//			( [0] => Array ( [_id] => aapl )  [1] => Array ( [_id] => bac )
+//		//			)
+//		//			[ok] => 1
+//		//		)
+//		if($mongoresult['ok']){ // should be 1
+//			$result = array();
+//			foreach($mongoresult['result'] as $symbol){ // unMongo-ify
+//				$result[] = $symbol['_id'];
+//			}
+//			return $result;
+//		}else{
+//			return $mongoresult['ok'];
+//		}
+//	}
 
 
 	/**
@@ -930,10 +935,14 @@ class MongoToYQL_Adapter {
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
 /* TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST  TEST TEST TEST TEST TEST TEST   TEST TEST TEST TEST TEST TEST   */
+
 //$testTheClass = new MongoToYQL_Adapter();
+
 //$symbol = 'aapl';
 //
 //// TEST: getAllOwners()
+//echo "woofie";
+//echo $testTheClass->dummy();
 //echo "<pre>"; print_r($testTheClass->getAllOwners()); echo "</pre>";
 /** Output:
  *
@@ -1012,40 +1021,41 @@ class MongoToYQL_Adapter {
 /*
 
 	Here is commandline query: > db.stocks.find({owner: 'me', symbol: 'yhoo'})
-	(cleaned up a bit)
+    (deprecated mongoClient functions)
+	(db output here is cleaned up a bit)
 
-	{ 	"_id" : ObjectId("55dc16dd5490c40254dba668"), 
-		"symbol" : "yhoo", 
-		"AverageDailyVolume" : "12495100", 
-		"Change" : "-1.62", 
-		"DaysLow" : "29.00", 
-		"DaysHigh" : "32.28", 
-		"YearLow" : "29.00", "YearHigh" : "52.62", 
-		"MarketCapitalization" : "29.47B", 
-		"LastTradePriceOnly" : "31.31", 
-		"DaysRange" : "29.00 - 32.28", 
-		"Name" : "Yahoo! Inc.", 
-		"Symbol" : "yhoo", 
-		"Volume" : "23163378", 
-		"StockExchange" : "NMS", 
-		"purchasedate" : "04/29/2014", 
-		"purchasequantity" : "60", 
-		"purchaseprice" : "35.75", 
-		"purchasefee" : "7", 
-		"account" : "ScottradeIRA", 
-		"owner" : "me" 
+	{ 	"_id" : ObjectId("55dc16dd5490c40254dba668"),
+		"symbol" : "yhoo",
+		"AverageDailyVolume" : "12495100",
+		"Change" : "-1.62",
+		"DaysLow" : "29.00",
+		"DaysHigh" : "32.28",
+		"YearLow" : "29.00", "YearHigh" : "52.62",
+		"MarketCapitalization" : "29.47B",
+		"LastTradePriceOnly" : "31.31",
+		"DaysRange" : "29.00 - 32.28",
+		"Name" : "Yahoo! Inc.",
+		"Symbol" : "yhoo",
+		"Volume" : "23163378",
+		"StockExchange" : "NMS",
+		"purchasedate" : "04/29/2014",
+		"purchasequantity" : "60",
+		"purchaseprice" : "35.75",
+		"purchasefee" : "7",
+		"account" : "ScottradeIRA",
+		"owner" : "me"
 	}
 
 */
 
-		
+
 				/*
 				 echo "<pre>";
 				print_r($JSON);
 				echo "</pre>";
-					
+
 				Here is the JSON object (the pertinent piece)
-	
+
 				[results] => stdClass Object
 				(
 						[quote] => stdClass Object
@@ -1066,14 +1076,14 @@ class MongoToYQL_Adapter {
 								[StockExchange] => NasdaqNM
 						)
 				)
-					
+
 				select * from purchases where symbol = 'TRIP';
 				symbol |       name        | quantity | purchdate  | pricepershare | fee
 				--------+-------------------+----------+------------+---------------+-----
 				TRIP   | TripAdvisor, Inc. |       55 | 2014-05-22 |         87.64 |
-	
+
 				*/
-				
+
 					/*
 					["results"]=> object(stdClass)#3441 (1)
 					{ ["quote"]=> array(252) {
@@ -1088,11 +1098,11 @@ class MongoToYQL_Adapter {
 					["Adj_Close"]=> string(5) "40.44"
 					}
 					}
-	
+
 					investments=# select * from historicquotes;
 					symbol |  thedate   | closevalue
 					--------+------------+------------
 					WOOF   | 2014-05-22 |         10
-	
+
 					*/
 
