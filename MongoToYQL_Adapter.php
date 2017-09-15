@@ -1,7 +1,7 @@
 <?php  // MongoToYQL_Adapter.php
 
 // useful for development:     echo "<pre>"; print_r($SOMEVARIABLENAME); echo "</pre>";
-// echo '<br>A bad thing happened in MongoToYQL_Adapter.php on line:  __LINE__ <br>";
+// echo "<br>A bad thing happened in MongoToYQL_Adapter.php on line: " . __LINE__ . "<br>";
 
 /****************************************************************************
  * This class provides an API to accomplish two things:
@@ -85,7 +85,7 @@ class MongoToYQL_Adapter {
                                     //            }
         }
         catch (Throwable $t) {
-            echo '<br>Caught exception in MongoToYQL_Adapter.php on line: ' , __LINE__ , '<br>error message: ',  $t->getMessage(), "<br>";
+            echo '<br>Caught exception in MongoToYQL_Adapter.php on line: ' . __LINE__ . '<br>error message: ',  $t->getMessage(), "<br>";
             exit;
         }
 	}
@@ -417,14 +417,16 @@ class MongoToYQL_Adapter {
         // echo "<pre>"; print_r($mongo); echo "</pre>";
 		/* inadequate test here: YQL typically returns *something* when the query doesn't work */
 		if(!is_array($yql)){
-			echo "<br>MongoToYQL_Adapter, YQL failure,  on line: ' , __LINE__.<br>";
+            echo "<br>Sorry!  Didn't get info from Yahoo Finance.  Please try again in a few nanoseconds. <br>";
+			echo "<br>MongoToYQL_Adapter, YQL failure, on line: " . __LINE__ . "<br>";
 			var_dump($yql);
 			return $yql;
 		}
 
 		/* inadequate test here: YQL typically returns *something* when the query doesn't work */
 		if(array_key_exists(0, $yql) && $yql[0] === 0){
-			echo "<br>MongoToYQL_Adapter, YQL failure,  on line: ' , __LINE__.<br>";
+            echo "<br>Sorry!  Didn't get info from Yahoo Finance.  Please try again in a few nanoseconds. <br>";
+			echo "<br>MongoToYQL_Adapter, YQL failure, on line: " . __LINE__ ."<br>";
 			var_dump($yql);
 			return $yql;
 		}
